@@ -1,0 +1,810 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */; };
+		4DFBCE7243A03017D29DB785 /* ToolPanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61135979489D5ADAF5D926 /* ToolPanels.swift */; };
+		53F0B337E689F7EF907D91D1 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = C2209B693ED5D29B913A458B /* JiPinCore */; };
+		57B28D33B0965D4DB2B85745 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */; };
+		587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11035725EF867AA91468F9DE /* CatalogTests.swift */; };
+		5A0FF504B2B292F1642DD119 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BA5BABD2DD1FA06EE354E14 /* JiPinCore */; };
+		5C322FE0C5C5EB10ECF18C22 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = D82E14D4502D17449C4B33DB /* JiPinCore */; };
+		7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF869917688CD6BFEE85880 /* HomeViews.swift */; };
+		7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */; };
+		925AE2A064FE0C221B3842D7 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
+		947B83C765999E2D96736E82 /* JiPinAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3173826CCE37D292036A632F /* JiPinAction.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AD066BDFAB0FB6E3AB8B80A1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */; };
+		B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */; };
+		BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CDA137ED7A1F098F5D08E /* ExportView.swift */; };
+		CABA6EC51F6BF4AD5CC1EDFE /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476F6890C326CD422DF6A934 /* ActionViewController.swift */; };
+		CDA21BF0975765E8D1A304ED /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FF6E1CBA50B875AD32282A /* EditorView.swift */; };
+		E72B2D19710C37ABB5E4C388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99F8DDBF18E618470BEE45C7 /* Assets.xcassets */; };
+		ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */; };
+		F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7E3BA92A2A6D743A896BAADA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 908885E36AB06FC305629B61 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D0F0B5B66496FFB9F6543E6F;
+			remoteInfo = JiPinAction;
+		};
+		96C63858B3B015050AE515CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 908885E36AB06FC305629B61 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 87D38C80A77DD49CD415500A;
+			remoteInfo = JiPin;
+		};
+		B923BB7798AB3C976894C481 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 908885E36AB06FC305629B61 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 87D38C80A77DD49CD415500A;
+			remoteInfo = JiPin;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D8FBF13CA4DA1915C8D22F53 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				947B83C765999E2D96736E82 /* JiPinAction.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		06FF6E1CBA50B875AD32282A /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		11035725EF867AA91468F9DE /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
+		13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoImporter.swift; sourceTree = "<group>"; };
+		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
+		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
+		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2C3CDA137ED7A1F098F5D08E /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
+		3173826CCE37D292036A632F /* JiPinAction.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = JiPinAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		476F6890C326CD422DF6A934 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
+		50DA4387F5B22C8D9FFBAFB1 /* JiPinTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorFlowUITests.swift; sourceTree = "<group>"; };
+		6A61135979489D5ADAF5D926 /* ToolPanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPanels.swift; sourceTree = "<group>"; };
+		6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderExportTests.swift; sourceTree = "<group>"; };
+		7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		99F8DDBF18E618470BEE45C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A7DAFBBD592118541B0E3AFD /* JiPinCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = JiPinCore; path = Packages/JiPinCore; sourceTree = SOURCE_ROOT; };
+		ACAACE628D3992ABE8D81EE6 /* JiPin.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JiPin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCF869917688CD6BFEE85880 /* HomeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViews.swift; sourceTree = "<group>"; };
+		D0F1002712FDAD88465F1E91 /* JiPinAction.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPinAction.entitlements; sourceTree = "<group>"; };
+		D32FF5851582749B8DC4C29C /* JiPin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPin.entitlements; sourceTree = "<group>"; };
+		F48D6B5AE45BEBAF22B1A2CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F628375FCEA9A16359469E1A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0035F5DA463F1A3264CE0D20 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A0FF504B2B292F1642DD119 /* JiPinCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		510940AF2362553BC190C79F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C322FE0C5C5EB10ECF18C22 /* JiPinCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD3610ECA6BC123D112BBFC1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53F0B337E689F7EF907D91D1 /* JiPinCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1D041C04174ED1CEC8B34A80 /* Apps */ = {
+			isa = PBXGroup;
+			children = (
+				275CB10AAD3E3F416E7FF4B4 /* JiPin */,
+				326678E643481FE2A3D3F554 /* JiPinAction */,
+				C724D3928E46A4AD06D5D55E /* JiPinUITests */,
+			);
+			path = Apps;
+			sourceTree = "<group>";
+		};
+		275CB10AAD3E3F416E7FF4B4 /* JiPin */ = {
+			isa = PBXGroup;
+			children = (
+				F628375FCEA9A16359469E1A /* Info.plist */,
+				D32FF5851582749B8DC4C29C /* JiPin.entitlements */,
+				1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */,
+				13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */,
+				89A8D3F9005E5730DA3720A2 /* Editor */,
+				F4A7AB6F7F6052316582104D /* Resources */,
+				477D18F9FF3E110E481E2492 /* Screens */,
+			);
+			path = JiPin;
+			sourceTree = "<group>";
+		};
+		326678E643481FE2A3D3F554 /* JiPinAction */ = {
+			isa = PBXGroup;
+			children = (
+				476F6890C326CD422DF6A934 /* ActionViewController.swift */,
+				F48D6B5AE45BEBAF22B1A2CD /* Info.plist */,
+				D0F1002712FDAD88465F1E91 /* JiPinAction.entitlements */,
+				2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */,
+				1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */,
+			);
+			path = JiPinAction;
+			sourceTree = "<group>";
+		};
+		477D18F9FF3E110E481E2492 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				BCF869917688CD6BFEE85880 /* HomeViews.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		5E723DC1ED8DD808A09C2504 /* JiPinCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				11035725EF867AA91468F9DE /* CatalogTests.swift */,
+				6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */,
+			);
+			path = JiPinCoreTests;
+			sourceTree = "<group>";
+		};
+		89A8D3F9005E5730DA3720A2 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				06FF6E1CBA50B875AD32282A /* EditorView.swift */,
+				2C3CDA137ED7A1F098F5D08E /* ExportView.swift */,
+				6A61135979489D5ADAF5D926 /* ToolPanels.swift */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		96C3688F2A1F57D4DB60D654 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				ACAACE628D3992ABE8D81EE6 /* JiPin.app */,
+				3173826CCE37D292036A632F /* JiPinAction.appex */,
+				50DA4387F5B22C8D9FFBAFB1 /* JiPinTests.xctest */,
+				7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AAA8F20CE95635C12C6DA15E /* JiPinCore */ = {
+			isa = PBXGroup;
+			children = (
+				BF4275368236EC8CF0E8B968 /* Tests */,
+			);
+			path = JiPinCore;
+			sourceTree = "<group>";
+		};
+		B015722EC0F712CB64FD5FF7 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				A7DAFBBD592118541B0E3AFD /* JiPinCore */,
+				AAA8F20CE95635C12C6DA15E /* JiPinCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		BF4275368236EC8CF0E8B968 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				5E723DC1ED8DD808A09C2504 /* JiPinCoreTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		C724D3928E46A4AD06D5D55E /* JiPinUITests */ = {
+			isa = PBXGroup;
+			children = (
+				51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */,
+			);
+			path = JiPinUITests;
+			sourceTree = "<group>";
+		};
+		D9898AB85829BE6FA9F16460 = {
+			isa = PBXGroup;
+			children = (
+				1D041C04174ED1CEC8B34A80 /* Apps */,
+				B015722EC0F712CB64FD5FF7 /* Packages */,
+				96C3688F2A1F57D4DB60D654 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F4A7AB6F7F6052316582104D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				99F8DDBF18E618470BEE45C7 /* Assets.xcassets */,
+				011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		54F4227ED882300DF9EBE460 /* JiPinUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 743E176813A8A8E4A4BE4F26 /* Build configuration list for PBXNativeTarget "JiPinUITests" */;
+			buildPhases = (
+				38718C8DB8D23CE7C6B1F24A /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				71FCF3F50A1DFAA8AB85E66D /* PBXTargetDependency */,
+			);
+			name = JiPinUITests;
+			packageProductDependencies = (
+			);
+			productName = JiPinUITests;
+			productReference = 7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		87D38C80A77DD49CD415500A /* JiPin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC9778F490F9E106CC71E54B /* Build configuration list for PBXNativeTarget "JiPin" */;
+			buildPhases = (
+				ADDC63A866CCF6C1D8DB04EB /* Sources */,
+				755B533CCC846780BD192070 /* Resources */,
+				510940AF2362553BC190C79F /* Frameworks */,
+				D8FBF13CA4DA1915C8D22F53 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7D6E02809D3DAB1FDA128A85 /* PBXTargetDependency */,
+			);
+			name = JiPin;
+			packageProductDependencies = (
+				D82E14D4502D17449C4B33DB /* JiPinCore */,
+			);
+			productName = JiPin;
+			productReference = ACAACE628D3992ABE8D81EE6 /* JiPin.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D0F0B5B66496FFB9F6543E6F /* JiPinAction */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79EA8048E264AE1A82FC77E6 /* Build configuration list for PBXNativeTarget "JiPinAction" */;
+			buildPhases = (
+				E3ED0FD9DCB5D56C0E73D1E4 /* Sources */,
+				F7081CA593ACD7262E3A47C2 /* Resources */,
+				0035F5DA463F1A3264CE0D20 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JiPinAction;
+			packageProductDependencies = (
+				2BA5BABD2DD1FA06EE354E14 /* JiPinCore */,
+			);
+			productName = JiPinAction;
+			productReference = 3173826CCE37D292036A632F /* JiPinAction.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		F84114C32FD3444933B61DD9 /* JiPinTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5445868DF68E6F4150BC458 /* Build configuration list for PBXNativeTarget "JiPinTests" */;
+			buildPhases = (
+				DD8FB6D79CDC4657DC4F17CC /* Sources */,
+				AD3610ECA6BC123D112BBFC1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A12DED9EF2F1482C873BE911 /* PBXTargetDependency */,
+			);
+			name = JiPinTests;
+			packageProductDependencies = (
+				C2209B693ED5D29B913A458B /* JiPinCore */,
+			);
+			productName = JiPinTests;
+			productReference = 50DA4387F5B22C8D9FFBAFB1 /* JiPinTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		908885E36AB06FC305629B61 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					54F4227ED882300DF9EBE460 = {
+						TestTargetID = 87D38C80A77DD49CD415500A;
+					};
+					87D38C80A77DD49CD415500A = {
+						ProvisioningStyle = Automatic;
+					};
+					D0F0B5B66496FFB9F6543E6F = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = EA4C0E085262F1C76EF5C0F6 /* Build configuration list for PBXProject "JiPin" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D9898AB85829BE6FA9F16460;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EBE81974DB5A3296D5314293 /* XCLocalSwiftPackageReference "Packages/JiPinCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 96C3688F2A1F57D4DB60D654 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				87D38C80A77DD49CD415500A /* JiPin */,
+				D0F0B5B66496FFB9F6543E6F /* JiPinAction */,
+				F84114C32FD3444933B61DD9 /* JiPinTests */,
+				54F4227ED882300DF9EBE460 /* JiPinUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		755B533CCC846780BD192070 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E72B2D19710C37ABB5E4C388 /* Assets.xcassets in Resources */,
+				AD066BDFAB0FB6E3AB8B80A1 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F7081CA593ACD7262E3A47C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57B28D33B0965D4DB2B85745 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		38718C8DB8D23CE7C6B1F24A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ADDC63A866CCF6C1D8DB04EB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDA21BF0975765E8D1A304ED /* EditorView.swift in Sources */,
+				BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */,
+				7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */,
+				B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */,
+				ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */,
+				F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */,
+				4DFBCE7243A03017D29DB785 /* ToolPanels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD8FB6D79CDC4657DC4F17CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */,
+				7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3ED0FD9DCB5D56C0E73D1E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CABA6EC51F6BF4AD5CC1EDFE /* ActionViewController.swift in Sources */,
+				925AE2A064FE0C221B3842D7 /* QuickCollageView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		71FCF3F50A1DFAA8AB85E66D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 87D38C80A77DD49CD415500A /* JiPin */;
+			targetProxy = B923BB7798AB3C976894C481 /* PBXContainerItemProxy */;
+		};
+		7D6E02809D3DAB1FDA128A85 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D0F0B5B66496FFB9F6543E6F /* JiPinAction */;
+			targetProxy = 7E3BA92A2A6D743A896BAADA /* PBXContainerItemProxy */;
+		};
+		A12DED9EF2F1482C873BE911 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 87D38C80A77DD49CD415500A /* JiPin */;
+			targetProxy = 96C63858B3B015050AE515CA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3AF94B56560388D2B0C03E87 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		57D73CD79DBB22A816E4A6B5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.Tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JiPin.app/JiPin";
+			};
+			name = Debug;
+		};
+		6675CCD80B25E2AC45DB6487 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/JiPin/JiPin.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Apps/JiPin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "极拼";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin;
+				PRODUCT_NAME = JiPin;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		8352694BD9E4C89C08016C06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/JiPin/JiPin.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Apps/JiPin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "极拼";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin;
+				PRODUCT_NAME = JiPin;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		917E9DAA2C8B2EB5DCD331B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JiPin;
+			};
+			name = Debug;
+		};
+		9EE7B03A1C7B9234364FBD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.Tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JiPin.app/JiPin";
+			};
+			name = Release;
+		};
+		A39A4198A9755FD7CC7D18DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		E42B62183E14B4A185F05212 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Apps/JiPinAction/JiPinAction.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Apps/JiPinAction/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.Action;
+				PRODUCT_NAME = JiPinAction;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E6EC7A96119BDC628348832C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Apps/JiPinAction/JiPinAction.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Apps/JiPinAction/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.Action;
+				PRODUCT_NAME = JiPinAction;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		ECCB4CE084B0FED3C899BD50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jipin.JiPin.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = JiPin;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		743E176813A8A8E4A4BE4F26 /* Build configuration list for PBXNativeTarget "JiPinUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				917E9DAA2C8B2EB5DCD331B8 /* Debug */,
+				ECCB4CE084B0FED3C899BD50 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		79EA8048E264AE1A82FC77E6 /* Build configuration list for PBXNativeTarget "JiPinAction" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E42B62183E14B4A185F05212 /* Debug */,
+				E6EC7A96119BDC628348832C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C5445868DF68E6F4150BC458 /* Build configuration list for PBXNativeTarget "JiPinTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				57D73CD79DBB22A816E4A6B5 /* Debug */,
+				9EE7B03A1C7B9234364FBD7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CC9778F490F9E106CC71E54B /* Build configuration list for PBXNativeTarget "JiPin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6675CCD80B25E2AC45DB6487 /* Debug */,
+				8352694BD9E4C89C08016C06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EA4C0E085262F1C76EF5C0F6 /* Build configuration list for PBXProject "JiPin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3AF94B56560388D2B0C03E87 /* Debug */,
+				A39A4198A9755FD7CC7D18DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		EBE81974DB5A3296D5314293 /* XCLocalSwiftPackageReference "Packages/JiPinCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/JiPinCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2BA5BABD2DD1FA06EE354E14 /* JiPinCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JiPinCore;
+		};
+		C2209B693ED5D29B913A458B /* JiPinCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JiPinCore;
+		};
+		D82E14D4502D17449C4B33DB /* JiPinCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = JiPinCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 908885E36AB06FC305629B61 /* Project object */;
+}
