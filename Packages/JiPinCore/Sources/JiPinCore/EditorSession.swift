@@ -29,7 +29,7 @@ public final class AssetLibrary: ObservableObject {
 }
 
 public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
-    case adjust, filter, color, text, sticker, background, border, layer, mosaic, doodle, layout, crop
+    case adjust, filter, color, text, sticker, background, border, layer, mosaic, doodle, layout, crop, style
 
     public var id: String { rawValue }
 
@@ -47,6 +47,7 @@ public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
         case .doodle: return "涂鸦"
         case .layout: return "布局"
         case .crop: return "裁切"
+        case .style: return "风格"
         }
     }
 
@@ -64,6 +65,7 @@ public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
         case .doodle: return "pencil.tip"
         case .layout: return "square.grid.2x2"
         case .crop: return "crop"
+        case .style: return "sparkles.rectangle.stack"
         }
     }
 }
@@ -804,6 +806,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func changeLayout(_ layout: CollageGridLayout) {
+        guard project.mode == .template, layout.photoCount == project.photoLayers.count else { return }
         checkpoint()
         ProjectFactory.applyLayout(layout, to: &project)
         scheduleSave()
@@ -817,13 +820,37 @@ public final class EditorSession: ObservableObject {
 
     public func applyFilterToAll(_ id: String?, intensity: Double) {
         checkpoint()
-        for object in project.photoLayers {
+        for object in project.photoLayers where !object.isLocked {
             project.updateObject(id: object.id) { layer in
                 layer.photo?.filterID = id
                 layer.photo?.filterIntensity = intensity
             }
         }
         scheduleSave()
+    }
+
+    public func applyStyle(_ recipe: StyleRecipe) {
+        updateProject { $0 = recipe.applying(to: $0) }
+    }
+
+    public func syncSelectedPhotoEffects() {
+        guard let photo = selected?.photo else { return }
+        let style = PhotoStyle(photo: photo)
+        updateProject { project in
+            for i in project.objects.indices where project.objects[i].kind == .photo && !project.objects[i].isLocked {
+                if var target = project.objects[i].photo {
+                    style.apply(to: &target, effectsOnly: true)
+                    project.objects[i].photo = target
+                }
+            }
+        }
+    }
+
+    public func moveDivider(_ divider: LayoutDivider, to position: Double) {
+        guard project.mode == .template, let cells = project.resolvedGridLayout?.cells else { return }
+        let moved = LayoutDividerEngine.moving(divider, to: position, in: cells)
+        guard cells != moved else { return }
+        updateProject { $0.customLayoutCells = moved; $0.schemaVersion = JiPin.schemaVersion }
     }
 
     public func setCanvas(_ spec: CanvasSpec) {

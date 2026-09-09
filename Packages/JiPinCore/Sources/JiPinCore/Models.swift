@@ -513,6 +513,7 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
     public var canvas: CanvasSpec
     public var background: BackgroundSpec
     public var layoutID: String?
+    public var customLayoutCells: [NormalizedRect]?
     public var posterID: String?
     public var longStrip: LongStripSpec?
     public var objects: [LayerObject]
@@ -552,6 +553,7 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
         self.canvas = canvas
         self.background = background
         self.layoutID = layoutID
+        self.customLayoutCells = nil
         self.posterID = posterID
         self.longStrip = longStrip
         self.objects = objects

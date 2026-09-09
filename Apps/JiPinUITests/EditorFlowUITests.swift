@@ -1,6 +1,81 @@
 import XCTest
 
 final class EditorFlowUITests: XCTestCase {
+    func testV2StyleApplySaveAndReload() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tool-style"].waitForExistence(timeout: 10))
+        app.buttons["tool-style"].tap()
+        app.buttons["style-gallery-open"].tap()
+        XCTAssertTrue(app.navigationBars["风格工作室"].waitForExistence(timeout: 5))
+        keepVersionScreenshot(app, name: "v2-style-studio")
+        app.buttons["style-apply-cream"].tap()
+        XCTAssertTrue(app.buttons["撤销"].isEnabled)
+        app.buttons["style-gallery-open"].tap()
+        let save = app.buttons["style-save-current"]
+        for _ in 0..<5 where !save.isHittable { app.swipeUp() }
+        XCTAssertTrue(save.isHittable)
+        save.tap()
+        XCTAssertTrue(app.alerts["保存风格"].waitForExistence(timeout: 4))
+        app.alerts["保存风格"].buttons["保存"].tap()
+        XCTAssertTrue(app.buttons["套用我的日常风格"].firstMatch.waitForExistence(timeout: 5))
+        app.navigationBars["风格工作室"].buttons["完成"].tap()
+        app.buttons["style-gallery-open"].tap()
+        let saved = app.buttons["套用我的日常风格"].firstMatch
+        for _ in 0..<5 where !saved.isHittable { app.swipeUp() }
+        XCTAssertTrue(saved.isHittable)
+    }
+
+    func testV2DividerCanResizeAndReset() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launch()
+        let open = app.buttons["layout-dividers-open"]
+        XCTAssertTrue(open.waitForExistence(timeout: 10))
+        if !open.isHittable { app.scrollViews["editor-tool-panel"].swipeUp() }
+        open.tap()
+        XCTAssertTrue(app.navigationBars["分隔线"].waitForExistence(timeout: 5))
+        let slider = app.sliders.matching(NSPredicate(format: "identifier BEGINSWITH 'divider-'")).firstMatch
+        XCTAssertTrue(slider.waitForExistence(timeout: 4))
+        slider.adjust(toNormalizedSliderPosition: 0.72)
+        keepVersionScreenshot(app, name: "v2-divider-editor")
+        let reset = app.buttons["layout-dividers-reset"]
+        for _ in 0..<3 where !reset.isHittable { app.swipeUp() }
+        XCTAssertTrue(reset.isEnabled)
+        reset.tap()
+        XCTAssertFalse(reset.isEnabled)
+    }
+
+    func testV2LongStripPagesGenerateAndShare() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "longStrip"]
+        app.launch()
+        XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 10))
+        app.buttons["editor-export"].tap()
+        let pages = app.buttons["export-pages"]
+        for _ in 0..<4 where !pages.isHittable { app.swipeUp() }
+        XCTAssertTrue(pages.isHittable)
+        pages.tap()
+        XCTAssertTrue(app.staticTexts["pages-plan"].waitForExistence(timeout: 5))
+        keepVersionScreenshot(app, name: "v2-paged-export")
+        let generate = app.buttons["pages-generate"]
+        for _ in 0..<3 where !generate.isHittable { app.swipeUp() }
+        generate.tap()
+        XCTAssertTrue(app.staticTexts["pages-result"].waitForExistence(timeout: 30))
+        let share = app.buttons["pages-share"]
+        for _ in 0..<3 where !share.isHittable { app.swipeUp() }
+        share.tap()
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 10)
+                      || app.collectionViews["ActivityListView"].waitForExistence(timeout: 2)
+                      || app.sheets.firstMatch.waitForExistence(timeout: 2))
+    }
+
+    private func keepVersionScreenshot(_ app: XCUIApplication, name: String) {
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = name; shot.lifetime = .keepAlways; add(shot)
+    }
+
     func testFourModesOpenEditorChrome() {
         for mode in ["template", "freeform", "poster", "longStrip"] {
             let app = XCUIApplication()
@@ -318,7 +393,7 @@ final class EditorFlowUITests: XCTestCase {
 
     func testSingleTapSelectsAnotherPhotoWithoutEditingIt() {
         let app = XCUIApplication()
-        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template", "-sampleLayout", "g4-grid"]
         app.launch()
         let image = app.descendants(matching: .any)["editor-canvas"]
         XCTAssertTrue(image.waitForExistence(timeout: 15))

@@ -65,9 +65,12 @@ struct RootView: View {
         case .poster: count = 3
         }
         let photos = SamplePhotos.make(count)
+        let sampleLayout = args.firstIndex(of: "-sampleLayout").flatMap { index in
+            index + 1 < args.count ? args[index + 1] : nil
+        }
         appState.openEditor(
             EditorSession(
-                project: ProjectFactory.make(mode: mode, photos: photos),
+                project: ProjectFactory.make(mode: mode, photos: photos, layoutID: sampleLayout),
                 assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
             )
         )

@@ -62,6 +62,7 @@ public final class CollageRenderer {
         assets: AssetProviding,
         canvasSize: CGSize,
         preview: Bool,
+        visibleRect: CGRect? = nil,
         in cg: CGContext
     ) {
         cg.saveGState()
@@ -71,6 +72,12 @@ public final class CollageRenderer {
         let frames = resolvedFrames(project: project, canvasSize: canvasSize, assets: assets)
         for object in project.visibleObjects {
             if Task.isCancelled { break }
+            if project.mode == .longStrip, object.kind == .photo, let clip = visibleRect, let frame = frames[object.id] {
+                let unit = min(canvasSize.width, canvasSize.height) / 1000
+                let expansion = CGFloat((object.photo?.shadow.radius ?? 0) * 4 + abs(object.photo?.shadow.offsetY ?? 0)) * unit
+                    + CGFloat(object.photo?.stroke.width ?? 0) * min(frame.width, frame.height) + 2
+                if !frame.insetBy(dx: -expansion, dy: -expansion).intersects(clip) { continue }
+            }
             autoreleasepool {
             cg.saveGState()
             cg.setAlpha(object.opacity)
@@ -120,7 +127,7 @@ public final class CollageRenderer {
     ) -> [UUID: CGRect] {
         switch project.mode {
         case .template:
-            guard let layoutID = project.layoutID, let layout = CollageGridLayoutCatalog.layout(id: layoutID) else { return [:] }
+            guard let layout = project.resolvedGridLayout else { return [:] }
             let spacing = CGFloat(project.spacing) * min(canvasSize.width, canvasSize.height)
             let margin = CGFloat(project.outerMargin) * min(canvasSize.width, canvasSize.height)
             let rects = LayoutEngine.frames(layout: layout, canvasSize: canvasSize, spacing: spacing, margin: margin)

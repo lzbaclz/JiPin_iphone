@@ -19,6 +19,7 @@ public enum ProjectFactory {
         switch mode {
         case .template:
             let layout = layoutID.flatMap(CollageGridLayoutCatalog.layout(id:))
+                ?? LayoutRecommender.ranked(photoSizes: photos.map(\.pixelSize), canvas: .square).first?.layout
                 ?? CollageGridLayoutCatalog.defaultLayout(forPhotoCount: photos.count)
                 ?? CollageGridLayoutCatalog.all.first { $0.photoCount == max(photos.count, 2) }
             project.layoutID = layout?.id
@@ -53,6 +54,7 @@ public enum ProjectFactory {
 
     public static func applyLayout(_ layout: CollageGridLayout, to project: inout CollageProject) {
         project.layoutID = layout.id
+        project.customLayoutCells = nil
         let existing = project.photoLayers
         var objects = project.objects.filter { $0.kind != .photo }
         for (index, cell) in layout.cells.enumerated() {
@@ -90,7 +92,9 @@ public enum ProjectFactory {
             project.objects = extras + photos
             if let current = project.layoutID.flatMap(CollageGridLayoutCatalog.layout(id:)),
                current.photoCount == count {
+                let customCells = project.customLayoutCells
                 applyLayout(current, to: &project)
+                project.customLayoutCells = customCells
             } else if let layout = CollageGridLayoutCatalog.defaultLayout(forPhotoCount: count) {
                 applyLayout(layout, to: &project)
             }

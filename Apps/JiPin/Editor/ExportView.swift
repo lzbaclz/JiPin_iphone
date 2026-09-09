@@ -19,6 +19,7 @@ struct ExportView: View {
     @State private var exportJobID = UUID()
     @State private var shareURL: URL?
     @State private var isSavingToAlbum = false
+    @State private var showPages = false
 
     private var isBusy: Bool { isExporting || isSavingToAlbum }
 
@@ -98,6 +99,11 @@ struct ExportView: View {
                     }
                 }
                 Section {
+                    if session.project.mode == .longStrip {
+                        Button("长图分页导出") { showPages = true }
+                            .disabled(isBusy)
+                            .accessibilityIdentifier("export-pages")
+                    }
                     Button(isExporting ? "正在生成…" : "生成文件") {
                         Task { await generate() }
                     }
@@ -120,6 +126,7 @@ struct ExportView: View {
             .navigationTitle("导出")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } } }
             .onAppear { refresh() }
+            .sheet(isPresented: $showPages) { PagedExportView(session: session) }
             .onChange(of: session.project.exportPreference) { _, _ in refresh() }
             .sheet(isPresented: $showShare, onDismiss: cleanupShareFile) {
                 if let shareURL { ShareSheet(items: [shareURL]) }

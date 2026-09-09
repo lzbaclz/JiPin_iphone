@@ -480,10 +480,10 @@ struct ToolRail: View {
 
     var tools: [EditorTool] {
         switch session.project.mode {
-        case .template: return [.layout, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
-        case .freeform: return [.layout, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
-        case .poster: return [.layout, .adjust, .crop, .text, .sticker, .filter, .color, .border, .background, .layer, .mosaic, .doodle]
-        case .longStrip: return [.layout, .crop, .adjust, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .template: return [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .freeform: return [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .poster: return [.layout, .style, .adjust, .crop, .text, .sticker, .filter, .color, .border, .background, .layer, .mosaic, .doodle]
+        case .longStrip: return [.layout, .style, .crop, .adjust, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
         }
     }
 

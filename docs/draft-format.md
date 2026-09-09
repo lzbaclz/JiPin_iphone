@@ -34,7 +34,7 @@ ExportCache/
 
 JSON，ISO-8601 日期。关键字段：
 
-- `schemaVersion`：当前为 `1`
+- `schemaVersion`：当前为 `2`
 - `id`、`name`、`mode`（`template` / `freeform` / `poster` / `longStrip`）
 - `canvas`：宽高比
 - `background`、`layoutID` / `posterID`、`longStrip`
@@ -55,3 +55,8 @@ JSON，ISO-8601 日期。关键字段：
 3. 保留旧素材文件
 
 撤销历史只存在于本次编辑会话，重启后不恢复 50 步命令栈。导出缓存位于 `ExportCache/`，清理缓存不得删除 Drafts。
+## V2 兼容性补充
+
+V2 写入的新项目 schemaVersion 为 2，支持可选 `customLayoutCells`。不存在该字段的 V1 草稿仍可读取；移动分隔线后标记为 V2，旧版会拒绝读取更高版本。自定义格子必须数量匹配且完整覆盖单位画布，否则回退到基础布局。换模板或改变照片数量时重建布局；同数量换图/排序保留自定义分隔线。
+
+`StyleRecipes/styles.json` 与草稿分开，原子保存最多 30 套个人风格（界面限制）。风格不含照片 UUID、图片数据、文字、图层或布局；图片背景转为对应底色。目录不参与系统云备份。分页文件保存在独立临时批次目录，失败/取消会清除未完成批次，关闭导出页后清理已经生成的临时文件。

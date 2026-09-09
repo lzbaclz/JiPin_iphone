@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */; };
 		4214DE873E9F8529D62AE2AD /* StudioPreviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EE519104C6085EEDFDA005 /* StudioPreviews.swift */; };
+		492FB70AADFE81C81DA2936E /* VersionTwoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */; };
 		4DFBCE7243A03017D29DB785 /* ToolPanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61135979489D5ADAF5D926 /* ToolPanels.swift */; };
 		53F0B337E689F7EF907D91D1 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = C2209B693ED5D29B913A458B /* JiPinCore */; };
 		57B28D33B0965D4DB2B85745 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */; };
@@ -20,6 +21,7 @@
 		7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */; };
 		925AE2A064FE0C221B3842D7 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
 		947B83C765999E2D96736E82 /* JiPinAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3173826CCE37D292036A632F /* JiPinAction.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AAD2F6FE5BA769C7D1F2B8B9 /* StyleGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC62B3DEE63E88B6856801BC /* StyleGallery.swift */; };
 		AD066BDFAB0FB6E3AB8B80A1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */; };
 		B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */; };
 		BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CDA137ED7A1F098F5D08E /* ExportView.swift */; };
@@ -28,6 +30,7 @@
 		E72B2D19710C37ABB5E4C388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99F8DDBF18E618470BEE45C7 /* Assets.xcassets */; };
 		ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */; };
 		F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
+		F8CA2BA986C0D472285A02D3 /* PagedExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D79685F0DDC106D8A6A938 /* PagedExportView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,26 +72,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		06FF6E1CBA50B875AD32282A /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		11035725EF867AA91468F9DE /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoImporter.swift; sourceTree = "<group>"; };
 		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
 		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
-		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2C3CDA137ED7A1F098F5D08E /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
-		3173826CCE37D292036A632F /* JiPinAction.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JiPinAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3173826CCE37D292036A632F /* JiPinAction.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = JiPinAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		476F6890C326CD422DF6A934 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
 		50DA4387F5B22C8D9FFBAFB1 /* JiPinTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorFlowUITests.swift; sourceTree = "<group>"; };
 		55EE519104C6085EEDFDA005 /* StudioPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPreviews.swift; sourceTree = "<group>"; };
 		6A61135979489D5ADAF5D926 /* ToolPanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPanels.swift; sourceTree = "<group>"; };
 		6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderExportTests.swift; sourceTree = "<group>"; };
+		72D79685F0DDC106D8A6A938 /* PagedExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagedExportView.swift; sourceTree = "<group>"; };
 		77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionRegressionTests.swift; sourceTree = "<group>"; };
 		7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		99F8DDBF18E618470BEE45C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionTwoTests.swift; sourceTree = "<group>"; };
 		A7DAFBBD592118541B0E3AFD /* JiPinCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = JiPinCore; path = Packages/JiPinCore; sourceTree = SOURCE_ROOT; };
-		ACAACE628D3992ABE8D81EE6 /* JiPin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JiPin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC62B3DEE63E88B6856801BC /* StyleGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGallery.swift; sourceTree = "<group>"; };
+		ACAACE628D3992ABE8D81EE6 /* JiPin.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JiPin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCF869917688CD6BFEE85880 /* HomeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViews.swift; sourceTree = "<group>"; };
 		D0F1002712FDAD88465F1E91 /* JiPinAction.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPinAction.entitlements; sourceTree = "<group>"; };
 		D32FF5851582749B8DC4C29C /* JiPin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPin.entitlements; sourceTree = "<group>"; };
@@ -175,6 +181,7 @@
 				11035725EF867AA91468F9DE /* CatalogTests.swift */,
 				77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */,
 				6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */,
+				A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */,
 			);
 			path = JiPinCoreTests;
 			sourceTree = "<group>";
@@ -184,6 +191,8 @@
 			children = (
 				06FF6E1CBA50B875AD32282A /* EditorView.swift */,
 				2C3CDA137ED7A1F098F5D08E /* ExportView.swift */,
+				72D79685F0DDC106D8A6A938 /* PagedExportView.swift */,
+				AC62B3DEE63E88B6856801BC /* StyleGallery.swift */,
 				6A61135979489D5ADAF5D926 /* ToolPanels.swift */,
 			);
 			path = Editor;
@@ -416,9 +425,11 @@
 				BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */,
 				7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */,
 				B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */,
+				F8CA2BA986C0D472285A02D3 /* PagedExportView.swift in Sources */,
 				ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */,
 				F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */,
 				4214DE873E9F8529D62AE2AD /* StudioPreviews.swift in Sources */,
+				AAD2F6FE5BA769C7D1F2B8B9 /* StyleGallery.swift in Sources */,
 				4DFBCE7243A03017D29DB785 /* ToolPanels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -430,6 +441,7 @@
 				587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */,
 				741EE7D29CCE793E77454E1F /* CompletionRegressionTests.swift in Sources */,
 				7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */,
+				492FB70AADFE81C81DA2936E /* VersionTwoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,7 +509,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -516,7 +528,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -555,7 +567,6 @@
 				CODE_SIGN_ENTITLEMENTS = Apps/JiPin/JiPin.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MFLYL78RAN;
 				INFOPLIST_FILE = Apps/JiPin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "极拼";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -577,7 +588,6 @@
 				CODE_SIGN_ENTITLEMENTS = Apps/JiPin/JiPin.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MFLYL78RAN;
 				INFOPLIST_FILE = Apps/JiPin/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "极拼";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -662,7 +672,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -675,7 +685,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -693,7 +703,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Apps/JiPinAction/JiPinAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MFLYL78RAN;
 				INFOPLIST_FILE = Apps/JiPinAction/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -713,7 +722,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Apps/JiPinAction/JiPinAction.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MFLYL78RAN;
 				INFOPLIST_FILE = Apps/JiPinAction/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

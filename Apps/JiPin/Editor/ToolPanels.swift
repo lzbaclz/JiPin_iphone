@@ -23,6 +23,7 @@ struct ToolDetailPanel: View {
                 case .layer: EmptyView()
                 case .mosaic: MosaicTools(session: session)
                 case .doodle: DoodleTools(session: session)
+                case .style: StyleTools(session: session)
                 }
             }
             .padding()
@@ -58,34 +59,7 @@ struct LayoutTools: View {
                         }
                     }
                 }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(CollageGridLayoutCatalog.layouts(forPhotoCount: session.project.photoOrder.count)) { layout in
-                            Button {
-                                session.changeLayout(layout)
-                            } label: {
-                                VStack {
-                                    LayoutThumb(layout: layout)
-                                        .frame(width: 64, height: 64)
-                                    Text(layout.name).font(.caption2)
-                                }
-                                .padding(6)
-                                .background(session.project.layoutID == layout.id ? JiPinTheme.accent.opacity(0.15) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            }
-                            .buttonStyle(.plain)
-                            .overlay(alignment: .topTrailing) {
-                                Button {
-                                    appState.favorites.toggleTemplate(layout.id)
-                                } label: {
-                                    Image(systemName: appState.favorites.templates.contains(layout.id) ? "star.fill" : "star")
-                                        .font(.caption2)
-                                }
-                                .accessibilityLabel("收藏布局")
-                            }
-                        }
-                    }
-                }
+                LayoutRecommendationsView(session: session)
                 HStack {
                     Text("间距")
                     Slider(value: Binding(
@@ -505,7 +479,7 @@ struct CropTools: View {
 
 struct FilterTools: View {
     @ObservedObject var session: EditorSession
-    @State private var intensity: Double = 1
+    private var intensity: Double { session.selected?.photo?.filterIntensity ?? 1 }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -528,21 +502,22 @@ struct FilterTools: View {
                     }
                 }
             }
-            Slider(value: $intensity, in: 0...1) { editing in
+            Slider(value: Binding(get: { intensity }, set: { value in
+                session.updateSelected { $0.photo?.filterIntensity = value }
+            }), in: 0...1) { editing in
                 if editing {
                     session.beginGesture()
                 } else {
                     session.endGesture()
                 }
             }
-            .onChange(of: intensity) { _, value in
-                session.updateSelected { $0.photo?.filterIntensity = value }
-            }
+
             Toggle("原图对比", isOn: $session.compareOriginal)
                 .accessibilityHint("打开后预览暂时去掉滤镜和调色，参数仍保留")
             Button("应用到全部照片") {
                 session.applyFilterToAll(session.selected?.photo?.filterID, intensity: intensity)
             }
+            .disabled(session.selected?.photo == nil)
         }
     }
 }
@@ -555,6 +530,11 @@ struct ColorTools: View {
             labeled("对比度", value: adj(\.contrast), range: 0.7...1.4)
             labeled("饱和度", value: adj(\.saturation), range: 0...1.8)
             labeled("色温", value: adj(\.temperature), range: -0.5...0.5)
+            Button("同步色调到全部照片") { session.syncSelectedPhotoEffects() }
+                .disabled(session.selected?.photo == nil)
+                .accessibilityIdentifier("color-sync-all")
+            Text("同步滤镜、强度和调色，锁定的照片保持原样。")
+                .font(.caption2).foregroundStyle(.secondary)
         }
     }
 

@@ -39,3 +39,7 @@ Background: rich luminous coral-orange, a carefully controlled warm gradient wit
 Style: polished contemporary iOS icon, precise rounded geometry, premium soft enamel / layered paper finish, restrained dimensional lighting, crisp edges, beautiful warm-white contrast. Sophisticated and friendly, not busy or childish. Clean front view with subtle layering, no scene perspective.
 Constraints: exactly one square 1024 x 1024 icon artwork; fully opaque RGB visual; NO transparency, NO baked-in outer rounded square or external frame, NO surrounding white margin, NO device mockup, NO Home Screen, NO text, NO letters, NO watermark, NO sparkles, NO magic wand, NO camera lens, NO existing company logo. iOS applies the outer corner mask itself. Deliver only the finished full-bleed square asset.
 ```
+
+## V2 风格与研究资料
+
+六套风格参数为本项目原创搭配，使用原有自绘示例插画预览。竞品研究只引用公开功能事实、评分与转述评价，没有将竞品贴图、字体或品牌 IP 放入 App。研究事实快照不包含整批评论正文。

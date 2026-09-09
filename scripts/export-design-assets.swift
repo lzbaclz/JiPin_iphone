@@ -25,12 +25,13 @@ struct ExportDesignAssets {
         let temperature: Double
     }
     struct Catalog: Encodable {
-        let schemaVersion = 1
+        let schemaVersion = 2
         let layouts = CollageGridLayoutCatalog.all
         let posters = PosterTemplateCatalog.all
         let stickers: [Sticker]
         let backgrounds: [Background]
         let filters: [Filter]
+        let styles = StyleRecipeCatalog.all
         let illustrationSource = "Apps/JiPin/StudioPreviews.swift"
     }
 

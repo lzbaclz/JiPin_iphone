@@ -54,3 +54,14 @@ xcodebuild build -project JiPin.xcodeproj -scheme JiPin \
 Xcode 在当前 Command Line Tools 默认选择环境下，测试结束后的额外诊断采集可能提示找不到 simctl；测试过程与 xcresult 结果已明确成功。AppIntents 提取提示无相关依赖，不影响构建。
 
 `docs/store-screenshots/` 使用原生运行界面和原创示例插画生成。真机与发布依赖详见 `KNOWN-ISSUES.md`。
+
+## V2.0 本机验证（2026-09-10）
+
+- iPhone 17 / iOS 26.3：112 项核心测试通过；22 项 UI 用例已全部通过（首轮 20 项，修正两个测试定位假设后分别回归通过）。
+- iPhone 16e / iOS 26.3：111 项核心测试与 4 条重点 UI 流程通过；随后新增的深色风格文字回归在 iPhone 17 通过，核心总数为 112。
+- 重点验证：全部布局在分隔线边界调整后保持完整覆盖；推荐保留顺序；个人风格不含照片/文字引用；锁定图层与撤销；横竖分页重新拼合后像素一致；第二页写入失败与取消时清除未完成批次。
+- 未签名设备 Release 构建通过；设计目录成功导出（46 布局、20 海报、60 基础贴纸、20 背景、10 滤镜及 6 套风格）。
+- 视觉检查：`docs/version-screenshots/v2-*-iphone16e.png`，风格工作室、分隔线和分页预览无截字或按钮遮挡，已人工查看。
+- 记录：`/private/tmp/jipin-v2-v3/v2-tests-2.xcresult`、`v2-small.xcresult`、`v2-final.xcresult`；最终编译日志 `v2-final-release.log`。临时目录不作为长期构建产物保存。
+
+测试修正说明：默认布局现在可能按照片推荐，固定坐标点击的测试显式指定四宫格；分隔线测试使用专属控件 ID，避免命中后方编辑器的间距滑杆。没有降低原有选择、撤销或导出断言。

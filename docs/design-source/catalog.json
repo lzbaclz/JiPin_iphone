@@ -4921,7 +4921,7 @@
       "theme" : "social"
     }
   ],
-  "schemaVersion" : 1,
+  "schemaVersion" : 2,
   "stickers" : [
     {
       "category" : "label",
@@ -5402,6 +5402,205 @@
       "id" : "life-drop",
       "kind" : "systemSymbol",
       "name" : "水滴"
+    }
+  ],
+  "styles" : [
+    {
+      "background" : {
+        "colorHex" : "#FFF4E5",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "cream",
+      "margin" : 0.045,
+      "name" : "奶油日记",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0.045,
+        "filterID" : "daily",
+        "intensity" : 0.4,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "暖白留边 · 柔和日常"
+    },
+    {
+      "background" : {
+        "colorHex" : "#E5F3E9",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "mint",
+      "margin" : 0.035,
+      "name" : "薄荷旅行",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0.06,
+        "filterID" : "fresh",
+        "intensity" : 0.35,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "清新底色 · 轻盈圆角"
+    },
+    {
+      "background" : {
+        "colorHex" : "#EBDFC9",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "film",
+      "margin" : 0.05,
+      "name" : "胶片时光",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0,
+        "filterID" : "film",
+        "intensity" : 0.7,
+        "polaroid" : true,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "拍立得边 · 复古褪色"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFFFFF",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "white",
+      "margin" : 0.06,
+      "name" : "极简留白",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0,
+        "intensity" : 1,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "纯白画廊 · 保留原色"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FAE0D9",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "sunset",
+      "margin" : 0.035,
+      "name" : "落日来信",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0.05,
+        "filterID" : "warm",
+        "intensity" : 0.45,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "蜜桃暖调 · 温柔圆角"
+    },
+    {
+      "background" : {
+        "colorHex" : "#192329",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "night",
+      "margin" : 0.025,
+      "name" : "午夜街头",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0.01,
+        "filterID" : "cool",
+        "intensity" : 0.5,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "墨色边框 · 冷调光影"
     }
   ]
 }
