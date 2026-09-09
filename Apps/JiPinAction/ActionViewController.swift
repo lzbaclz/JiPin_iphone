@@ -6,17 +6,21 @@ import JiPinCore
 @objc(ActionViewController)
 final class ActionViewController: UIViewController {
     private var host: UIViewController?
+    private var loadTask: Task<Void, Never>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setRoot(
             ExtensionLoadingView { [weak self] in
+                self?.loadTask?.cancel()
                 self?.extensionContext?.completeRequest(returningItems: nil)
             }
         )
         loadInput()
     }
+
+    deinit { loadTask?.cancel() }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -29,9 +33,12 @@ final class ActionViewController: UIViewController {
             providers.append(contentsOf: item.attachments ?? [])
         }
         let imageProviders = providers.filter { ExtensionIngest.isLikelyImageProvider($0) }
-        Task { @MainActor in
+        loadTask = Task { @MainActor [weak self] in
+            guard let self else { return }
             var items: [(filename: String, data: Data?)] = []
-            for (index, provider) in imageProviders.enumerated() {
+            let accepted = Array(imageProviders.prefix(PhotoLimits.extensionRange.upperBound))
+            for (index, provider) in accepted.enumerated() {
+                guard !Task.isCancelled else { return }
                 let name = provider.suggestedName ?? "照片 \(index + 1)"
                 do {
                     items.append((name, try await loadData(provider)))
@@ -39,24 +46,28 @@ final class ActionViewController: UIViewController {
                     items.append((name, nil))
                 }
             }
-            let ingested = ExtensionIngest.process(items)
-            embed(photos: ingested.photos, failed: ingested.failed, overflowCount: ingested.overflowCount)
+            let loaded = items
+            let ingested = await Task.detached(priority: .userInitiated) { ExtensionIngest.process(loaded) }.value
+            guard !Task.isCancelled else { return }
+            embed(photos: ingested.photos, failed: ingested.failed, overflowCount: max(imageProviders.count - accepted.count, 0))
         }
     }
 
     private func loadData(_ provider: NSItemProvider) async throws -> Data {
         var lastError: Error?
         for attempt in 0..<3 {
+            try Task.checkCancellation()
             do {
-                if let data = await loadUIImage(provider), !data.isEmpty { return data }
                 if let data = await loadFile(provider, type: UTType.image.identifier), !data.isEmpty { return data }
                 for type in [UTType.jpeg.identifier, UTType.heic.identifier, UTType.png.identifier] where provider.hasItemConformingToTypeIdentifier(type) {
                     if let data = await loadFile(provider, type: type), !data.isEmpty { return data }
                     if let data = try? await loadRepresentation(provider, type: type), !data.isEmpty { return data }
                 }
                 if let data = await loadFileURL(provider), !data.isEmpty { return data }
+                if let data = await loadUIImage(provider), !data.isEmpty { return data }
                 return try await loadRepresentation(provider, type: UTType.image.identifier)
             } catch {
+                if Task.isCancelled { throw CancellationError() }
                 lastError = error
                 if attempt < 2 {
                     try? await Task.sleep(nanoseconds: 1_200_000_000)
@@ -74,19 +85,7 @@ final class ActionViewController: UIViewController {
                     continuation.resume(returning: nil)
                     return
                 }
-                var cgImage = image.cgImage
-                if cgImage == nil {
-                    let format = UIGraphicsImageRendererFormat.default()
-                    format.scale = image.scale
-                    cgImage = UIGraphicsImageRenderer(size: image.size, format: format).image { _ in
-                        image.draw(in: CGRect(origin: .zero, size: image.size))
-                    }.cgImage
-                }
-                guard let cgImage else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                continuation.resume(returning: ImageIOHelpers.jpegData(from: cgImage, quality: 0.95))
+                continuation.resume(returning: ImageIOHelpers.sanitizedImageData(from: image))
             }
         }
     }

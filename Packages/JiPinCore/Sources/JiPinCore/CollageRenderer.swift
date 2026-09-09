@@ -6,7 +6,7 @@ public protocol AssetProviding {
     func imageData(for id: UUID) -> Data?
 }
 
-public struct DataAssetLibrary: AssetProviding {
+public struct DataAssetLibrary: AssetProviding, Sendable {
     public var images: [UUID: Data]
     public init(images: [UUID: Data] = [:]) {
         self.images = images
@@ -70,6 +70,8 @@ public final class CollageRenderer {
         }
         let frames = resolvedFrames(project: project, canvasSize: canvasSize, assets: assets)
         for object in project.visibleObjects {
+            if Task.isCancelled { break }
+            autoreleasepool {
             cg.saveGState()
             cg.setAlpha(object.opacity)
             switch object.kind {
@@ -83,6 +85,8 @@ public final class CollageRenderer {
                         scaleY: object.transform.scaleY,
                         assets: assets,
                         preview: preview,
+                        layoutDriven: project.mode != .freeform && (project.mode != .poster || payload.slotID != nil),
+                        canvasUnit: min(canvasSize.width, canvasSize.height) / 1000,
                         in: cg
                     )
                 }
@@ -104,6 +108,7 @@ public final class CollageRenderer {
                 }
             }
             cg.restoreGState()
+            }
         }
         cg.restoreGState()
     }
@@ -145,8 +150,8 @@ public final class CollageRenderer {
                 return (object.id, ImageIOHelpers.pixelSize(of: data), payload.crop)
             }
             let long = project.longStrip?.direction == .horizontal ? canvasSize.height : canvasSize.width
-            let spacing = CGFloat(project.spacing) * 40
-            let margin = CGFloat(project.outerMargin) * 40
+            let spacing = CGFloat(project.spacing) * long
+            let margin = CGFloat(project.outerMargin) * long
             let result = LayoutEngine.longStripFrames(
                 photos: photos.map { (id: $0.id, pixelSize: $0.pixelSize, crop: $0.crop) },
                 direction: project.longStrip?.direction ?? .vertical,
@@ -174,7 +179,8 @@ public final class CollageRenderer {
             cg.saveGState()
             cg.translateBy(x: 0, y: rect.height)
             cg.scaleBy(x: 1, y: -1)
-            cg.draw(image, in: rect)
+            let fitted = LayoutEngine.fittedRect(imageSize: CGSize(width: image.width, height: image.height), in: rect, mode: .fill, crop: .identity)
+            cg.draw(image, in: fitted)
             cg.restoreGState()
             return
         }
@@ -195,22 +201,23 @@ public final class CollageRenderer {
 
     private func drawTexture(_ texture: BackgroundTexture, in rect: CGRect, context cg: CGContext) {
         cg.saveGState()
+        let unit = max(min(rect.width, rect.height) / 1000, 0.001)
         cg.setStrokeColor(UIColor.black.withAlphaComponent(0.06).cgColor)
         cg.setFillColor(UIColor.black.withAlphaComponent(0.05).cgColor)
         switch texture {
         case .dots:
-            let step: CGFloat = 18
+            let step: CGFloat = 18 * unit
             var y = rect.minY
             while y < rect.maxY {
                 var x = rect.minX
                 while x < rect.maxX {
-                    cg.fillEllipse(in: CGRect(x: x, y: y, width: 2, height: 2))
+                    cg.fillEllipse(in: CGRect(x: x, y: y, width: 2 * unit, height: 2 * unit))
                     x += step
                 }
                 y += step
             }
         case .grid:
-            let step: CGFloat = 24
+            let step: CGFloat = 24 * unit
             var x = rect.minX
             while x < rect.maxX {
                 cg.move(to: CGPoint(x: x, y: rect.minY))
@@ -223,14 +230,19 @@ public final class CollageRenderer {
                 cg.addLine(to: CGPoint(x: rect.maxX, y: y))
                 y += step
             }
-            cg.setLineWidth(0.6)
+            cg.setLineWidth(0.6 * unit)
             cg.strokePath()
         case .noise, .paper:
-            for _ in 0..<Int(rect.width * rect.height / 140) {
-                let x = CGFloat.random(in: rect.minX...rect.maxX)
-                let y = CGFloat.random(in: rect.minY...rect.maxY)
+            var seed: UInt64 = 0x4A6950696E
+            func next() -> CGFloat {
+                seed = seed &* 6364136223846793005 &+ 1442695040888963407
+                return CGFloat(seed >> 32) / CGFloat(UInt32.max)
+            }
+            for _ in 0..<min(Int(rect.width / unit * rect.height / unit / 140), 16000) {
+                let x = rect.minX + next() * rect.width
+                let y = rect.minY + next() * rect.height
                 cg.setFillColor(UIColor.black.withAlphaComponent(texture == .paper ? 0.03 : 0.07).cgColor)
-                cg.fill(CGRect(x: x, y: y, width: 1.2, height: 1.2))
+                cg.fill(CGRect(x: x, y: y, width: 1.2 * unit, height: 1.2 * unit))
             }
         }
         cg.restoreGState()
@@ -244,42 +256,56 @@ public final class CollageRenderer {
         scaleY: Double,
         assets: AssetProviding,
         preview: Bool,
+        layoutDriven: Bool,
+        canvasUnit: CGFloat,
         in cg: CGContext
     ) {
         let drawFrame = LayoutEngine.photoDrawFrame(payload, cell: frame)
+        cg.saveGState()
+        defer { cg.restoreGState() }
+        if !layoutDriven {
+            cg.translateBy(x: frame.midX, y: frame.midY)
+            cg.rotate(by: CGFloat(rotation * .pi / 180))
+            cg.translateBy(x: -frame.midX, y: -frame.midY)
+        }
         if payload.polaroid {
             cg.setFillColor(UIColor.white.cgColor)
-            cg.setShadow(offset: CGSize(width: 0, height: 3), blur: 8, color: UIColor.black.withAlphaComponent(0.18).cgColor)
+            cg.setShadow(offset: CGSize(width: 0, height: 3 * canvasUnit), blur: 8 * canvasUnit, color: UIColor.black.withAlphaComponent(0.18).cgColor)
             cg.fill(frame)
             cg.setShadow(offset: .zero, blur: 0, color: nil)
         }
         if payload.shadow.radius > 0 {
             cg.setShadow(
-                offset: CGSize(width: 0, height: payload.shadow.offsetY),
-                blur: payload.shadow.radius,
+                offset: CGSize(width: 0, height: payload.shadow.offsetY * canvasUnit),
+                blur: payload.shadow.radius * canvasUnit,
                 color: HexColor.uiColor(payload.shadow.colorHex).cgColor
             )
         }
         cg.saveGState()
-        let center = CGPoint(x: drawFrame.midX, y: drawFrame.midY)
-        cg.translateBy(x: center.x, y: center.y)
-        cg.rotate(by: CGFloat(rotation * .pi / 180))
-        cg.scaleBy(x: scaleX < 0 ? -1 : 1, y: 1)
-        cg.translateBy(x: -center.x, y: -center.y)
         let path = UIBezierPath(roundedRect: drawFrame, cornerRadius: payload.cornerRadius * min(drawFrame.width, drawFrame.height)).cgPath
         cg.addPath(path)
         cg.clip()
-
-        let maxSide = max(drawFrame.width, drawFrame.height)
-        let decodeSide = preview ? max(maxSide * 2, 512) : max(maxSide, 256)
-        if let data = assets.imageData(for: payload.assetID),
-           let source = ImageIOHelpers.thumbnail(from: data, maxLongSide: decodeSide) {
+        let center = CGPoint(x: drawFrame.midX, y: drawFrame.midY)
+        cg.translateBy(x: center.x, y: center.y)
+        if layoutDriven { cg.rotate(by: CGFloat(rotation * .pi / 180)) }
+        cg.scaleBy(x: scaleX < 0 ? -1 : 1, y: 1)
+        cg.translateBy(x: -center.x, y: -center.y)
+        if let data = assets.imageData(for: payload.assetID) {
+            let original = ImageIOHelpers.pixelSize(of: data)
+            let cropped = LayoutEngine.croppedSize(original, crop: payload.crop)
+            let desired = LayoutEngine.fittedRect(imageSize: cropped, in: drawFrame, mode: payload.contentMode,
+                                                 crop: payload.crop, rotation: rotation, fixedFrame: layoutDriven)
+            let ratio = max(desired.width / max(cropped.width, 1), desired.height / max(cropped.height, 1))
+            let decodeSide = max(max(original.width, original.height) * min(ratio, 1), 1)
+            guard let source = ImageIOHelpers.thumbnail(from: data, maxLongSide: decodeSide) else { cg.restoreGState(); return }
             let processed = effects.apply(to: source, payload: payload, targetSize: drawFrame.size)
             let fitted = LayoutEngine.fittedRect(
                 imageSize: CGSize(width: processed.width, height: processed.height),
                 in: drawFrame,
                 mode: payload.contentMode,
-                crop: payload.crop
+                crop: payload.crop,
+                rotation: rotation,
+                fixedFrame: layoutDriven
             )
             cg.saveGState()
             cg.translateBy(x: 0, y: drawFrame.maxY + drawFrame.minY)
@@ -294,18 +320,18 @@ public final class CollageRenderer {
                 dest = CGRect(x: dest.minX, y: dest.maxY, width: dest.width, height: -dest.height)
             }
             cg.draw(processed, in: dest)
+            cg.restoreGState()
             for block in payload.coverBlocks {
                 guard let mapped = LayoutEngine.croppedRectFromPhoto(block.rect, crop: payload.crop) else { continue }
                 let rect = CGRect(
-                    x: dest.minX + CGFloat(mapped.x) * dest.width,
-                    y: dest.minY + CGFloat(mapped.y) * dest.height,
-                    width: CGFloat(mapped.width) * dest.width,
-                    height: CGFloat(mapped.height) * dest.height
+                    x: fitted.minX + CGFloat(mapped.x) * fitted.width,
+                    y: fitted.minY + CGFloat(scaleY < 0 ? 1 - mapped.y - mapped.height : mapped.y) * fitted.height,
+                    width: CGFloat(mapped.width) * fitted.width,
+                    height: CGFloat(mapped.height) * fitted.height
                 )
-                cg.setFillColor(HexColor.cgColor(block.colorHex))
+                cg.setFillColor(HexColor.uiColor(block.colorHex).withAlphaComponent(1).cgColor)
                 cg.fill(rect)
             }
-            cg.restoreGState()
         } else {
             cg.setFillColor(UIColor.systemGray5.cgColor)
             cg.fill(drawFrame)
@@ -324,12 +350,14 @@ public final class CollageRenderer {
         cg.saveGState()
         cg.translateBy(x: rect.midX, y: rect.midY)
         cg.rotate(by: CGFloat(transform.rotation * .pi / 180))
+        cg.scaleBy(x: transform.scaleX < 0 ? -1 : 1, y: transform.scaleY < 0 ? -1 : 1)
         let drawRect = CGRect(x: -rect.width / 2, y: -rect.height / 2, width: rect.width, height: rect.height)
         if let bg = text.backgroundHex {
             cg.setFillColor(HexColor.cgColor(bg))
             cg.fill(drawRect.insetBy(dx: -6, dy: -4))
         }
-        let fontSize = max(text.fontSize * min(canvasSize.width, canvasSize.height), 10)
+        let unit = min(canvasSize.width, canvasSize.height) / 1000
+        let fontSize = max(text.fontSize * min(canvasSize.width, canvasSize.height), 0.5)
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = {
             switch text.alignment {
@@ -348,8 +376,8 @@ public final class CollageRenderer {
         if text.shadow.radius > 0 {
             attributes[.shadow] = {
                 let shadow = NSShadow()
-                shadow.shadowBlurRadius = text.shadow.radius
-                shadow.shadowOffset = CGSize(width: 0, height: text.shadow.offsetY)
+                shadow.shadowBlurRadius = text.shadow.radius * unit
+                shadow.shadowOffset = CGSize(width: 0, height: text.shadow.offsetY * unit)
                 shadow.shadowColor = HexColor.uiColor(text.shadow.colorHex)
                 return shadow
             }()
@@ -358,10 +386,9 @@ public final class CollageRenderer {
             attributes[.strokeColor] = HexColor.uiColor(text.stroke.colorHex)
             attributes[.strokeWidth] = -text.stroke.width * 8
         }
-        let wrapWidth = max(drawRect.width, 8)
+        let wrapWidth = max(drawRect.width, 0.5)
         let paragraphs = text.text.components(separatedBy: "\n")
         var blocks: [(NSAttributedString, CGFloat)] = []
-        var totalHeight: CGFloat = 0
         for raw in paragraphs {
             let lineAttr = NSAttributedString(string: raw.isEmpty ? " " : raw, attributes: attributes)
             let bound = lineAttr.boundingRect(
@@ -369,26 +396,18 @@ public final class CollageRenderer {
                 options: [.usesLineFragmentOrigin, .usesFontLeading],
                 context: nil
             )
-            let height = max(ceil(bound.height), fontSize * CGFloat(max(text.lineSpacing, 1.05)))
+            let height = max(bound.height, fontSize * CGFloat(max(text.lineSpacing, 1.05)))
             blocks.append((lineAttr, height))
-            totalHeight += height
         }
-        let textSize = CGSize(width: wrapWidth, height: max(drawRect.height, totalHeight + 4))
-        let format = UIGraphicsImageRendererFormat.default()
-        format.scale = 1
-        format.opaque = false
-        let textImage = UIGraphicsImageRenderer(size: textSize, format: format).image { _ in
-            var y: CGFloat = 0
-            for (lineAttr, height) in blocks {
-                lineAttr.draw(
-                    with: CGRect(x: 0, y: y, width: wrapWidth, height: height),
-                    options: [.usesLineFragmentOrigin, .usesFontLeading],
-                    context: nil
-                )
-                y += height
-            }
+        // Draw directly into the destination context. Long text must not allocate an unbounded offscreen bitmap.
+        UIGraphicsPushContext(cg)
+        var y = -drawRect.height / 2
+        for (lineAttr, height) in blocks {
+            lineAttr.draw(with: CGRect(x: -wrapWidth / 2, y: y, width: wrapWidth, height: height),
+                          options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+            y += height
         }
-        textImage.draw(in: CGRect(x: -textSize.width / 2, y: -drawRect.height / 2, width: textSize.width, height: textSize.height))
+        UIGraphicsPopContext()
         cg.restoreGState()
     }
 
@@ -416,6 +435,7 @@ public final class CollageRenderer {
         cg.saveGState()
         cg.translateBy(x: rect.midX, y: rect.midY)
         cg.rotate(by: CGFloat(transform.rotation * .pi / 180))
+        cg.scaleBy(x: transform.scaleX < 0 ? -1 : 1, y: transform.scaleY < 0 ? -1 : 1)
         let local = CGRect(x: -rect.width / 2, y: -rect.height / 2, width: rect.width, height: rect.height)
         if let assetID = payload.assetID, let data = assets.imageData(for: assetID),
            let image = ImageIOHelpers.thumbnail(from: data, maxLongSide: max(rect.width, rect.height) * 2) {
@@ -433,12 +453,12 @@ public final class CollageRenderer {
                 image.draw(in: local)
             }
         case .badge:
-            let path = UIBezierPath(roundedRect: local, cornerRadius: min(local.height / 2, 12))
+            let path = UIBezierPath(roundedRect: local, cornerRadius: min(local.height * 0.25, local.width * 0.12))
             tint.setFill()
             path.fill()
             let title = sticker?.name ?? payload.stickerID
             let attrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: max(local.height * 0.38, 9), weight: .bold),
+                .font: UIFont.systemFont(ofSize: max(local.height * 0.38, 0.5), weight: .bold),
                 .foregroundColor: UIColor.white
             ]
             let size = (title as NSString).size(withAttributes: attrs)
@@ -460,6 +480,7 @@ public final class CollageRenderer {
         cg.saveGState()
         cg.translateBy(x: rect.midX, y: rect.midY)
         cg.rotate(by: CGFloat(transform.rotation * .pi / 180))
+        cg.scaleBy(x: transform.scaleX < 0 ? -1 : 1, y: transform.scaleY < 0 ? -1 : 1)
         let local = CGRect(x: -rect.width / 2, y: -rect.height / 2, width: rect.width, height: rect.height)
         drawNamedShape(
             payload.shapeID,

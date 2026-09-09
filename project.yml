@@ -74,8 +74,8 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.ui-services
           NSExtensionPrincipalClass: ActionViewController
+          NSExtensionActionWantsFullScreenPresentation: true
           NSExtensionAttributes:
-            NSExtensionActionWantsFullScreenPresentation: true
             NSExtensionActivationRule:
               NSExtensionActivationDictionaryVersion: 2
               NSExtensionActivationSupportsImageWithMaxCount: 9

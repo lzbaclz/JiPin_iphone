@@ -1,40 +1,56 @@
 # 极拼 V1.0 测试记录
 
-对照 `docs/iphone-photo-collage-project-plan.md` 第十三节 A01–A16。记录日期：2026-09-09。环境：macOS Sequoia、Xcode 26.3、iPhone 17 模拟器。本机无可用的 Development Team / 签名身份，也没有接入的真机。
+日期：2026-09-09。环境：Xcode 26.3、iOS 26.3 模拟器。对照项目计划 A01–A16。
 
-最近一次结果：`JiPinTests` 73 项通过；`JiPinUITests` 15 项在 iPhone 17 模拟器全部通过（含导出实际大小、快拼铺满/选图背景）。
+## 本机验证结果
 
-运行方式：
+| 检查 | 结果 |
+| --- | --- |
+| 核心测试 JiPinTests | 97 项通过，0 失败 |
+| iPhone 17 界面测试 | 19 项通过，0 失败 |
+| iPhone 16e 界面测试 | 19 项通过，0 失败 |
+| Release 设备构建 | generic/platform=iOS、CODE_SIGNING_ALLOWED=NO，构建成功 |
+| 设计资源导出 | 46 布局、20 海报、60 贴纸、20 背景、10 滤镜 |
+| 真机签名与相册宿主 | 本轮暂缓，不作为已通过项目 |
+
+主要命令：
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-cd /Users/liziqing/Programs/myself/jipin_iphone
 xcodegen generate
 xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
-  CODE_SIGNING_ALLOWED=NO -only-testing:JiPinTests
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
 xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  CODE_SIGNING_ALLOWED=NO -only-testing:JiPinUITests
+  -destination 'platform=iOS Simulator,name=iPhone 16e' \
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO -only-testing:JiPinUITests
+xcodebuild build -project JiPin.xcodeproj -scheme JiPin \
+  -destination 'generic/platform=iOS' -configuration Release CODE_SIGNING_ALLOWED=NO
+./scripts/export-design-assets.sh
+./scripts/export-store-screenshots.sh
 ```
 
-| 编号 | 结论 | 证据 | 缺口 |
-| --- | --- | --- | --- |
-| A01 | 模拟器/单测通过 | `PhotoLimits` 覆盖 0/1/2/9/16/17/20/21；模式选择器对 0、1、17–20、超限有说明；UI 测 1 张与 17 张提示 | 未在真机用实拍库点选上述数量 |
-| A02 | 单测通过 | 46 个布局覆盖 2–16，每个数量至少 2 种；零间距缝隙像素测试；裁切/平移；拖到另一格交换照片 | 未人工点开全部布局预览 |
-| A03 | 单测 + UI 部分通过 | 图层按钮、90° 与精细旋转、双指旋转、锁定/隐藏/复制/删除；自由模式可改画布比例并关闭吸附；吸附含中心与边缘 | 未做完整手势可用性走查 |
-| A04 | 单测通过 | 20 套海报、六主题；数量不匹配换模板/明确选图 | 未逐套替换实拍检查版式 |
-| A05 | 单测通过 | 2–20 张限制、横竖拼、裁切改变输出高度、尺寸标签 | 未用极长截图真机导出 |
-| A06 | 单测通过 | 中英 emoji 多行、长文换行、60 贴纸 / 20 背景；10 个几何形状含箭头，可选填充与描边 | 模拟器可能缺少 AppleColorEmoji TTC，emoji 有回退 |
-| A07 | 单测通过 | 滤镜不挂到文字；马赛克按原图像素跟随裁切；涂鸦橡皮只擦墨迹 | 未在真机画复杂马赛克后连续裁切 |
-| A08 | 单测通过 | 50 步撤销；跨模式复制保留原草稿并警告超限 | — |
-| A09 | 单测通过 | 30 份草稿复制/删除；共享素材引用计数；旧 `assets/` 仍可读 | — |
-| A10 | **未通过（阻塞发布）** | 扩展可接收 `public.image` 与文件形式附件；激活规则同时声明最多 9 张图/9 个文件；快拼「分享」自行生成 JPEG；铺满/完整显示、选图作背景、间距边距；保存草稿失败会显示错误；`-quickCollage*` 5 项 UI 测试通过 | 必须真机：照片多选 2/9 → 分享操作区「极拼」；保存/取消/拒权/草稿交接。步骤见 `docs/BUILD.md` |
-| A11 | 单测 + UI 通过 | 预览与同尺寸导出像素差；JPEG/PNG/透明；无默认水印；导出页显示「约 xx（预估）」并在编码后改为实际大小；`testTemplateExportGeneratesFile` | 未用固定复杂稿做人工预览对照 |
-| A12 | 代码路径 + 单测 | 损坏图拒绝、不完整草稿不入库、缓存清理保草稿、导入最多 3 次等待 | 未制造真机磁盘满 / iCloud 离线 |
-| A13 | 单测通过 | 导入导出剥 GPS；无登录广告统计；隐私清单 | 未抓包证明无上传（架构为本地处理） |
-| A14 | 模拟器单测通过 | 连续 50 次导出、60 对象 HD、9 图 4096 | **不是 iPhone 12 基线**；规划 2s/5s/10s 未在真机确认 |
-| A15 | 部分通过 | 标签、深色、键盘避让、顶栏「更多」保住导出；快拼草稿收入「更多」；图层按钮替代手势；iPhone 17 完整 UI 套件 15 项通过 | 未做真机 VoiceOver 走查；iPhone 16e 套件未在本轮重跑 |
-| A16 | 目录核对通过 | 46 布局、20 海报、60 贴纸、10 几何形状、20 背景、10 滤镜；`docs/asset-license.md` | 程序化素材，无独立设计源文件包 |
+## 验收条目
 
-`docs/store-screenshots/` 已用 `scripts/export-store-screenshots.sh` 导出 6.9"（iPhone 17 Pro Max）与 6.3"（iPhone 17）各 6 张竖屏截图。TestFlight、备案与开发者账号资料仍不在本次工程验证范围内。
+| 编号 | 本机证据 | 仍需确认 |
+| --- | --- | --- |
+| A01 数量与导入 | 0/1/2/9/16/17/20/21 边界；直接从模式卡选图；顺序、PNG 透明度、UIImage 方向、取消与失败提示；海报先确认照片位 | 真机相册、iCloud 下载 |
+| A02 模板 | 46 布局覆盖 2–16 张；无缝边界、旋转不越格、裁切与顺序；单击选图不触发交换 | 不同真实照片的主观构图 |
+| A03 自由模式 | 稀疏层级上下移动、锁定、重复照片独立替换、复制保留效果、原始照片比例与吸附 | 真机复杂手势体验 |
+| A04 海报 | 20 模板可渲染；数量确认、替换、重复照片不隐藏；真实渲染缩略图 | 最终运营文案与展示素材 |
+| A05 长图 | 2–20 张、横竖方向、裁切、同比例间距、输出上限；快拼长边 2048 | 超长截图真机测试 |
+| A06 文字与素材 | 中文、英文、emoji、换行；60 贴纸、10 形状、20 背景；素材缩略图与自定义渐变；面板可滚动 | 彩色 emoji 真机表现 |
+| A07 效果与遮挡 | 滤镜与调色只作用照片；裁切/旋转对应；遮挡上方坐标与垂直翻转；不透明遮挡；固定种子纹理 | 真机连续绘制体验 |
+| A08 编辑与历史 | 50 步撤销、文字修改撤销、跨模式复制保存原稿且能导出；照片引用、形状、文字与涂鸦保留 | — |
+| A09 草稿 | 30 草稿与复制删除；16 个独立存储实例并发提交；提交失败保留旧稿和缩略图；素材冲突保护；拒绝过期写入 | 真实系统断电等环境事件 |
+| A10 相册入口 | 同一快拼界面测试：模式、排序、裁切、背景、保存草稿、分享、取消；部分导入需确认；不自动建草稿 | 真机宿主、签名、App Group |
+| A11 输出一致性 | 首帧 Retina 预览与比例变化刷新；JPEG/PNG/透明输出；实际文件大小；唯一分享文件；像素与几何回归 | 最终实拍样本核验 |
+| A12 异常 | ENOSPC 提交失败注入、缺失/冲突素材、损坏图片、不完整草稿和取消 | 真机磁盘满、iCloud 离线 |
+| A13 隐私 | 工作副本去元数据、成品无 GPS；草稿和素材排除备份；清缓存不动草稿 | 发布包数据流与隐私标签复核 |
+| A14 稳定性 | 连续 50 次、9 图 4096、60 对象高清导出；受控解码、串行预览与后台存储 | iPhone 12 计时和峰值内存 |
+| A15 适配 | 两种屏幕完整界面测试；画布语义、按钮替代手势、面板滚动、键盘收起与布局重算 | 真机 VoiceOver |
+| A16 资源 | 可编辑 Swift 资源源文件、导出的设计 JSON、原创试用插画及图标来源记录 | 外部素材与商标使用如新增另审 |
+
+Xcode 在当前 Command Line Tools 默认选择环境下，测试结束后的额外诊断采集可能提示找不到 simctl；测试过程与 xcresult 结果已明确成功。AppIntents 提取提示无相关依赖，不影响构建。
+
+`docs/store-screenshots/` 使用原生运行界面和原创示例插画生成。真机与发布依赖详见 `KNOWN-ISSUES.md`。

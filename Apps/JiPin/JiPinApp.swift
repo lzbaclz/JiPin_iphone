@@ -20,6 +20,7 @@ struct JiPinApp: App {
 final class AppState: ObservableObject {
     @Published var selectedTab: AppTab = .create
     @Published var editor: EditorSession?
+    @Published var isClosingEditor = false
     @Published var showSettings = false
     @Published var pendingDraftID: UUID?
     @Published var quickCollage: QuickCollageLaunch?
@@ -36,9 +37,12 @@ final class AppState: ObservableObject {
     }
 
     func closeEditor() {
+        guard !isClosingEditor else { return }
+        isClosingEditor = true
         Task {
-            await editor?.persistNow()
-            editor = nil
+            defer { isClosingEditor = false }
+            guard let closing = editor else { return }
+            if await closing.persistNow(), editor === closing { editor = nil }
         }
     }
 }

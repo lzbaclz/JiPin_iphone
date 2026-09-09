@@ -10,8 +10,11 @@
 | 背景预设 | 20 | 原创纯色、渐变与轻纹理绘制 | 可随 App 分发 |
 | 滤镜预设 | 10 | Core Image 系统滤镜组合 | 系统框架，无额外授权 |
 | 字体 | 系统 UI 字体（含圆体、衬线、等宽） | Apple 系统字体 | 首版不做在线字体商店，不内嵌第三方字体文件 |
+| 试用插画 | 6 | `Apps/JiPin/StudioPreviews.swift` 原创图形绘制 | 海岸、树林、建筑、沙丘、咖啡与山景；不包含用户照片 |
 
 未使用未授权的第三方照片、插画或品牌素材。若后续引入外部 IP 或可下载字体，需单独补充授权文件后再入库。
+
+模板与素材的可读参数见 [设计目录](design-source/catalog.json)，由 `scripts/export-design-assets.sh` 从当前 Swift 源码导出，用于设计审阅与交接。运行时仍以 `LayoutEngine.swift`、`PosterTemplates.swift` 和 `AssetCatalogs.swift` 为准，修改后应重新导出。海报和贴纸的界面缩略图使用同一渲染器生成。纸纹使用固定种子，重复预览和导出的图案一致。
 
 ## App 图标
 

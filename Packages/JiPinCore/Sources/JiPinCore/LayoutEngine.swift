@@ -304,7 +304,22 @@ public enum LayoutEngine {
         return CGSize(width: max(width, 1), height: max(height, 1))
     }
 
-    public static func fittedRect(imageSize: CGSize, in frame: CGRect, mode: PhotoContentMode, crop: PhotoCrop) -> CGRect {
+    public static func fittedRect(imageSize: CGSize, in frame: CGRect, mode: PhotoContentMode, crop: PhotoCrop, rotation: Double = 0, fixedFrame: Bool = false) -> CGRect {
+        if fixedFrame && abs(rotation.truncatingRemainder(dividingBy: 360)) > 0.001 {
+            let angle = CGFloat(rotation * .pi / 180)
+            let c = abs(cos(angle)), s = abs(sin(angle))
+            let factor: CGFloat
+            if mode == .fill {
+                factor = max((frame.width * c + frame.height * s) / max(imageSize.width, 1),
+                             (frame.height * c + frame.width * s) / max(imageSize.height, 1))
+            } else {
+                factor = min(frame.width / max(imageSize.width * c + imageSize.height * s, 1),
+                             frame.height / max(imageSize.height * c + imageSize.width * s, 1))
+            }
+            let size = CGSize(width: imageSize.width * factor * crop.zoom, height: imageSize.height * factor * crop.zoom)
+            return CGRect(x: frame.midX - size.width / 2 + crop.offsetX * frame.width,
+                          y: frame.midY - size.height / 2 + crop.offsetY * frame.height, width: size.width, height: size.height)
+        }
         let imageRatio = imageSize.width / max(imageSize.height, 1)
         let frameRatio = frame.width / max(frame.height, 1)
         var rect: CGRect
@@ -334,8 +349,9 @@ public enum LayoutEngine {
 
     public static func photoDrawFrame(_ payload: PhotoPayload, cell: CGRect) -> CGRect {
         guard payload.polaroid else { return cell }
-        let inset = cell.height * 0.08
-        return CGRect(x: cell.minX + 8, y: cell.minY + 8, width: cell.width - 16, height: cell.height - inset - 8)
+        let edge = min(cell.width, cell.height) * 0.035
+        let bottom = cell.height * 0.12
+        return CGRect(x: cell.minX + edge, y: cell.minY + edge, width: max(cell.width - edge * 2, 1), height: max(cell.height - bottom - edge, 1))
     }
 
     public static func canvasPointToPhoto(
@@ -348,20 +364,22 @@ public enum LayoutEngine {
         scaleY: Double = 1
     ) -> CGPoint {
         let frame = photoDrawFrame(payload, cell: cell)
-        let local = photoLocalPoint(
+        var local = photoLocalPoint(
             canvasPoint,
-            in: frame,
+            in: payload.slotID == nil ? cell : frame,
             rotation: rotation,
-            scaleX: scaleX,
-            scaleY: scaleY
+            scaleX: 1,
+            scaleY: 1
         )
+        if scaleX < 0 { local.x = frame.midX * 2 - local.x }
         let cropped = croppedSize(imageSize, crop: payload.crop)
-        let fitted = fittedRect(imageSize: cropped, in: frame, mode: payload.contentMode, crop: payload.crop)
+        let fitted = fittedRect(imageSize: cropped, in: frame, mode: payload.contentMode, crop: payload.crop,
+                                rotation: rotation, fixedFrame: payload.slotID != nil)
         let width = max(fitted.width, 1)
         let height = max(fitted.height, 1)
         let croppedPoint = CGPoint(
             x: min(max((local.x - fitted.minX) / width, 0), 1),
-            y: min(max((local.y - fitted.minY) / height, 0), 1)
+            y: min(max(scaleY < 0 ? 1 - (local.y - fitted.minY) / height : (local.y - fitted.minY) / height, 0), 1)
         )
         return photoPointFromCropped(croppedPoint, crop: payload.crop)
     }

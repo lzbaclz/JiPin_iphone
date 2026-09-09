@@ -41,12 +41,26 @@ xcodebuild test -project JiPin.xcodeproj -scheme JiPin -destination 'platform=iO
 xcodebuild test -project JiPin.xcodeproj -scheme JiPin -destination 'platform=iOS Simulator,name=iPhone 17' CODE_SIGNING_ALLOWED=NO -only-testing:JiPinTests
 ```
 
-UI 测试会用 `-sampleEditor` 打开四种模式，并走一遍模板导出「生成文件」。
+UI 测试通过 `-sampleEditor` 打开四种模式，验证首帧预览、比例重算、单击选图、模式复制后导出、相册快拼和可用按钮。试用插画由 `StudioPreviews.swift` 原创绘制。
 
 测试记录与未关闭项见 `docs/TEST-RECORD.md`、`docs/KNOWN-ISSUES.md`。商店文案、年龄分级与审核说明见 `docs/store-listing.md`。按商店尺寸导出截图：
 
 ```sh
 ./scripts/export-store-screenshots.sh
+```
+
+导出模板与素材设计参数：
+
+```sh
+./scripts/export-design-assets.sh
+```
+
+输出为 `docs/design-source/catalog.json`，用于设计审阅和交接；App 运行时仍使用对应 Swift 目录定义。
+
+未签名设备 Release 编译：
+
+```sh
+xcodebuild build -project JiPin.xcodeproj -scheme JiPin -destination 'generic/platform=iOS' -configuration Release CODE_SIGNING_ALLOWED=NO
 ```
 
 ## 真机与扩展
@@ -58,7 +72,9 @@ UI 测试会用 `-sampleEditor` 打开四种模式，并走一遍模板导出「
 3. 打开系统「照片」，多选 2 张、再试 9 张，点分享 → **操作区**「极拼」（不是相册原生工具栏）。扩展声明最多 9 张图片；不足 2 张时会提示改用主 App。
 4. 在扩展里切换模板/长图、调整间距与裁切后：**保存到相册**、点「更多」**保存草稿**、**系统分享**、**取消**。分享会自行生成 JPEG，不必先保存到相册。若拒绝添加照片权限，应仍能保存草稿或使用系统分享，且已有草稿不被破坏。
 5. 拒绝「添加照片」权限后，确认草稿仍可保存，已有草稿不被破坏。
-6. 打开极拼 → 草稿，应看到「来自相册」条目并可继续完整编辑。超过 9 张时扩展应说明忽略多出的照片。
+6. 打开极拼 → 草稿，应看到「来自相册」条目并可继续完整编辑。若宿主仍传入超过 9 张或部分失败的数据，扩展必须先明确提示并让用户确认，才能继续。
+
+快速编辑默认不自动建立草稿，取消不会修改已有草稿。缺少可用 App Group 时，实际扩展会拒绝草稿交接；模拟器中主 App 的快拼演示可以保存到自身沙盒，但不能据此认定真实交接已通过。
 
 主 App 与扩展的添加照片权限是分开的。
 

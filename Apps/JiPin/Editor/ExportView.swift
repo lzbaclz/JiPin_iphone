@@ -17,6 +17,10 @@ struct ExportView: View {
     @State private var useScaled = false
     @State private var saveToFiles = false
     @State private var exportJobID = UUID()
+    @State private var shareURL: URL?
+    @State private var isSavingToAlbum = false
+
+    private var isBusy: Bool { isExporting || isSavingToAlbum }
 
     var body: some View {
         NavigationStack {
@@ -57,6 +61,11 @@ struct ExportView: View {
                     }
                     LabeledContent("文件大小", value: actualSize ?? estimated)
                         .accessibilityIdentifier("export-file-size")
+                    if let message {
+                        Text(message)
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("export-message")
+                    }
                     sizeFootnote
                     if session.lowResolutionWarning {
                         Text("有照片分辨率偏低，按当前尺寸放大后可能发糊。")
@@ -65,6 +74,7 @@ struct ExportView: View {
                             .accessibilityIdentifier("export-low-res")
                     }
                 }
+                .disabled(isBusy)
                 if case .needsChoice(let computed, let scaled) = limitChoice {
                     Section("长图超出上限") {
                         Text("完整尺寸约为 \(Int(computed.width))×\(Int(computed.height))，超过边长或总像素上限。")
@@ -82,7 +92,7 @@ struct ExportView: View {
                                 useScaled = false
                                 refresh()
                             }
-                            .disabled(session.project.photoOrder.count <= 2)
+                            .disabled(session.project.photoOrder.count <= 2 || isBusy)
                             .accessibilityIdentifier("export-drop-photo-\(index)")
                         }
                     }
@@ -91,46 +101,47 @@ struct ExportView: View {
                     Button(isExporting ? "正在生成…" : "生成文件") {
                         Task { await generate() }
                     }
-                    .disabled(isExporting)
+                    .disabled(isBusy)
                     .accessibilityIdentifier("export-generate")
                     Button("保存到相册") { Task { await saveToAlbum() } }
-                        .disabled(isExporting)
+                        .disabled(isBusy)
                         .accessibilityIdentifier("export-save-album")
                         .accessibilityHidden(false)
                     Button("系统分享") { Task { await shareGenerated() } }
-                        .disabled(isExporting)
+                        .disabled(isBusy)
                         .accessibilityIdentifier("export-share")
                         .accessibilityHidden(false)
                     Button("存储到文件") { Task { await exportToFiles() } }
-                        .disabled(isExporting)
+                        .disabled(isBusy)
                         .accessibilityIdentifier("export-save-files")
                         .accessibilityHidden(false)
-                    if let message {
-                        Text(message)
-                            .foregroundStyle(.secondary)
-                            .accessibilityIdentifier("export-message")
-                    }
                 }
             }
             .navigationTitle("导出")
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } } }
             .onAppear { refresh() }
             .onChange(of: session.project.exportPreference) { _, _ in refresh() }
-            .sheet(isPresented: $showShare, onDismiss: nil) {
-                ShareSheet(items: shareItems)
+            .sheet(isPresented: $showShare, onDismiss: cleanupShareFile) {
+                if let shareURL { ShareSheet(items: [shareURL]) }
             }
             .fileExporter(
                 isPresented: $saveToFiles,
                 document: ExportDocument(data: fileData ?? Data(), format: session.project.exportPreference.format),
                 contentType: session.project.exportPreference.format == .png ? .png : .jpeg,
                 defaultFilename: session.project.name
-            ) { _ in }
+            ) { result in
+                switch result {
+                case .success: message = "已存储到文件。"
+                case .failure(let error): message = "未能存储文件：\(error.localizedDescription)"
+                }
+            }
+            .onDisappear { exportJobID = UUID() }
         }
     }
 
     private var sizeFootnote: some View {
         Group {
-            switch ExportGeometry.outputSize(for: session.project, assets: session.assets) {
+            switch ExportGeometry.outputSize(for: session.project, assets: session.assets.snapshot) {
             case .ok(let size):
                 Text("输出约 \(Int(size.width))×\(Int(size.height)) 像素。大小为预估，编码完成后显示实际值。PNG 无 JPEG 压缩损失，但裁切缩放仍会改变像素。")
             case .needsChoice(let computed, _):
@@ -142,8 +153,9 @@ struct ExportView: View {
     }
 
     private func refresh() {
+        exportJobID = UUID()
         session.refreshWarnings()
-        limitChoice = ExportGeometry.outputSize(for: session.project, assets: session.assets)
+        limitChoice = ExportGeometry.outputSize(for: session.project, assets: session.assets.snapshot)
         preview = session.previewImage(maxSide: 720)
         switch limitChoice {
         case .ok(let size):
@@ -158,7 +170,7 @@ struct ExportView: View {
     }
 
     private func canvasSize() -> CGSize? {
-        switch ExportGeometry.outputSize(for: session.project, assets: session.assets) {
+        switch ExportGeometry.outputSize(for: session.project, assets: session.assets.snapshot) {
         case .ok(let size):
             return size
         case .needsChoice(_, let scaled):
@@ -167,6 +179,8 @@ struct ExportView: View {
     }
 
     private func generate() async {
+        guard !isExporting else { return }
+        session.refreshWarnings()
         guard let size = canvasSize() else {
             message = "请先选择缩小输出，或减少照片。"
             return
@@ -213,8 +227,12 @@ struct ExportView: View {
     }
 
     private func shareGenerated() async {
-        guard await ensureFile() != nil else { return }
-        showShare = true
+        guard let data = await ensureFile() else { return }
+        do {
+            cleanupShareFile()
+            shareURL = try ExportFile.write(data: data, format: session.project.exportPreference.format)
+            showShare = true
+        } catch { message = "无法准备分享文件：\(error.localizedDescription)" }
     }
 
     private func exportToFiles() async {
@@ -223,7 +241,10 @@ struct ExportView: View {
     }
 
     private func saveToAlbum() async {
-        guard let data = await ensureFile(), let image = UIImage(data: data) else { return }
+        guard !isSavingToAlbum else { return }
+        isSavingToAlbum = true
+        defer { isSavingToAlbum = false }
+        guard let data = await ensureFile() else { return }
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
         guard status == .authorized || status == .limited else {
             message = "未获得添加照片权限。项目仍保留，可改用系统分享或存储到文件。"
@@ -235,21 +256,13 @@ struct ExportView: View {
             }
             message = "已保存到相册。"
         } catch {
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-            message = "已尝试保存到相册。"
+            message = "保存失败：\(error.localizedDescription)。项目仍保留，可以重试或存储到文件。"
         }
     }
 
-    private func tempURL() -> URL {
-        let ext = session.project.exportPreference.format == .png ? "png" : "jpg"
-        return FileManager.default.temporaryDirectory.appendingPathComponent("jipin-export.\(ext)")
-    }
-
-    private var shareItems: [Any] {
-        guard let fileData else { return [] }
-        let url = tempURL()
-        try? fileData.write(to: url)
-        return [url]
+    private func cleanupShareFile() {
+        if let shareURL { try? FileManager.default.removeItem(at: shareURL) }
+        shareURL = nil
     }
 }
 

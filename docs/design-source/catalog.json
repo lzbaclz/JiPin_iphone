@@ -1,0 +1,5407 @@
+{
+  "backgrounds" : [
+    {
+      "id" : "solid-cream",
+      "name" : "米白",
+      "spec" : {
+        "colorHex" : "#F4F1EA",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-cream"
+      }
+    },
+    {
+      "id" : "solid-white",
+      "name" : "纯白",
+      "spec" : {
+        "colorHex" : "#FFFFFF",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-white"
+      }
+    },
+    {
+      "id" : "solid-sand",
+      "name" : "沙色",
+      "spec" : {
+        "colorHex" : "#EDE4D4",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-sand"
+      }
+    },
+    {
+      "id" : "solid-ink",
+      "name" : "墨黑",
+      "spec" : {
+        "colorHex" : "#111111",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-ink"
+      }
+    },
+    {
+      "id" : "solid-navy",
+      "name" : "海军蓝",
+      "spec" : {
+        "colorHex" : "#1B2430",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-navy"
+      }
+    },
+    {
+      "id" : "solid-rose",
+      "name" : "玫瑰粉",
+      "spec" : {
+        "colorHex" : "#F8E1E7",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-rose"
+      }
+    },
+    {
+      "id" : "solid-red",
+      "name" : "节日红",
+      "spec" : {
+        "colorHex" : "#9B1B1B",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-red"
+      }
+    },
+    {
+      "id" : "solid-pine",
+      "name" : "松绿",
+      "spec" : {
+        "colorHex" : "#1F4A3A",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-pine"
+      }
+    },
+    {
+      "id" : "grad-sky",
+      "name" : "天空",
+      "spec" : {
+        "colorHex" : "#C9E7F2",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-sky",
+        "secondaryHex" : "#F7F1E3"
+      }
+    },
+    {
+      "id" : "grad-peach",
+      "name" : "蜜桃",
+      "spec" : {
+        "colorHex" : "#F8D3C5",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-peach",
+        "secondaryHex" : "#FFF6EE"
+      }
+    },
+    {
+      "id" : "grad-candy",
+      "name" : "糖果",
+      "spec" : {
+        "colorHex" : "#FFD1DC",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-candy",
+        "secondaryHex" : "#E0C3FC"
+      }
+    },
+    {
+      "id" : "grad-ink",
+      "name" : "暮色",
+      "spec" : {
+        "colorHex" : "#232526",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-ink",
+        "secondaryHex" : "#414345"
+      }
+    },
+    {
+      "id" : "grad-warm",
+      "name" : "暖阳",
+      "spec" : {
+        "colorHex" : "#F6D365",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-warm",
+        "secondaryHex" : "#FDA085"
+      }
+    },
+    {
+      "id" : "grad-cool",
+      "name" : "冷青",
+      "spec" : {
+        "colorHex" : "#89F7FE",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-cool",
+        "secondaryHex" : "#66A6FF"
+      }
+    },
+    {
+      "id" : "grad-dusk",
+      "name" : "黄昏",
+      "spec" : {
+        "colorHex" : "#0F2027",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-dusk",
+        "secondaryHex" : "#2C5364"
+      }
+    },
+    {
+      "id" : "grad-mint",
+      "name" : "薄荷",
+      "spec" : {
+        "colorHex" : "#D4FC79",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-mint",
+        "secondaryHex" : "#96E6A1"
+      }
+    },
+    {
+      "id" : "tex-dots",
+      "name" : "点点",
+      "spec" : {
+        "colorHex" : "#F4F1EA",
+        "isHidden" : false,
+        "kind" : "texture",
+        "presetID" : "tex-dots"
+      },
+      "texture" : "dots"
+    },
+    {
+      "id" : "tex-grid",
+      "name" : "网格",
+      "spec" : {
+        "colorHex" : "#F7F3E8",
+        "isHidden" : false,
+        "kind" : "texture",
+        "presetID" : "tex-grid"
+      },
+      "texture" : "grid"
+    },
+    {
+      "id" : "tex-noise",
+      "name" : "噪点",
+      "spec" : {
+        "colorHex" : "#EEEAE2",
+        "isHidden" : false,
+        "kind" : "texture",
+        "presetID" : "tex-noise"
+      },
+      "texture" : "noise"
+    },
+    {
+      "id" : "tex-paper",
+      "name" : "纸纹",
+      "spec" : {
+        "colorHex" : "#F7F3E8",
+        "isHidden" : false,
+        "kind" : "texture",
+        "presetID" : "tex-paper"
+      },
+      "texture" : "paper"
+    }
+  ],
+  "filters" : [
+    {
+      "contrast" : 1.05,
+      "id" : "daily",
+      "name" : "日常",
+      "saturation" : 1.04,
+      "temperature" : 0.05
+    },
+    {
+      "contrast" : 1.08,
+      "coreImageFilter" : "CIPhotoEffectChrome",
+      "id" : "vivid",
+      "name" : "鲜艳",
+      "saturation" : 1.15,
+      "temperature" : 0
+    },
+    {
+      "contrast" : 0.95,
+      "coreImageFilter" : "CIPhotoEffectFade",
+      "id" : "film",
+      "name" : "胶片",
+      "saturation" : 0.9,
+      "temperature" : 0.08
+    },
+    {
+      "contrast" : 1.04,
+      "id" : "warm",
+      "name" : "暖阳",
+      "saturation" : 1.08,
+      "temperature" : 0.35
+    },
+    {
+      "contrast" : 1.04,
+      "id" : "cool",
+      "name" : "冷青",
+      "saturation" : 0.95,
+      "temperature" : -0.35
+    },
+    {
+      "contrast" : 1.1,
+      "coreImageFilter" : "CIPhotoEffectMono",
+      "id" : "mono",
+      "name" : "黑白",
+      "saturation" : 0,
+      "temperature" : 0
+    },
+    {
+      "contrast" : 0.92,
+      "coreImageFilter" : "CIPhotoEffectInstant",
+      "id" : "fade",
+      "name" : "褪色",
+      "saturation" : 0.85,
+      "temperature" : 0.12
+    },
+    {
+      "contrast" : 1.12,
+      "coreImageFilter" : "CIPhotoEffectProcess",
+      "id" : "dusk",
+      "name" : "暮色",
+      "saturation" : 0.9,
+      "temperature" : -0.1
+    },
+    {
+      "contrast" : 1.02,
+      "coreImageFilter" : "CIPhotoEffectTransfer",
+      "id" : "fresh",
+      "name" : "清新",
+      "saturation" : 1.05,
+      "temperature" : -0.05
+    },
+    {
+      "contrast" : 1.2,
+      "coreImageFilter" : "CIPhotoEffectNoir",
+      "id" : "drama",
+      "name" : "戏剧",
+      "saturation" : 0.2,
+      "temperature" : 0
+    }
+  ],
+  "illustrationSource" : "Apps\/JiPin\/StudioPreviews.swift",
+  "layouts" : [
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        }
+      ],
+      "id" : "g2-h",
+      "name" : "左右对开",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g2-v",
+      "name" : "上下对开",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.66,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.34,
+          "x" : 0.66,
+          "y" : 0
+        }
+      ],
+      "id" : "g2-left-wide",
+      "name" : "左大右小",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.34,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.66,
+          "x" : 0.34,
+          "y" : 0
+        }
+      ],
+      "id" : "g2-right-wide",
+      "name" : "左小右大",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.66,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.66
+        }
+      ],
+      "id" : "g2-top-wide",
+      "name" : "上大下小",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.34,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.66,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.34
+        }
+      ],
+      "id" : "g2-bottom-wide",
+      "name" : "上小下大",
+      "photoCount" : 2
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        }
+      ],
+      "id" : "g3-h",
+      "name" : "三列横排",
+      "photoCount" : 3
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.3333333333333333,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g3-v",
+      "name" : "三行竖排",
+      "photoCount" : 3
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.55,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.55
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.55
+        }
+      ],
+      "id" : "g3-top-one",
+      "name" : "上一下二",
+      "photoCount" : 3
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.45,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.55,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.45
+        }
+      ],
+      "id" : "g3-bottom-one",
+      "name" : "上二下一",
+      "photoCount" : 3
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.58,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.42,
+          "x" : 0.58,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.42,
+          "x" : 0.58,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g3-left-one",
+      "name" : "左一右二",
+      "photoCount" : 3
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g4-grid",
+      "name" : "四分格",
+      "photoCount" : 4
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 1,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        }
+      ],
+      "id" : "g4-h",
+      "name" : "四列横排",
+      "photoCount" : 4
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.25,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0.75
+        }
+      ],
+      "id" : "g4-v",
+      "name" : "四行竖排",
+      "photoCount" : 4
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.58,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.58
+        },
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.58
+        },
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.58
+        }
+      ],
+      "id" : "g4-top-one",
+      "name" : "上一下三",
+      "photoCount" : 4
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.62,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.38,
+          "x" : 0.62,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.38,
+          "x" : 0.62,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.38,
+          "x" : 0.62,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g4-left-hero",
+      "name" : "左主图三分屏",
+      "photoCount" : 4
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g5-2-3",
+      "name" : "上二下三",
+      "photoCount" : 5
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.55,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.55
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.55
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.55
+        },
+        {
+          "height" : 0.45,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.55
+        }
+      ],
+      "id" : "g5-1-4",
+      "name" : "上一下四",
+      "photoCount" : 5
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g5-hero-quad",
+      "name" : "左主图四宫",
+      "photoCount" : 5
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g6-2x3",
+      "name" : "两行三列",
+      "photoCount" : 6
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g6-3x2",
+      "name" : "三行两列",
+      "photoCount" : 6
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.52,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.48,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.52
+        },
+        {
+          "height" : 0.48,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.52
+        },
+        {
+          "height" : 0.48,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.52
+        },
+        {
+          "height" : 0.48,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.52
+        },
+        {
+          "height" : 0.48,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.52
+        }
+      ],
+      "id" : "g6-hero",
+      "name" : "上主图下五",
+      "photoCount" : 6
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g7-3-4",
+      "name" : "上三下四",
+      "photoCount" : 7
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.4,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.7
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.7
+        },
+        {
+          "height" : 0.3,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.7
+        }
+      ],
+      "id" : "g7-hero",
+      "name" : "上主图下六",
+      "photoCount" : 7
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g8-2x4",
+      "name" : "两行四列",
+      "photoCount" : 8
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.75
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.75
+        }
+      ],
+      "id" : "g8-4x2",
+      "name" : "四行两列",
+      "photoCount" : 8
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.42,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.58,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.42
+        },
+        {
+          "height" : 0.58,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.42
+        },
+        {
+          "height" : 0.58,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.42
+        },
+        {
+          "height" : 0.58,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.42
+        },
+        {
+          "height" : 0.58,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.42
+        }
+      ],
+      "id" : "g8-3-5",
+      "name" : "上三下五",
+      "photoCount" : 8
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.4,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.14285714285714285,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.2857142857142857,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.42857142857142855,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.5714285714285714,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.7142857142857142,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.14285714285714285,
+          "x" : 0.8571428571428571,
+          "y" : 0.4
+        }
+      ],
+      "id" : "g8-hero",
+      "name" : "上主图下七",
+      "photoCount" : 8
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g9-3x3",
+      "name" : "九宫格",
+      "photoCount" : 9
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.4,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.125,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.25,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.375,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.5,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.625,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.75,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.125,
+          "x" : 0.875,
+          "y" : 0.4
+        }
+      ],
+      "id" : "g9-1-8",
+      "name" : "上一下八",
+      "photoCount" : 9
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.4,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.4,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.4,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0.16666666666666666,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0.3333333333333333,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0.5,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0.6666666666666666,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.16666666666666666,
+          "x" : 0.8333333333333333,
+          "y" : 0.4
+        }
+      ],
+      "id" : "g9-3-6",
+      "name" : "上三下六",
+      "photoCount" : 9
+    },
+    {
+      "cells" : [
+        {
+          "height" : 1,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.75
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.75
+        }
+      ],
+      "id" : "g9-left-hero",
+      "name" : "左主图八宫",
+      "photoCount" : 9
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g10-2x5",
+      "name" : "两行五列",
+      "photoCount" : 10
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.4,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.1111111111111111,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.2222222222222222,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.3333333333333333,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.4444444444444444,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.5555555555555556,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.6666666666666666,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.7777777777777777,
+          "y" : 0.4
+        },
+        {
+          "height" : 0.6,
+          "width" : 0.1111111111111111,
+          "x" : 0.8888888888888888,
+          "y" : 0.4
+        }
+      ],
+      "id" : "g10-hero",
+      "name" : "上主图下九",
+      "photoCount" : 10
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.34,
+          "width" : 0.3333333333333333,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 0.3333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 0.3333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.67
+        }
+      ],
+      "id" : "g11-mixed",
+      "name" : "三加四加四",
+      "photoCount" : 11
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.38,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.1,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.2,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.30000000000000004,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.4,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.5,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.6000000000000001,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.7000000000000001,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.8,
+          "y" : 0.38
+        },
+        {
+          "height" : 0.62,
+          "width" : 0.1,
+          "x" : 0.9,
+          "y" : 0.38
+        }
+      ],
+      "id" : "g11-hero",
+      "name" : "上主图下十",
+      "photoCount" : 11
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g12-3x4",
+      "name" : "三行四列",
+      "photoCount" : 12
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.16666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.3333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.6666666666666666,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.8333333333333333,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.16666666666666666,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.3333333333333333,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.6666666666666666,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.16666666666666666,
+          "x" : 0.8333333333333333,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g12-2x6",
+      "name" : "两行六列",
+      "photoCount" : 12
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.34,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.34,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.67
+        },
+        {
+          "height" : 0.33,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.67
+        }
+      ],
+      "id" : "g13-mixed",
+      "name" : "四加五加四",
+      "photoCount" : 13
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.36,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.08333333333333333,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.16666666666666666,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.25,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.3333333333333333,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.41666666666666663,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.5,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.5833333333333333,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.6666666666666666,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.75,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.8333333333333333,
+          "y" : 0.36
+        },
+        {
+          "height" : 0.64,
+          "width" : 0.08333333333333333,
+          "x" : 0.9166666666666666,
+          "y" : 0.36
+        }
+      ],
+      "id" : "g13-hero",
+      "name" : "上主图下十二",
+      "photoCount" : 13
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.14285714285714285,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.2857142857142857,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.42857142857142855,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.5714285714285714,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.7142857142857142,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.8571428571428571,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.14285714285714285,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.2857142857142857,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.42857142857142855,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.5714285714285714,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.7142857142857142,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.14285714285714285,
+          "x" : 0.8571428571428571,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g14-2x7",
+      "name" : "两行七列",
+      "photoCount" : 14
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.14285714285714285
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.14285714285714285
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.2857142857142857
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.2857142857142857
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.42857142857142855
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.42857142857142855
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.5714285714285714
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.5714285714285714
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.7142857142857142
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.7142857142857142
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0,
+          "y" : 0.8571428571428571
+        },
+        {
+          "height" : 0.14285714285714285,
+          "width" : 0.5,
+          "x" : 0.5,
+          "y" : 0.8571428571428571
+        }
+      ],
+      "id" : "g14-7x2",
+      "name" : "七行两列",
+      "photoCount" : 14
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.3333333333333333
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.2,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.4,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.6000000000000001,
+          "y" : 0.6666666666666666
+        },
+        {
+          "height" : 0.3333333333333333,
+          "width" : 0.2,
+          "x" : 0.8,
+          "y" : 0.6666666666666666
+        }
+      ],
+      "id" : "g15-3x5",
+      "name" : "三行五列",
+      "photoCount" : 15
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.34,
+          "width" : 1,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.07142857142857142,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.14285714285714285,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.21428571428571427,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.2857142857142857,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.3571428571428571,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.42857142857142855,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.5,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.5714285714285714,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.6428571428571428,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.7142857142857142,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.7857142857142857,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.8571428571428571,
+          "y" : 0.34
+        },
+        {
+          "height" : 0.66,
+          "width" : 0.07142857142857142,
+          "x" : 0.9285714285714285,
+          "y" : 0.34
+        }
+      ],
+      "id" : "g15-hero",
+      "name" : "上主图下十四",
+      "photoCount" : 15
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.25
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0,
+          "y" : 0.75
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.25,
+          "y" : 0.75
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.5,
+          "y" : 0.75
+        },
+        {
+          "height" : 0.25,
+          "width" : 0.25,
+          "x" : 0.75,
+          "y" : 0.75
+        }
+      ],
+      "id" : "g16-4x4",
+      "name" : "十六宫格",
+      "photoCount" : 16
+    },
+    {
+      "cells" : [
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.125,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.25,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.375,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.5,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.625,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.75,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.875,
+          "y" : 0
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.125,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.25,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.375,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.5,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.625,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.75,
+          "y" : 0.5
+        },
+        {
+          "height" : 0.5,
+          "width" : 0.125,
+          "x" : 0.875,
+          "y" : 0.5
+        }
+      ],
+      "id" : "g16-2x8",
+      "name" : "两行八列",
+      "photoCount" : 16
+    }
+  ],
+  "posters" : [
+    {
+      "background" : {
+        "colorHex" : "#EDE4D4",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-sand"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.06,
+            "width" : 0.12,
+            "x" : 0.8,
+            "y" : 0.055
+          },
+          "id" : "plane",
+          "rotation" : 0,
+          "stickerID" : "life-airplane"
+        }
+      ],
+      "id" : "p-travel-journal",
+      "name" : "旅途手记",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.42,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.18
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.24,
+            "width" : 0.4,
+            "x" : 0.08,
+            "y" : 0.62
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.24,
+            "width" : 0.4,
+            "x" : 0.52,
+            "y" : 0.62
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 16,
+          "aspectWidth" : 9,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "旅途手记",
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.06
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#3A2A1A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.055,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "旅途手记"
+          }
+        },
+        {
+          "defaultText" : "城市 · 日期",
+          "frame" : {
+            "height" : 0.05,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.12
+          },
+          "id" : "place",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#7A5A3A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.028,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "城市 · 日期"
+          }
+        }
+      ],
+      "theme" : "travel"
+    },
+    {
+      "background" : {
+        "colorHex" : "#C9E7F2",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-sky",
+        "secondaryHex" : "#F7F1E3"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.1,
+            "x" : 0.82,
+            "y" : 0.06
+          },
+          "id" : "pin",
+          "rotation" : 0,
+          "stickerID" : "life-location"
+        }
+      ],
+      "id" : "p-travel-map",
+      "name" : "路线打卡",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.62,
+            "width" : 0.54,
+            "x" : 0.06,
+            "y" : 0.2
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.32,
+            "x" : 0.62,
+            "y" : 0.2
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.32,
+            "x" : 0.62,
+            "y" : 0.52
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "NEXT STOP",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.05
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#1C3A4A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.05,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "NEXT STOP"
+          }
+        },
+        {
+          "defaultText" : "地点名称",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.86
+          },
+          "id" : "place",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#1C3A4A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.035,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "地点名称"
+          }
+        }
+      ],
+      "theme" : "travel"
+    },
+    {
+      "background" : {
+        "colorHex" : "#2A1B18",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-dusk"
+      },
+      "canvas" : {
+        "aspectHeight" : 9,
+        "aspectWidth" : 16,
+        "isCustom" : false
+      },
+      "decorations" : [
+
+      ],
+      "id" : "p-travel-sunset",
+      "name" : "日落明信片",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.84,
+            "width" : 0.6,
+            "x" : 0.04,
+            "y" : 0.08
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 9,
+          "aspectWidth" : 16,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 3,
+          "aspectWidth" : 4,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "SUNSET",
+          "frame" : {
+            "height" : 0.2,
+            "width" : 0.28,
+            "x" : 0.68,
+            "y" : 0.28
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#F4E2C7",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.07,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "SUNSET"
+          }
+        },
+        {
+          "defaultText" : "海边\n某一刻",
+          "frame" : {
+            "height" : 0.24,
+            "width" : 0.28,
+            "x" : 0.68,
+            "y" : 0.52
+          },
+          "id" : "place",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#E8C9A2",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.035,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "海边\n某一刻"
+          }
+        }
+      ],
+      "theme" : "travel"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F4F1EA",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-cream"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.2,
+            "x" : 0.74,
+            "y" : 0.045
+          },
+          "id" : "note",
+          "rotation" : 0,
+          "stickerID" : "label-daily"
+        }
+      ],
+      "id" : "p-daily-four",
+      "name" : "四格日记",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.36,
+            "width" : 0.42,
+            "x" : 0.06,
+            "y" : 0.16
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.36,
+            "width" : 0.42,
+            "x" : 0.52,
+            "y" : 0.16
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.36,
+            "width" : 0.42,
+            "x" : 0.06,
+            "y" : 0.54
+          },
+          "id" : "c"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.36,
+            "width" : 0.42,
+            "x" : 0.52,
+            "y" : 0.54
+          },
+          "id" : "d"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "今日记录",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.04
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#1C1A17",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.045,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "今日记录"
+          }
+        }
+      ],
+      "theme" : "daily"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F7F3E8",
+        "isHidden" : false,
+        "kind" : "texture",
+        "presetID" : "tex-paper"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.78,
+            "y" : 0.08
+          },
+          "id" : "heart",
+          "rotation" : 0,
+          "stickerID" : "geo-heart"
+        }
+      ],
+      "id" : "p-daily-note",
+      "name" : "便签拼贴",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.46,
+            "width" : 0.8,
+            "x" : 0.1,
+            "y" : 0.12
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.24,
+            "width" : 0.38,
+            "x" : 0.1,
+            "y" : 0.62
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "一点点日常",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.38,
+            "x" : 0.52,
+            "y" : 0.62
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#3A3328",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.032,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "一点点日常"
+          }
+        },
+        {
+          "defaultText" : "写一句今天的话",
+          "frame" : {
+            "height" : 0.14,
+            "width" : 0.38,
+            "x" : 0.52,
+            "y" : 0.72
+          },
+          "id" : "body",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#6A5E4E",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.024,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "写一句今天的话"
+          }
+        }
+      ],
+      "theme" : "daily"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F8D3C5",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-peach",
+        "secondaryHex" : "#FFF6EE"
+      },
+      "canvas" : {
+        "aspectHeight" : 16,
+        "aspectWidth" : 9,
+        "isCustom" : false
+      },
+      "decorations" : [
+
+      ],
+      "id" : "p-daily-mood",
+      "name" : "心情卡片",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.04,
+          "frame" : {
+            "height" : 0.56,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.12
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 16,
+          "aspectWidth" : 9,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "MOOD",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.72
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#5A2A24",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.05,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "MOOD"
+          }
+        },
+        {
+          "defaultText" : "今天的心情是……",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.82
+          },
+          "id" : "body",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#7A4A40",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.03,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "今天的心情是……"
+          }
+        }
+      ],
+      "theme" : "daily"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFFFFF",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-white"
+      },
+      "canvas" : {
+        "aspectHeight" : 3,
+        "aspectWidth" : 4,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.2,
+            "x" : 0.4,
+            "y" : 0.88
+          },
+          "id" : "tag",
+          "rotation" : 0,
+          "stickerID" : "label-compare"
+        }
+      ],
+      "id" : "p-daily-split",
+      "name" : "左右对照",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.8,
+            "width" : 0.46,
+            "x" : 0.03,
+            "y" : 0.1
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.8,
+            "width" : 0.46,
+            "x" : 0.51,
+            "y" : 0.1
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 3,
+          "aspectWidth" : 4,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "BEFORE    AFTER",
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.9,
+            "x" : 0.05,
+            "y" : 0.02
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#222222",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.03,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "BEFORE    AFTER"
+          }
+        }
+      ],
+      "theme" : "daily"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F8E1E7",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-rose"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.08,
+            "y" : 0.08
+          },
+          "id" : "gift",
+          "rotation" : 0,
+          "stickerID" : "life-gift"
+        },
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.82,
+            "y" : 0.08
+          },
+          "id" : "spark",
+          "rotation" : 0,
+          "stickerID" : "life-sparkle"
+        }
+      ],
+      "id" : "p-bday-cake",
+      "name" : "生日贺卡",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.5,
+          "frame" : {
+            "height" : 0.5,
+            "width" : 0.72,
+            "x" : 0.14,
+            "y" : 0.2
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "Happy Birthday",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.06
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#8A3048",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.048,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "Happy Birthday"
+          }
+        },
+        {
+          "defaultText" : "写下名字",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.74
+          },
+          "id" : "name",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#5A2030",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.04,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "写下名字"
+          }
+        },
+        {
+          "defaultText" : "祝你生日快乐",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.84
+          },
+          "id" : "wish",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#8A5060",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.028,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "祝你生日快乐"
+          }
+        }
+      ],
+      "theme" : "birthday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFF4C8",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-lemon"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.14,
+            "x" : 0.78,
+            "y" : 0.05
+          },
+          "id" : "flag",
+          "rotation" : 0,
+          "stickerID" : "date-flag"
+        }
+      ],
+      "id" : "p-bday-party",
+      "name" : "派对拼贴",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.54,
+            "width" : 0.54,
+            "x" : 0.06,
+            "y" : 0.18
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.32,
+            "x" : 0.62,
+            "y" : 0.18
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.32,
+            "x" : 0.62,
+            "y" : 0.46
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "PARTY TIME",
+          "frame" : {
+            "height" : 0.16,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.76
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#D35400",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.055,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "PARTY TIME"
+          }
+        }
+      ],
+      "theme" : "birthday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFD1DC",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-candy",
+        "secondaryHex" : "#E0C3FC"
+      },
+      "canvas" : {
+        "aspectHeight" : 16,
+        "aspectWidth" : 9,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.12,
+            "x" : 0.8,
+            "y" : 0.76
+          },
+          "id" : "star",
+          "rotation" : 0,
+          "stickerID" : "geo-star"
+        }
+      ],
+      "id" : "p-bday-wish",
+      "name" : "愿望清单",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.38,
+            "width" : 0.8,
+            "x" : 0.1,
+            "y" : 0.12
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.22,
+            "width" : 0.38,
+            "x" : 0.1,
+            "y" : 0.52
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 16,
+          "aspectWidth" : 9,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "Make a wish",
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.8,
+            "x" : 0.1,
+            "y" : 0.04
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#4A2040",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.04,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "Make a wish"
+          }
+        },
+        {
+          "defaultText" : "愿望 1\n愿望 2\n愿望 3",
+          "frame" : {
+            "height" : 0.22,
+            "width" : 0.38,
+            "x" : 0.52,
+            "y" : 0.52
+          },
+          "id" : "list",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#4A2040",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.024,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "愿望 1\n愿望 2\n愿望 3"
+          }
+        }
+      ],
+      "theme" : "birthday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#9B1B1B",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-red"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.08,
+            "y" : 0.08
+          },
+          "id" : "leaf",
+          "rotation" : 0,
+          "stickerID" : "life-leaf"
+        }
+      ],
+      "id" : "p-holi-spring",
+      "name" : "新春祝福",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.46,
+            "width" : 0.76,
+            "x" : 0.12,
+            "y" : 0.2
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "新春快乐",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.06
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#F8E6C8",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.055,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "新春快乐"
+          }
+        },
+        {
+          "defaultText" : "万事如意 年年有余",
+          "frame" : {
+            "height" : 0.16,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.72
+          },
+          "id" : "wish",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#F8E6C8",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.032,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "万事如意 年年有余"
+          }
+        }
+      ],
+      "theme" : "holiday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#12162A",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-night"
+      },
+      "canvas" : {
+        "aspectHeight" : 9,
+        "aspectWidth" : 16,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.12,
+            "width" : 0.1,
+            "x" : 0.84,
+            "y" : 0.08
+          },
+          "id" : "moon",
+          "rotation" : 0,
+          "stickerID" : "life-moon"
+        }
+      ],
+      "id" : "p-holi-night",
+      "name" : "节日夜色",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 1,
+            "width" : 1,
+            "x" : 0,
+            "y" : 0
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 9,
+          "aspectWidth" : 16,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "FESTIVE NIGHT",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.72
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#FFFFFF",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.045,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "FESTIVE NIGHT"
+          }
+        },
+        {
+          "defaultText" : "写下日期",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.5,
+            "x" : 0.08,
+            "y" : 0.84
+          },
+          "id" : "date",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#F8E6C8",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.03,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "写下日期"
+          }
+        }
+      ],
+      "theme" : "holiday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#1F4A3A",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-pine"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.1,
+            "x" : 0.82,
+            "y" : 0.84
+          },
+          "id" : "gift",
+          "rotation" : 0,
+          "stickerID" : "life-gift"
+        }
+      ],
+      "id" : "p-holi-gift",
+      "name" : "礼物清单",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.62,
+            "width" : 0.4,
+            "x" : 0.08,
+            "y" : 0.18
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.4,
+            "x" : 0.52,
+            "y" : 0.18
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.4,
+            "x" : 0.52,
+            "y" : 0.5
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "GIFT LIST",
+          "frame" : {
+            "height" : 0.12,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.04
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#F4E2C7",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.05,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "GIFT LIST"
+          }
+        }
+      ],
+      "theme" : "holiday"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFFFFF",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-white"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.18,
+            "x" : 0.72,
+            "y" : 0.1
+          },
+          "id" : "new",
+          "rotation" : 0,
+          "stickerID" : "label-new"
+        }
+      ],
+      "id" : "p-prod-hero",
+      "name" : "主图详情",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.54,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.08
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.18,
+            "width" : 0.26,
+            "x" : 0.08,
+            "y" : 0.65
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.18,
+            "width" : 0.26,
+            "x" : 0.37,
+            "y" : 0.65
+          },
+          "id" : "c"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.18,
+            "width" : 0.26,
+            "x" : 0.66,
+            "y" : 0.65
+          },
+          "id" : "d"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "商品名称",
+          "frame" : {
+            "height" : 0.06,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.85
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#1A1A1A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.032,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "商品名称"
+          }
+        },
+        {
+          "defaultText" : "价格 \/ 卖点",
+          "frame" : {
+            "height" : 0.05,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.91
+          },
+          "id" : "price",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#C0392B",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.024,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "价格 \/ 卖点"
+          }
+        }
+      ],
+      "theme" : "product"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F2F2F2",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-gray"
+      },
+      "canvas" : {
+        "aspectHeight" : 3,
+        "aspectWidth" : 4,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.45,
+            "y" : 0.46
+          },
+          "id" : "arrow",
+          "rotation" : 0,
+          "stickerID" : "arrow-right"
+        }
+      ],
+      "id" : "p-prod-compare",
+      "name" : "细节对比",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.72,
+            "width" : 0.44,
+            "x" : 0.04,
+            "y" : 0.14
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.72,
+            "width" : 0.44,
+            "x" : 0.52,
+            "y" : 0.14
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 3,
+          "aspectWidth" : 4,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "细节 A",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.44,
+            "x" : 0.04,
+            "y" : 0.04
+          },
+          "id" : "l",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#222",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.03,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "细节 A"
+          }
+        },
+        {
+          "defaultText" : "细节 B",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.44,
+            "x" : 0.52,
+            "y" : 0.04
+          },
+          "id" : "r",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#222",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.03,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "细节 B"
+          }
+        }
+      ],
+      "theme" : "product"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FFFFFF",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-white"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.18,
+            "x" : 0.76,
+            "y" : 0.03
+          },
+          "id" : "hot",
+          "rotation" : 0,
+          "stickerID" : "label-hot"
+        }
+      ],
+      "id" : "p-prod-shelf",
+      "name" : "货架九图",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.04,
+            "y" : 0.12
+          },
+          "id" : "p0"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.35,
+            "y" : 0.12
+          },
+          "id" : "p1"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.66,
+            "y" : 0.12
+          },
+          "id" : "p2"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.04,
+            "y" : 0.4
+          },
+          "id" : "p3"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.35,
+            "y" : 0.4
+          },
+          "id" : "p4"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.66,
+            "y" : 0.4
+          },
+          "id" : "p5"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.04,
+            "y" : 0.68
+          },
+          "id" : "p6"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.35,
+            "y" : 0.68
+          },
+          "id" : "p7"
+        },
+        {
+          "cornerRadius" : 0.01,
+          "frame" : {
+            "height" : 0.26,
+            "width" : 0.29,
+            "x" : 0.66,
+            "y" : 0.68
+          },
+          "id" : "p8"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "系列展示",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.7,
+            "x" : 0.04,
+            "y" : 0.02
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#111",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.036,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "系列展示"
+          }
+        }
+      ],
+      "theme" : "product"
+    },
+    {
+      "background" : {
+        "colorHex" : "#111111",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-ink"
+      },
+      "canvas" : {
+        "aspectHeight" : 16,
+        "aspectWidth" : 9,
+        "isCustom" : false
+      },
+      "decorations" : [
+
+      ],
+      "id" : "p-soc-story",
+      "name" : "故事封面",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 1,
+            "width" : 1,
+            "x" : 0,
+            "y" : 0
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 16,
+          "aspectWidth" : 9,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "写下标题",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.72
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#FFFFFF",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.048,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "写下标题"
+          }
+        },
+        {
+          "defaultText" : "补充一句说明",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.84
+          },
+          "id" : "sub",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#EEEEEE",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.026,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "补充一句说明"
+          }
+        }
+      ],
+      "theme" : "social"
+    },
+    {
+      "background" : {
+        "colorHex" : "#1B2430",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-navy"
+      },
+      "canvas" : {
+        "aspectHeight" : 16,
+        "aspectWidth" : 9,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.1,
+            "x" : 0.82,
+            "y" : 0.08
+          },
+          "id" : "cam",
+          "rotation" : 0,
+          "stickerID" : "life-camera"
+        }
+      ],
+      "id" : "p-soc-cover",
+      "name" : "双图封面",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.62,
+            "width" : 1,
+            "x" : 0,
+            "y" : 0
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.22,
+            "width" : 0.36,
+            "x" : 0.08,
+            "y" : 0.5
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 16,
+          "aspectWidth" : 9,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "封面标题",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.76
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#FFFFFF",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.045,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "封面标题"
+          }
+        }
+      ],
+      "theme" : "social"
+    },
+    {
+      "background" : {
+        "colorHex" : "#232526",
+        "isHidden" : false,
+        "kind" : "gradient",
+        "presetID" : "grad-ink",
+        "secondaryHex" : "#414345"
+      },
+      "canvas" : {
+        "aspectHeight" : 1,
+        "aspectWidth" : 1,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.08,
+            "x" : 0.08,
+            "y" : 0.6
+          },
+          "id" : "quote",
+          "rotation" : 0,
+          "stickerID" : "date-quote"
+        }
+      ],
+      "id" : "p-soc-quote",
+      "name" : "金句卡片",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.5,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.08
+          },
+          "id" : "a"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "“把想说的话写在这里”",
+          "frame" : {
+            "height" : 0.2,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.62
+          },
+          "id" : "quote",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#FFFFFF",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.036,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "“把想说的话写在这里”"
+          }
+        },
+        {
+          "defaultText" : "— 署名",
+          "frame" : {
+            "height" : 0.08,
+            "width" : 0.84,
+            "x" : 0.08,
+            "y" : 0.84
+          },
+          "id" : "by",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#DDDDDD",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.024,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "— 署名"
+          }
+        }
+      ],
+      "theme" : "social"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F4F1EA",
+        "isHidden" : false,
+        "kind" : "solid",
+        "presetID" : "solid-cream"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.07,
+            "width" : 0.18,
+            "x" : 0.74,
+            "y" : 0.05
+          },
+          "id" : "like",
+          "rotation" : 0,
+          "stickerID" : "label-like"
+        }
+      ],
+      "id" : "p-soc-grid",
+      "name" : "三图封面",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.42,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.16
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.28,
+            "width" : 0.43,
+            "x" : 0.06,
+            "y" : 0.6
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0.02,
+          "frame" : {
+            "height" : 0.28,
+            "width" : 0.43,
+            "x" : 0.51,
+            "y" : 0.6
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        },
+        {
+          "aspectHeight" : 1,
+          "aspectWidth" : 1,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "本周精选",
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.04
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#1C1A17",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.045,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "本周精选"
+          }
+        }
+      ],
+      "theme" : "social"
+    }
+  ],
+  "schemaVersion" : 1,
+  "stickers" : [
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "旅行",
+      "id" : "label-travel",
+      "kind" : "badge",
+      "name" : "旅行"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "日常",
+      "id" : "label-daily",
+      "kind" : "badge",
+      "name" : "日常"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "生日",
+      "id" : "label-birthday",
+      "kind" : "badge",
+      "name" : "生日"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "节日",
+      "id" : "label-holiday",
+      "kind" : "badge",
+      "name" : "节日"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "新品",
+      "id" : "label-new",
+      "kind" : "badge",
+      "name" : "新品"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "热卖",
+      "id" : "label-hot",
+      "kind" : "badge",
+      "name" : "热卖"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "对比",
+      "id" : "label-compare",
+      "kind" : "badge",
+      "name" : "对比"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "推荐",
+      "id" : "label-recommend",
+      "kind" : "badge",
+      "name" : "推荐"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "NEW",
+      "id" : "label-new-en",
+      "kind" : "badge",
+      "name" : "NEW"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "SALE",
+      "id" : "label-sale",
+      "kind" : "badge",
+      "name" : "SALE"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "打卡",
+      "id" : "label-checkin",
+      "kind" : "badge",
+      "name" : "打卡"
+    },
+    {
+      "category" : "label",
+      "color" : "#FF5A36",
+      "drawing" : "喜欢",
+      "id" : "label-like",
+      "kind" : "badge",
+      "name" : "喜欢"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "calendar",
+      "id" : "date-calendar",
+      "kind" : "systemSymbol",
+      "name" : "日历"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "clock",
+      "id" : "date-clock",
+      "kind" : "systemSymbol",
+      "name" : "时钟"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "flag",
+      "id" : "date-flag",
+      "kind" : "systemSymbol",
+      "name" : "旗帜"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "bookmark",
+      "id" : "date-bookmark",
+      "kind" : "systemSymbol",
+      "name" : "书签"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "pin",
+      "id" : "date-pin",
+      "kind" : "systemSymbol",
+      "name" : "图钉"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "number",
+      "id" : "date-number",
+      "kind" : "systemSymbol",
+      "name" : "数字"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "textformat",
+      "id" : "date-text",
+      "kind" : "systemSymbol",
+      "name" : "文字"
+    },
+    {
+      "category" : "date",
+      "color" : "#1C1A17",
+      "drawing" : "quote.opening",
+      "id" : "date-quote",
+      "kind" : "systemSymbol",
+      "name" : "引号"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.up",
+      "id" : "arrow-up",
+      "kind" : "systemSymbol",
+      "name" : "向上"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.down",
+      "id" : "arrow-down",
+      "kind" : "systemSymbol",
+      "name" : "向下"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.left",
+      "id" : "arrow-left",
+      "kind" : "systemSymbol",
+      "name" : "向左"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.right",
+      "id" : "arrow-right",
+      "kind" : "systemSymbol",
+      "name" : "向右"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.up.left",
+      "id" : "arrow-up-left",
+      "kind" : "systemSymbol",
+      "name" : "左上"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.up.right",
+      "id" : "arrow-up-right",
+      "kind" : "systemSymbol",
+      "name" : "右上"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.forward",
+      "id" : "arrow-forward",
+      "kind" : "systemSymbol",
+      "name" : "前进"
+    },
+    {
+      "category" : "arrow",
+      "color" : "#1C1A17",
+      "drawing" : "arrow.left.arrow.right",
+      "id" : "arrow-swap",
+      "kind" : "systemSymbol",
+      "name" : "互换"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "circle",
+      "id" : "geo-circle",
+      "kind" : "shape",
+      "name" : "圆形"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "square",
+      "id" : "geo-square",
+      "kind" : "shape",
+      "name" : "方形"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "triangle",
+      "id" : "geo-triangle",
+      "kind" : "shape",
+      "name" : "三角"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "hexagon",
+      "id" : "geo-hexagon",
+      "kind" : "shape",
+      "name" : "六边"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#F4C430",
+      "drawing" : "star",
+      "id" : "geo-star",
+      "kind" : "shape",
+      "name" : "星星"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#E85D75",
+      "drawing" : "heart",
+      "id" : "geo-heart",
+      "kind" : "shape",
+      "name" : "心形"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "diamond",
+      "id" : "geo-diamond",
+      "kind" : "shape",
+      "name" : "菱形"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "plus",
+      "id" : "geo-plus",
+      "kind" : "shape",
+      "name" : "加号"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "ring",
+      "id" : "geo-ring",
+      "kind" : "shape",
+      "name" : "圆环"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "roundrect",
+      "id" : "geo-roundrect",
+      "kind" : "shape",
+      "name" : "圆角矩形"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "oval",
+      "id" : "geo-oval",
+      "kind" : "shape",
+      "name" : "椭圆"
+    },
+    {
+      "category" : "geometry",
+      "color" : "#1C1A17",
+      "drawing" : "line",
+      "id" : "geo-line",
+      "kind" : "shape",
+      "name" : "线条"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "airplane",
+      "id" : "life-airplane",
+      "kind" : "systemSymbol",
+      "name" : "飞机"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "car",
+      "id" : "life-car",
+      "kind" : "systemSymbol",
+      "name" : "汽车"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "camera",
+      "id" : "life-camera",
+      "kind" : "systemSymbol",
+      "name" : "相机"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "photo",
+      "id" : "life-photo",
+      "kind" : "systemSymbol",
+      "name" : "照片"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "leaf",
+      "id" : "life-leaf",
+      "kind" : "systemSymbol",
+      "name" : "叶子"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "sun.max",
+      "id" : "life-sun",
+      "kind" : "systemSymbol",
+      "name" : "太阳"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "moon",
+      "id" : "life-moon",
+      "kind" : "systemSymbol",
+      "name" : "月亮"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "cloud",
+      "id" : "life-cloud",
+      "kind" : "systemSymbol",
+      "name" : "云"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "cup.and.saucer",
+      "id" : "life-cup",
+      "kind" : "systemSymbol",
+      "name" : "杯子"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "gift",
+      "id" : "life-gift",
+      "kind" : "systemSymbol",
+      "name" : "礼物"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "music.note",
+      "id" : "life-music",
+      "kind" : "systemSymbol",
+      "name" : "音乐"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "book",
+      "id" : "life-book",
+      "kind" : "systemSymbol",
+      "name" : "书本"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "location",
+      "id" : "life-location",
+      "kind" : "systemSymbol",
+      "name" : "地点"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "figure.walk",
+      "id" : "life-walk",
+      "kind" : "systemSymbol",
+      "name" : "步行"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "bicycle",
+      "id" : "life-bike",
+      "kind" : "systemSymbol",
+      "name" : "自行车"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "umbrella",
+      "id" : "life-umbrella",
+      "kind" : "systemSymbol",
+      "name" : "雨伞"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "sparkles",
+      "id" : "life-sparkle",
+      "kind" : "systemSymbol",
+      "name" : "闪光"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "flame",
+      "id" : "life-flame",
+      "kind" : "systemSymbol",
+      "name" : "火焰"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "snowflake",
+      "id" : "life-snow",
+      "kind" : "systemSymbol",
+      "name" : "雪花"
+    },
+    {
+      "category" : "life",
+      "color" : "#1C1A17",
+      "drawing" : "drop",
+      "id" : "life-drop",
+      "kind" : "systemSymbol",
+      "name" : "水滴"
+    }
+  ]
+}

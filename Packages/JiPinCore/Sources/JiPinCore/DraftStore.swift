@@ -2,21 +2,24 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 import CoreGraphics
+import CryptoKit
+import Darwin
+import UIKit
 
 public enum DraftStoreError: LocalizedError, Equatable {
-    case incomplete
-    case missingProject
-    case encodingFailed
-    case appGroupUnavailable
-    case diskFull
+    case incomplete, missingProject, encodingFailed, appGroupUnavailable, diskFull
+    case missingAssets, conflictingAsset, unsupportedVersion
 
     public var errorDescription: String? {
         switch self {
         case .incomplete: return "草稿尚未写入完成，无法打开。"
         case .missingProject: return "找不到草稿文件。"
         case .encodingFailed: return "无法保存草稿。"
-        case .appGroupUnavailable: return "共享存储不可用。"
+        case .appGroupUnavailable: return "共享存储不可用，请检查极拼的 App Group 配置。"
         case .diskFull: return "存储空间不足，这次没有写入。已有草稿仍保留。"
+        case .missingAssets: return "部分照片或装饰素材缺失，已有草稿仍保留。请替换缺失素材后重试。"
+        case .conflictingAsset: return "素材内容发生冲突，已有草稿和照片仍保留。"
+        case .unsupportedVersion: return "此草稿由更新版本的极拼创建，请更新 App 后打开。"
         }
     }
 }
@@ -26,214 +29,234 @@ public struct LoadedDraft: Sendable {
     public var assets: [UUID: Data]
 }
 
+/// All reads and writes use the same process lock and App Group file lock.
+/// Assets are immutable; the only commit point is an atomic directory rename.
 public final class DraftStore: @unchecked Sendable {
     public static let shared = DraftStore()
-
     public let appGroupID: String
+    public let containerURL: URL
     private let fileManager: FileManager
-    private let overridesContainer: URL?
-    private let encoder: JSONEncoder
-    private let decoder: JSONDecoder
-    private let ioQueue = DispatchQueue(label: "com.jipin.drafts", qos: .userInitiated)
+    private let groupAvailable: Bool
+    private let mutex = NSRecursiveLock()
+    private var lockDepth = 0
+    private var assetDigests: [UUID: SHA256.Digest] = [:]
+    private let commitDirectory: @Sendable (URL, URL) throws -> Void
 
-    public init(
+    public convenience init(
         appGroupID: String = JiPin.appGroupID,
         fileManager: FileManager = .default,
         overridesContainer: URL? = nil
     ) {
+        self.init(appGroupID: appGroupID, fileManager: fileManager,
+                  overridesContainer: overridesContainer, commit: { try Self.atomicCommit($0, $1) })
+    }
+
+    // Injectable commit operation lets fault tests exercise real disk writes and rollback.
+    init(
+        appGroupID: String = JiPin.appGroupID,
+        fileManager: FileManager = .default,
+        overridesContainer: URL? = nil,
+        commit: @escaping @Sendable (URL, URL) throws -> Void
+    ) {
         self.appGroupID = appGroupID
         self.fileManager = fileManager
-        self.overridesContainer = overridesContainer
-        encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        self.commitDirectory = commit
+        let shared = overridesContainer ?? fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+        groupAvailable = shared != nil
+        containerURL = shared ?? fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
-    public var isUsingAppGroup: Bool {
-        if overridesContainer != nil { return true }
-        guard let groupURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
-            return false
-        }
-        let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        if groupURL.standardizedFileURL == documents.standardizedFileURL { return false }
-        let probe = groupURL.appendingPathComponent(".jipin-group-ok")
-        do {
-            try Data("ok".utf8).write(to: probe, options: .atomic)
-            try fileManager.removeItem(at: probe)
-            return true
-        } catch {
-            return false
-        }
-    }
-
-    public var containerURL: URL {
-        if let overridesContainer { return overridesContainer }
-        if let url = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            return url
-        }
-        return fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
-
-    public var draftsRoot: URL {
-        containerURL.appendingPathComponent("Drafts", isDirectory: true)
-    }
-
-    public var sharedAssetsRoot: URL {
-        containerURL.appendingPathComponent("SharedAssets", isDirectory: true)
-    }
-
-    public var cacheRoot: URL {
-        containerURL.appendingPathComponent("ExportCache", isDirectory: true)
-    }
+    public var isUsingAppGroup: Bool { groupAvailable }
+    public var draftsRoot: URL { containerURL.appendingPathComponent("Drafts", isDirectory: true) }
+    public var sharedAssetsRoot: URL { containerURL.appendingPathComponent("SharedAssets", isDirectory: true) }
+    public var cacheRoot: URL { containerURL.appendingPathComponent("ExportCache", isDirectory: true) }
 
     public func prepare() throws {
-        try fileManager.createDirectory(at: draftsRoot, withIntermediateDirectories: true)
-        try fileManager.createDirectory(at: sharedAssetsRoot, withIntermediateDirectories: true)
-        try fileManager.createDirectory(at: cacheRoot, withIntermediateDirectories: true)
+        try transaction {
+            try createDirectories()
+            // A writer killed before/after commit leaves only hidden staging directories.
+            let directories = try fileManager.contentsOfDirectory(at: draftsRoot, includingPropertiesForKeys: [.isDirectoryKey])
+            for directory in directories where directory.lastPathComponent.hasSuffix(".tmp") {
+                if (try? directory.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
+                    try? fileManager.removeItem(at: directory)
+                }
+            }
+        }
     }
 
-    public func listDrafts() -> [DraftSummary] {
-        guard let dirs = try? fileManager.contentsOfDirectory(
-            at: draftsRoot,
-            includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsHiddenFiles]
-        ) else { return [] }
+    private func createDirectories() throws {
+        for directory in [draftsRoot, sharedAssetsRoot, cacheRoot] {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            var protected = directory
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try protected.setResourceValues(values)
+        }
+    }
 
-        return dirs.compactMap { url -> DraftSummary? in
-            let complete = fileManager.fileExists(atPath: completeMarker(in: url).path)
-            guard complete else { return nil }
-            guard let project = try? loadProject(from: url) else { return nil }
-            let size = directorySize(url)
+    private func transaction<T>(_ operation: () throws -> T) throws -> T {
+        mutex.lock()
+        defer { mutex.unlock() }
+        if lockDepth > 0 { return try operation() }
+        try fileManager.createDirectory(at: containerURL, withIntermediateDirectories: true)
+        let descriptor = open(containerURL.appendingPathComponent(".jipin-store.lock").path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)
+        guard descriptor >= 0 else { throw Self.posixError() }
+        defer { close(descriptor) }
+        while flock(descriptor, LOCK_EX) != 0 {
+            if errno != EINTR { throw Self.posixError() }
+        }
+        lockDepth = 1
+        defer {
+            lockDepth = 0
+            flock(descriptor, LOCK_UN)
+        }
+        return try operation()
+    }
+
+    static func atomicCommit(_ staged: URL, _ destination: URL) throws {
+        let flags = FileManager.default.fileExists(atPath: destination.path) ? RENAME_SWAP : RENAME_EXCL
+        guard renamex_np(staged.path, destination.path, UInt32(flags)) == 0 else { throw posixError() }
+    }
+
+    private static func posixError() -> NSError { NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+
+    public func listDrafts() -> [DraftSummary] {
+        (try? transaction { listUnlocked() }) ?? []
+    }
+
+    private func listUnlocked() -> [DraftSummary] {
+        guard let dirs = try? fileManager.contentsOfDirectory(at: draftsRoot, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else { return [] }
+        return dirs.compactMap { url in
+            guard let id = UUID(uuidString: url.lastPathComponent),
+                  fileManager.fileExists(atPath: completeMarker(in: url).path),
+                  let project = try? loadProject(from: url), project.id == id else { return nil }
             let thumb = url.appendingPathComponent("thumbnail.jpg")
             let shared = referencedAssetIDs(in: project).reduce(Int64(0)) { total, id in
                 total + Int64(sharedAssetFile(id: id).flatMap { try? $0.resourceValues(forKeys: [.fileSizeKey]).fileSize } ?? 0)
             }
             return DraftSummary(
-                id: project.id,
-                name: project.name,
-                mode: project.mode,
-                updatedAt: project.updatedAt,
-                createdAt: project.createdAt,
-                photoCount: project.photoOrder.count,
-                byteSize: size + shared,
+                id: id, name: project.name, mode: project.mode,
+                updatedAt: project.updatedAt, createdAt: project.createdAt,
+                photoCount: project.photoOrder.count, byteSize: directorySize(url) + shared,
                 thumbnailPath: fileManager.fileExists(atPath: thumb.path) ? thumb : nil,
-                isIncomplete: false,
-                originatedFromExtension: project.originatedFromExtension
+                isIncomplete: false, originatedFromExtension: project.originatedFromExtension
             )
-        }
-        .sorted { $0.updatedAt > $1.updatedAt }
+        }.sorted { $0.updatedAt > $1.updatedAt }
     }
 
-    public func save(
-        project: CollageProject,
-        assets: [UUID: Data],
-        thumbnailJPEG: Data?
-    ) throws {
-        let tempURL = draftsRoot.appendingPathComponent("\(project.id.uuidString).tmp", isDirectory: true)
-        do {
-            try prepare()
-            let finalURL = draftURL(project.id)
-            if fileManager.fileExists(atPath: tempURL.path) {
-                try fileManager.removeItem(at: tempURL)
+    public func save(project: CollageProject, assets: [UUID: Data], thumbnailJPEG: Data?) throws {
+        try transaction {
+            try createDirectories()
+            let staged = draftsRoot.appendingPathComponent(".\(project.id.uuidString).\(UUID().uuidString).tmp", isDirectory: true)
+            // After a swap, staged holds the previous version. Cleanup cannot undo a commit.
+            defer { try? fileManager.removeItem(at: staged) }
+            do {
+                guard project.schemaVersion <= JiPin.schemaVersion else { throw DraftStoreError.unsupportedVersion }
+                try fileManager.createDirectory(at: staged, withIntermediateDirectories: true)
+                for id in referencedAssetIDs(in: project) {
+                    if let bytes = assets[id], !bytes.isEmpty {
+                        try writeSharedAsset(id: id, data: bytes)
+                    } else if sharedAssetFile(id: id) == nil {
+                        guard let legacy = legacyAssetData(projectURL: draftURL(project.id), assetID: id) else {
+                            throw DraftStoreError.missingAssets
+                        }
+                        try writeSharedAsset(id: id, data: legacy)
+                    }
+                }
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                encoder.dateEncodingStrategy = .iso8601
+                try encoder.encode(project).write(to: staged.appendingPathComponent("project.json"), options: .atomic)
+                if let thumbnailJPEG {
+                    try thumbnailJPEG.write(to: staged.appendingPathComponent("thumbnail.jpg"), options: .atomic)
+                }
+                try Data().write(to: completeMarker(in: staged), options: .atomic)
+                try commitDirectory(staged, draftURL(project.id))
+                // A cleanup error must never report an already committed draft as lost.
+                try? garbageCollectSharedAssets()
+            } catch {
+                let ns = error as NSError
+                if (ns.domain == NSCocoaErrorDomain && ns.code == NSFileWriteOutOfSpaceError)
+                    || (ns.domain == NSPOSIXErrorDomain && ns.code == Int(ENOSPC)) {
+                    throw DraftStoreError.diskFull
+                }
+                throw error
             }
-            try fileManager.createDirectory(at: tempURL, withIntermediateDirectories: true)
-
-            let data = try encoder.encode(project)
-            try data.write(to: tempURL.appendingPathComponent("project.json"), options: .atomic)
-
-            let referenced = referencedAssetIDs(in: project)
-            for (id, payload) in assets where referenced.contains(id) {
-                try writeSharedAsset(id: id, data: payload)
-            }
-            if let thumbnailJPEG {
-                try thumbnailJPEG.write(to: tempURL.appendingPathComponent("thumbnail.jpg"), options: .atomic)
-            }
-            try Data().write(to: completeMarker(in: tempURL), options: .atomic)
-
-            if fileManager.fileExists(atPath: finalURL.path) {
-                try fileManager.removeItem(at: finalURL)
-            }
-            try fileManager.moveItem(at: tempURL, to: finalURL)
-            try garbageCollectSharedAssets()
-        } catch {
-            if fileManager.fileExists(atPath: tempURL.path) {
-                try? fileManager.removeItem(at: tempURL)
-            }
-            let ns = error as NSError
-            if ns.code == NSFileWriteOutOfSpaceError || (ns.domain == NSPOSIXErrorDomain && ns.code == Int(ENOSPC)) {
-                throw DraftStoreError.diskFull
-            }
-            throw error
         }
     }
 
     public func load(id: UUID) throws -> LoadedDraft {
-        let url = draftURL(id)
-        guard fileManager.fileExists(atPath: completeMarker(in: url).path) else {
-            throw DraftStoreError.incomplete
-        }
-        let project = try loadProject(from: url)
-        var assets: [UUID: Data] = [:]
-        for assetID in referencedAssetIDs(in: project) {
-            if let data = assetData(projectID: id, assetID: assetID) {
-                assets[assetID] = data
+        try transaction {
+            let url = draftURL(id)
+            guard fileManager.fileExists(atPath: completeMarker(in: url).path) else { throw DraftStoreError.incomplete }
+            let project = try loadProject(from: url)
+            guard project.id == id else { throw DraftStoreError.missingProject }
+            var assets: [UUID: Data] = [:]
+            for id in referencedAssetIDs(in: project) {
+                if let file = sharedAssetFile(id: id) {
+                    assets[id] = try? Data(contentsOf: file)
+                } else {
+                    assets[id] = legacyAssetData(projectURL: url, assetID: id)
+                }
             }
+            return LoadedDraft(project: project, assets: assets)
         }
-        return LoadedDraft(project: project, assets: assets)
     }
 
     public func duplicate(id: UUID) throws -> UUID {
-        let loaded = try load(id: id)
-        var copy = loaded.project
-        copy.id = UUID()
-        copy.name = loaded.project.name + " 副本"
-        copy.createdAt = Date()
-        copy.updatedAt = Date()
-        try save(project: copy, assets: loaded.assets, thumbnailJPEG: thumbnailData(id: id))
-        return copy.id
+        try transaction {
+            let loaded = try load(id: id)
+            var copy = loaded.project
+            copy.id = UUID()
+            copy.name += " 副本"
+            copy.createdAt = Date()
+            copy.updatedAt = copy.createdAt
+            try save(project: copy, assets: loaded.assets, thumbnailJPEG: thumbnailData(id: id))
+            return copy.id
+        }
     }
 
     public func rename(id: UUID, to name: String) throws {
-        var loaded = try load(id: id)
-        loaded.project.name = name
-        loaded.project.touch()
-        try save(project: loaded.project, assets: loaded.assets, thumbnailJPEG: thumbnailData(id: id))
+        try transaction {
+            var loaded = try load(id: id)
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            loaded.project.name = trimmed
+            loaded.project.touch()
+            try save(project: loaded.project, assets: loaded.assets, thumbnailJPEG: thumbnailData(id: id))
+        }
     }
 
     public func delete(id: UUID) throws {
-        let url = draftURL(id)
-        if fileManager.fileExists(atPath: url.path) {
-            try fileManager.removeItem(at: url)
+        try transaction {
+            let url = draftURL(id)
+            if fileManager.fileExists(atPath: url.path) { try fileManager.removeItem(at: url) }
+            try? garbageCollectSharedAssets()
         }
-        try? garbageCollectSharedAssets()
     }
 
     public func thumbnailData(id: UUID) -> Data? {
-        try? Data(contentsOf: draftURL(id).appendingPathComponent("thumbnail.jpg"))
+        try? transaction { try Data(contentsOf: draftURL(id).appendingPathComponent("thumbnail.jpg")) }
     }
 
     public func clearExportCache() throws {
-        if fileManager.fileExists(atPath: cacheRoot.path) {
-            try fileManager.removeItem(at: cacheRoot)
+        try transaction {
+            if fileManager.fileExists(atPath: cacheRoot.path) { try fileManager.removeItem(at: cacheRoot) }
+            try createDirectories()
         }
-        try fileManager.createDirectory(at: cacheRoot, withIntermediateDirectories: true)
     }
 
     public func draftsSize() -> Int64 {
-        directorySize(draftsRoot) + directorySize(sharedAssetsRoot)
+        (try? transaction { directorySize(draftsRoot) + directorySize(sharedAssetsRoot) }) ?? 0
     }
 
-    public func cacheSize() -> Int64 {
-        directorySize(cacheRoot)
-    }
+    public func cacheSize() -> Int64 { (try? transaction { directorySize(cacheRoot) }) ?? 0 }
 
     public func assetData(projectID: UUID, assetID: UUID) -> Data? {
-        if let shared = sharedAssetFile(id: assetID), let data = try? Data(contentsOf: shared) {
-            return data
+        try? transaction {
+            if let file = sharedAssetFile(id: assetID) { return try Data(contentsOf: file) }
+            return legacyAssetData(projectURL: draftURL(projectID), assetID: assetID)
         }
-        return legacyAssetData(projectURL: draftURL(projectID), assetID: assetID)
     }
 
     public func referencedAssetIDs(in project: CollageProject) -> Set<UUID> {
@@ -247,31 +270,30 @@ public final class DraftStore: @unchecked Sendable {
     }
 
     public func sharedAssetFileCount() -> Int {
-        let files = (try? fileManager.contentsOfDirectory(at: sharedAssetsRoot, includingPropertiesForKeys: nil)) ?? []
-        return files.filter { !$0.lastPathComponent.hasPrefix(".") }.count
+        (try? transaction {
+            try fileManager.contentsOfDirectory(at: sharedAssetsRoot, includingPropertiesForKeys: nil)
+                .filter { UUID(uuidString: $0.deletingPathExtension().lastPathComponent) != nil }.count
+        }) ?? 0
     }
 
-    private func draftURL(_ id: UUID) -> URL {
-        draftsRoot.appendingPathComponent(id.uuidString, isDirectory: true)
-    }
-
-    private func completeMarker(in url: URL) -> URL {
-        url.appendingPathComponent(".complete")
-    }
+    private func draftURL(_ id: UUID) -> URL { draftsRoot.appendingPathComponent(id.uuidString, isDirectory: true) }
+    private func completeMarker(in url: URL) -> URL { url.appendingPathComponent(".complete") }
 
     private func loadProject(from url: URL) throws -> CollageProject {
         let file = url.appendingPathComponent("project.json")
         guard fileManager.fileExists(atPath: file.path) else { throw DraftStoreError.missingProject }
-        let data = try Data(contentsOf: file)
-        return try decoder.decode(CollageProject.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let project = try decoder.decode(CollageProject.self, from: Data(contentsOf: file))
+        guard project.schemaVersion <= JiPin.schemaVersion else { throw DraftStoreError.unsupportedVersion }
+        return project
     }
 
     private func directorySize(_ url: URL) -> Int64 {
         let enumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey])
         var total: Int64 = 0
         while let file = enumerator?.nextObject() as? URL {
-            let values = try? file.resourceValues(forKeys: [.fileSizeKey])
-            total += Int64(values?.fileSize ?? 0)
+            total += Int64((try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
         }
         return total
     }
@@ -283,46 +305,98 @@ public final class DraftStore: @unchecked Sendable {
     }
 
     private func writeSharedAsset(id: UUID, data: Data) throws {
-        try prepare()
-        let ext = suggestedExtension(for: data)
-        let dest = sharedAssetsRoot.appendingPathComponent("\(id.uuidString).\(ext)")
-        try data.write(to: dest, options: .atomic)
-        for leftover in matchingAssetFiles(in: sharedAssetsRoot, id: id) where leftover.lastPathComponent != dest.lastPathComponent {
-            try fileManager.removeItem(at: leftover)
+        let digest = SHA256.hash(data: data)
+        if let existing = sharedAssetFile(id: id) {
+            if assetDigests[id] != digest {
+                guard try Data(contentsOf: existing) == data else { throw DraftStoreError.conflictingAsset }
+            }
+        } else {
+            try data.write(to: sharedAssetsRoot.appendingPathComponent("\(id.uuidString).\(suggestedExtension(for: data))"), options: .atomic)
         }
+        assetDigests[id] = digest
     }
 
     private func sharedAssetFile(id: UUID) -> URL? {
-        matchingAssetFiles(in: sharedAssetsRoot, id: id).first
+        ["jpg", "png", "dat"].map { sharedAssetsRoot.appendingPathComponent("\(id.uuidString).\($0)") }
+            .first { fileManager.fileExists(atPath: $0.path) }
     }
 
     private func legacyAssetData(projectURL: URL, assetID: UUID) -> Data? {
-        let assetsDir = projectURL.appendingPathComponent("assets", isDirectory: true)
-        return matchingAssetFiles(in: assetsDir, id: assetID).first.flatMap { try? Data(contentsOf: $0) }
-    }
-
-    private func matchingAssetFiles(in directory: URL, id: UUID) -> [URL] {
+        let directory = projectURL.appendingPathComponent("assets", isDirectory: true)
         let files = (try? fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)) ?? []
-        return files.filter { $0.deletingPathExtension().lastPathComponent == id.uuidString }
+        return files.first { $0.deletingPathExtension().lastPathComponent == assetID.uuidString }
+            .flatMap { try? Data(contentsOf: $0) }
     }
 
     private func garbageCollectSharedAssets() throws {
-        try prepare()
         var live = Set<UUID>()
-        for summary in listDrafts() {
-            guard let project = try? loadProject(from: draftURL(summary.id)) else { continue }
+        let directories = try fileManager.contentsOfDirectory(at: draftsRoot, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+        for directory in directories where UUID(uuidString: directory.lastPathComponent) != nil {
+            guard fileManager.fileExists(atPath: completeMarker(in: directory).path) else { continue }
+            // Be conservative: an unreadable or future-version draft may still own assets.
+            guard let project = try? loadProject(from: directory) else { return }
             live.formUnion(referencedAssetIDs(in: project))
         }
-        let files = (try? fileManager.contentsOfDirectory(at: sharedAssetsRoot, includingPropertiesForKeys: nil)) ?? []
-        for file in files {
-            let name = file.deletingPathExtension().lastPathComponent
-            guard let uuid = UUID(uuidString: name), !live.contains(uuid) else { continue }
+        for file in try fileManager.contentsOfDirectory(at: sharedAssetsRoot, includingPropertiesForKeys: nil) {
+            guard let id = UUID(uuidString: file.deletingPathExtension().lastPathComponent), !live.contains(id) else { continue }
             try fileManager.removeItem(at: file)
+            assetDigests[id] = nil
         }
     }
 }
 
 public enum ImageIOHelpers {
+    public static func typeIdentifier(of data: Data) -> String {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let type = CGImageSourceGetType(source) else { return UTType.image.identifier }
+        return type as String
+    }
+
+    public static func hasAlpha(_ image: CGImage) -> Bool {
+        switch image.alphaInfo {
+        case .first, .last, .premultipliedFirst, .premultipliedLast, .alphaOnly: return true
+        default: return false
+        }
+    }
+
+    /// Working copies retain PNG alpha, bake orientation, strip metadata and bound decode memory.
+    public static func sanitizedImageData(
+        from data: Data,
+        jpegQuality: CGFloat = 0.95,
+        maxLongSide: CGFloat = 8192,
+        maxPixelCount: CGFloat = 16_777_216
+    ) -> Data? {
+        autoreleasepool {
+            let size = pixelSize(of: data)
+            guard size.width > 0, size.height > 0, maxLongSide > 0, maxPixelCount > 0 else { return nil }
+            let longest = max(size.width, size.height)
+            let scale = min(1, maxLongSide / longest, sqrt(maxPixelCount / (size.width * size.height)))
+            guard let image = thumbnail(from: data, maxLongSide: max(1, floor(longest * scale))) else { return nil }
+            if typeIdentifier(of: data) == UTType.png.identifier || hasAlpha(image) {
+                return pngData(from: image)
+            }
+            return jpegData(from: image, quality: jpegQuality)
+        }
+    }
+
+    /// UIImage's orientation is not necessarily reflected in its cgImage pixels.
+    public static func sanitizedImageData(from image: UIImage, maxLongSide: CGFloat = 4096, maxPixelCount: CGFloat = 4_194_304) -> Data? {
+        let sourceSize = CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
+        guard sourceSize.width > 0, sourceSize.height > 0 else { return nil }
+        let factor = min(1, maxLongSide / max(sourceSize.width, sourceSize.height), sqrt(maxPixelCount / (sourceSize.width * sourceSize.height)))
+        let size = CGSize(width: max(1, floor(sourceSize.width * factor)), height: max(1, floor(sourceSize.height * factor)))
+        let alpha = image.cgImage.map(hasAlpha) ?? true
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        format.opaque = !alpha
+        format.preferredRange = .standard
+        let rendered = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        guard let cgImage = rendered.cgImage else { return nil }
+        return alpha ? pngData(from: cgImage) : jpegData(from: cgImage, quality: 0.95)
+    }
+
     public static func pixelSize(of data: Data) -> CGSize {
         guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
               let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
@@ -377,6 +451,7 @@ public enum ImageIOHelpers {
     }
 
     public static func sRGBImage(from image: CGImage) -> CGImage {
+        if image.colorSpace?.name == CGColorSpace.sRGB { return image }
         guard let space = CGColorSpace(name: CGColorSpace.sRGB) else { return image }
         let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
         guard let ctx = CGContext(

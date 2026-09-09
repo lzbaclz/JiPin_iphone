@@ -22,17 +22,17 @@
 	<string>1</string>
 	<key>NSExtension</key>
 	<dict>
+		<key>NSExtensionActionWantsFullScreenPresentation</key>
+		<true/>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>NSExtensionActionWantsFullScreenPresentation</key>
-			<true/>
 			<key>NSExtensionActivationRule</key>
 			<dict>
 				<key>NSExtensionActivationDictionaryVersion</key>
 				<integer>2</integer>
-				<key>NSExtensionActivationSupportsImageWithMaxCount</key>
-				<integer>9</integer>
 				<key>NSExtensionActivationSupportsFileWithMaxCount</key>
+				<integer>9</integer>
+				<key>NSExtensionActivationSupportsImageWithMaxCount</key>
 				<integer>9</integer>
 			</dict>
 		</dict>

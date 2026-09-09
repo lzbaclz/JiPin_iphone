@@ -4,7 +4,10 @@ import UIKit
 
 @MainActor
 public final class AssetLibrary: ObservableObject {
-    @Published public var images: [UUID: Data] = [:]
+    @Published public var images: [UUID: Data] = [:] {
+        didSet { revision &+= 1 }
+    }
+    @Published public private(set) var revision: UInt64 = 0
     @Published public var pixelSizes: [UUID: CGSize] = [:]
 
     public init(images: [UUID: Data] = [:]) {
@@ -22,10 +25,7 @@ public final class AssetLibrary: ObservableObject {
     }
 
     public func data(for id: UUID) -> Data? { images[id] }
-}
-
-extension AssetLibrary: AssetProviding {
-    public func imageData(for id: UUID) -> Data? { images[id] }
+    public var snapshot: DataAssetLibrary { DataAssetLibrary(images: images) }
 }
 
 public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
@@ -73,7 +73,7 @@ public final class EditorSession: ObservableObject {
     @Published public var project: CollageProject
     @Published public var selectedID: UUID?
     @Published public var guides: [SnapGuide] = []
-    @Published public var activeTool: EditorTool = .adjust
+    @Published public var activeTool: EditorTool = .layout
     @Published public var isSaving = false
     @Published public var lastError: String?
     @Published public var lowResolutionWarning = false
@@ -85,6 +85,7 @@ public final class EditorSession: ObservableObject {
     @Published public var mosaicRadius = 0.05
     @Published public var livePoints: [CGPoint] = []
     @Published public var compareOriginal = false
+    @Published public var wantsTextFocus = false
 
     public let assets: AssetLibrary
     public let undo = UndoStack()
@@ -92,12 +93,25 @@ public final class EditorSession: ObservableObject {
 
     private var saveTask: Task<Void, Never>?
     private var gestureSnapshot: CollageProject?
+    private var checkpointPending = false
+    private var checkpointProject: CollageProject?
+    public let autosaves: Bool
 
-    public init(project: CollageProject, assets: AssetLibrary, store: DraftStore = .shared) {
+    public init(project: CollageProject, assets: AssetLibrary, store: DraftStore = .shared, autosaves: Bool = true) {
         self.project = project
         self.assets = assets
         self.store = store
+        self.autosaves = autosaves
+        self.activeTool = Self.defaultTool(for: project.mode)
+        self.selectedID = project.photoLayers.first?.id
         refreshWarnings()
+    }
+
+    public static func defaultTool(for mode: CollageMode) -> EditorTool {
+        switch mode {
+        case .template, .poster, .longStrip, .freeform:
+            return .layout
+        }
     }
 
     public var selected: LayerObject? {
@@ -109,10 +123,10 @@ public final class EditorSession: ObservableObject {
     public var canAddObject: Bool { project.objects.count < JiPin.maxObjects }
     public var isDrawingTool: Bool { activeTool == .doodle || activeTool == .mosaic }
     public var remainingPhotoSlots: Int {
-        max(PhotoLimits.range(for: project.mode).upperBound - project.photoOrder.count, 0)
+        max(min(PhotoLimits.range(for: project.mode).upperBound - project.photoOrder.count, JiPin.maxObjects - project.objects.count), 0)
     }
     public var outputSizeLabel: String {
-        ExportGeometry.pixelLabel(for: project, assets: assets)
+        ExportGeometry.pixelLabel(for: project, assets: assets.snapshot)
     }
 
     public enum BrushMode: String, CaseIterable, Identifiable, Sendable {
@@ -131,20 +145,26 @@ public final class EditorSession: ObservableObject {
     }
 
     public func checkpoint() {
+        guard gestureSnapshot == nil else { return }
+        if checkpointPending && checkpointProject == project { return }
         undo.checkpoint(project)
+        checkpointPending = true
+        checkpointProject = project
     }
 
     public func beginGesture() {
         if gestureSnapshot == nil {
+            checkpointPending = false
+            checkpoint()
             gestureSnapshot = project
-            undo.checkpoint(project)
         }
     }
 
     public func endGesture() {
+        let hadGesture = gestureSnapshot != nil
         gestureSnapshot = nil
         guides = []
-        scheduleSave()
+        if hadGesture { scheduleSave() }
     }
 
     public func selectTool(_ tool: EditorTool) {
@@ -160,6 +180,8 @@ public final class EditorSession: ObservableObject {
     }
 
     public func undoLast() {
+        checkpointPending = false
+        gestureSnapshot = nil
         if let previous = undo.undo(current: project) {
             project = previous
             scheduleSave()
@@ -167,6 +189,8 @@ public final class EditorSession: ObservableObject {
     }
 
     public func redoLast() {
+        checkpointPending = false
+        gestureSnapshot = nil
         if let next = undo.redo(current: project) {
             project = next
             scheduleSave()
@@ -175,18 +199,38 @@ public final class EditorSession: ObservableObject {
 
     public func select(_ id: UUID?) {
         selectedID = id
-        if let object = selected {
-            switch object.kind {
-            case .text: activeTool = .text
-            case .sticker, .shape: activeTool = .sticker
-            default: activeTool = .adjust
+        guard let object = selected else { return }
+        switch object.kind {
+        case .text:
+            activeTool = .text
+        case .sticker, .shape:
+            activeTool = .sticker
+        case .doodle:
+            activeTool = .doodle
+        case .photo:
+            let photoTools: Set<EditorTool> = [.adjust, .crop, .filter, .color, .border, .mosaic, .layout]
+            if !photoTools.contains(activeTool) {
+                activeTool = .adjust
             }
         }
     }
 
-    public func updateSelected(_ body: (inout LayerObject) -> Void) {
-        guard let selectedID else { return }
-        project.updateObject(id: selectedID, body)
+    public func updateSelected(allowLocked: Bool = false, _ body: (inout LayerObject) -> Void) {
+        guard let selectedID, var object = project.object(id: selectedID), allowLocked || !object.isLocked else { return }
+        let before = object
+        body(&object)
+        guard object != before else { return }
+        if !checkpointPending { checkpoint() }
+        project.updateObject(id: selectedID) { $0 = object }
+        scheduleSave()
+    }
+
+    public func updateProject(_ body: (inout CollageProject) -> Void) {
+        var next = project
+        body(&next)
+        guard next != project else { return }
+        if !checkpointPending { checkpoint() }
+        project = next
         scheduleSave()
     }
 
@@ -251,6 +295,19 @@ public final class EditorSession: ObservableObject {
         setPhotoContent(offsetX: (crop?.offsetX ?? 0) + dx, offsetY: (crop?.offsetY ?? 0) + dy)
     }
 
+    public func photoPanTranslation(_ delta: CGSize, canvasSize: CGSize) -> CGSize {
+        guard let selected, let payload = selected.photo,
+              let cell = photoFrames(canvasSize: canvasSize)[selected.id] else { return .zero }
+        let frame = LayoutEngine.photoDrawFrame(payload, cell: cell)
+        let angle = selected.transform.rotation * .pi / 180
+        let c: Double = cos(angle)
+        let s: Double = sin(angle)
+        let x = CGFloat(c) * delta.width + CGFloat(s) * delta.height
+        let y = -CGFloat(s) * delta.width + CGFloat(c) * delta.height
+        return CGSize(width: x * (selected.transform.scaleX < 0 ? -1 : 1) / max(frame.width, 1),
+                      height: y / max(frame.height, 1))
+    }
+
     public func scaleSelected(_ factor: CGFloat) {
         guard selected?.isLocked != true else { return }
         if pansPhotoContent {
@@ -258,8 +315,8 @@ public final class EditorSession: ObservableObject {
             return
         }
         updateSelected { object in
-            object.transform.width *= Double(factor)
-            object.transform.height *= Double(factor)
+            object.transform.width = min(max(object.transform.width * Double(factor), 0.02), 4)
+            object.transform.height = min(max(object.transform.height * Double(factor), 0.02), 4)
         }
     }
 
@@ -272,6 +329,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func rotateSelected(degrees: Double) {
+        guard selected != nil, selected?.isLocked != true else { return }
         checkpoint()
         updateSelected { $0.transform.rotation += degrees }
     }
@@ -281,6 +339,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func flipSelected(horizontal: Bool) {
+        guard selected != nil, selected?.isLocked != true else { return }
         checkpoint()
         updateSelected { object in
             if horizontal { object.transform.scaleX *= -1 } else { object.transform.scaleY *= -1 }
@@ -288,13 +347,13 @@ public final class EditorSession: ObservableObject {
     }
 
     public func replaceSelectedPhoto(_ photo: ImportedPhoto) {
+        guard let selected, !selected.isLocked, selected.kind == .photo,
+              let orderIndex = project.photoLayers.firstIndex(where: { $0.id == selected.id }) else { return }
         checkpoint()
         assets.ingest([photo])
+        project.photoOrder[orderIndex] = photo.id
         updateSelected { object in
             guard var payload = object.photo else { return }
-            if let old = project.photoOrder.firstIndex(of: payload.assetID) {
-                project.photoOrder[old] = photo.id
-            }
             payload.assetID = photo.id
             payload.crop = .identity
             payload.filterID = nil
@@ -308,49 +367,40 @@ public final class EditorSession: ObservableObject {
     }
 
     public func swapPhotos(a: UUID, b: UUID) {
-        checkpoint()
         guard let first = project.objects.firstIndex(where: { $0.id == a }),
               let second = project.objects.firstIndex(where: { $0.id == b }),
-              let assetA = project.objects[first].photo?.assetID,
-              let assetB = project.objects[second].photo?.assetID
+              first != second, !project.objects[first].isLocked, !project.objects[second].isLocked,
+              var payloadA = project.objects[first].photo,
+              var payloadB = project.objects[second].photo,
+              let orderA = project.photoLayers.firstIndex(where: { $0.id == a }),
+              let orderB = project.photoLayers.firstIndex(where: { $0.id == b })
         else { return }
-        project.objects[first].photo?.assetID = assetB
-        project.objects[second].photo?.assetID = assetA
-        project.objects[first].photo?.crop = .identity
-        project.objects[second].photo?.crop = .identity
-        if let i = project.photoOrder.firstIndex(of: assetA),
-           let j = project.photoOrder.firstIndex(of: assetB) {
-            project.photoOrder.swapAt(i, j)
-        }
+        checkpoint()
+        let slotA = payloadA.slotID
+        payloadA.slotID = payloadB.slotID
+        payloadB.slotID = slotA
+        project.objects[first].photo = payloadB
+        project.objects[second].photo = payloadA
+        project.photoOrder.swapAt(orderA, orderB)
         project.touch()
         scheduleSave()
     }
 
     public func movePhoto(forward: Bool) {
-        guard let selectedID, let payload = project.object(id: selectedID)?.photo else { return }
-        guard let index = project.photoOrder.firstIndex(of: payload.assetID) else { return }
+        guard let selectedID, selected?.isLocked != true,
+              let index = project.photoLayers.firstIndex(where: { $0.id == selectedID }) else { return }
         let next = forward ? index + 1 : index - 1
         guard project.photoOrder.indices.contains(next) else { return }
         checkpoint()
         project.photoOrder.swapAt(index, next)
-        if project.mode == .template, let layoutID = project.layoutID, let layout = CollageGridLayoutCatalog.layout(id: layoutID) {
-            ProjectFactory.applyLayout(layout, to: &project)
-        } else if project.mode == .longStrip {
-            let photos = project.photoOrder
-            project.objects = project.objects.filter { $0.kind != .photo } + photos.enumerated().compactMap { index, assetID in
-                var layer = project.photoLayers.first(where: { $0.photo?.assetID == assetID })
-                layer?.zIndex = index
-                layer?.photo?.slotID = "strip-\(index)"
-                return layer
-            }
-        }
+        ProjectFactory.syncPhotos(in: &project)
         project.touch()
         scheduleSave()
     }
 
     public func addPhotos(_ photos: [ImportedPhoto]) {
         let range = PhotoLimits.range(for: project.mode)
-        let room = max(range.upperBound - project.photoOrder.count, 0)
+        let room = max(min(range.upperBound - project.photoOrder.count, JiPin.maxObjects - project.objects.count), 0)
         let accepted = Array(photos.prefix(room))
         if accepted.isEmpty {
             lastError = "当前模式最多 \(range.upperBound) 张照片。"
@@ -363,12 +413,24 @@ public final class EditorSession: ObservableObject {
         assets.ingest(accepted)
         project.photoOrder.append(contentsOf: accepted.map(\.id))
         ProjectFactory.syncPhotos(in: &project)
+        if project.mode == .freeform {
+            let canvasRatio = project.canvas.ratio
+            for photo in accepted {
+                if let id = project.photoLayers.first(where: { $0.photo?.assetID == photo.id })?.id {
+                    let ratio = max(photo.pixelSize.width, 1) / max(photo.pixelSize.height, 1)
+                    project.updateObject(id: id) {
+                        $0.transform.height = $0.transform.width * canvasRatio / ratio
+                    }
+                }
+            }
+        }
         refreshWarnings()
         scheduleSave()
     }
 
     public func removeSelectedPhoto() {
-        guard let selected, selected.kind == .photo, let assetID = selected.photo?.assetID else { return }
+        guard let selected, selected.kind == .photo,
+              let orderIndex = project.photoLayers.firstIndex(where: { $0.id == selected.id }) else { return }
         guard !selected.isLocked else { return }
         let range = PhotoLimits.range(for: project.mode)
         if project.photoOrder.count <= range.lowerBound {
@@ -376,9 +438,7 @@ public final class EditorSession: ObservableObject {
             return
         }
         checkpoint()
-        if let orderIndex = project.photoOrder.firstIndex(of: assetID) {
-            project.photoOrder.remove(at: orderIndex)
-        }
+        project.photoOrder.remove(at: orderIndex)
         project.objects.removeAll { $0.id == selected.id }
         selectedID = nil
         ProjectFactory.syncPhotos(in: &project)
@@ -405,6 +465,7 @@ public final class EditorSession: ObservableObject {
         project.objects.append(layer)
         selectedID = layer.id
         activeTool = .text
+        wantsTextFocus = true
         scheduleSave()
     }
 
@@ -450,10 +511,13 @@ public final class EditorSession: ObservableObject {
         }
         checkpoint()
         assets.ingest([photo])
+        let ratio = max(photo.pixelSize.width, 1) / max(photo.pixelSize.height, 1)
+        let width = min(0.28, 0.7 * ratio / project.canvas.ratio)
+        let height = width * project.canvas.ratio / ratio
         let layer = LayerObject(
             kind: .sticker,
             zIndex: (project.objects.map(\.zIndex).max() ?? 0) + 1,
-            transform: CanvasTransform(width: 0.28, height: 0.28),
+            transform: CanvasTransform(width: width, height: height),
             sticker: StickerPayload(stickerID: "custom-image", assetID: photo.id)
         )
         project.objects.append(layer)
@@ -476,6 +540,14 @@ public final class EditorSession: ObservableObject {
     }
 
     public func appendDoodle(_ stroke: DoodleStroke) {
+        if let ink = project.objects.first(where: { $0.kind == .doodle }), ink.isLocked {
+            lastError = "涂鸦图层已锁定，请先在图层面板解锁。"
+            return
+        }
+        guard project.objects.contains(where: { $0.kind == .doodle }) || canAddObject else {
+            lastError = "画布最多 \(JiPin.maxObjects) 个对象。"
+            return
+        }
         let id = ensureDoodleLayer()
         let count = project.objects.first(where: { $0.id == id })?.doodle?.strokes.count ?? 0
         if count >= JiPin.maxDoodleStrokes {
@@ -508,6 +580,9 @@ public final class EditorSession: ObservableObject {
             let spacing = hypot(point.x - last.x, point.y - last.y)
             if spacing < JiPin.doodleSampleSpacing { return }
         }
+        if livePoints.count >= 2048 {
+            livePoints = stride(from: 0, to: livePoints.count, by: 2).map { livePoints[$0] }
+        }
         livePoints.append(point)
     }
 
@@ -539,6 +614,9 @@ public final class EditorSession: ObservableObject {
         }
         let photoPoints = livePoints.compactMap { canvasToPhoto($0, photoID: target, canvasSize: canvasSize) }
         if brushMode == .cover, let first = photoPoints.first, let last = photoPoints.last {
+            guard (project.object(id: target)?.photo?.coverBlocks.count ?? 0) < JiPin.maxDoodleStrokes else {
+                lastError = "这张照片的遮挡已达上限，请清除部分遮挡后继续。"; return
+            }
             let rect = NormalizedRect(
                 x: min(first.x, last.x),
                 y: min(first.y, last.y),
@@ -549,6 +627,9 @@ public final class EditorSession: ObservableObject {
                 object.photo?.coverBlocks.append(CoverBlock(rect: rect, colorHex: brushColorHex))
             }
         } else {
+            guard (project.object(id: target)?.photo?.mosaics.count ?? 0) < JiPin.maxDoodleStrokes else {
+                lastError = "这张照片的马赛克笔画已达上限，请清除后继续。"; return
+            }
             project.updateObject(id: target) { object in
                 object.photo?.mosaics.append(MosaicStroke(points: photoPoints, radius: mosaicRadius))
             }
@@ -574,10 +655,25 @@ public final class EditorSession: ObservableObject {
     }
 
     public func applyPoster(_ template: PosterTemplate, keeping photos: [UUID]) {
+        guard photos.count == template.photoCount else {
+            lastError = "这个海报需要 \(template.photoCount) 张照片，请先完成照片选择。"
+            return
+        }
         checkpoint()
-        let retained = project.photoOrder
         ProjectFactory.applyPoster(template, photos: photos, to: &project)
-        project.photoOrder = retained
+        project.photoOrder = photos
+        refreshWarnings()
+        scheduleSave()
+    }
+
+    public func applyPoster(_ template: PosterTemplate, importing photos: [ImportedPhoto]) {
+        guard photos.count == template.photoCount else { lastError = "照片数量与海报不匹配。"; return }
+        checkpoint()
+        assets.ingest(photos)
+        ProjectFactory.applyPoster(template, photos: photos.map(\.id), to: &project)
+        project.photoOrder = photos.map(\.id)
+        selectedID = project.photoLayers.first?.id
+        refreshWarnings()
         scheduleSave()
     }
 
@@ -589,20 +685,15 @@ public final class EditorSession: ObservableObject {
     }
 
     private func photoFrames(canvasSize: CGSize) -> [UUID: CGRect] {
-        CollageRenderer.shared.resolvedFrames(project: project, canvasSize: canvasSize, assets: assets)
+        CollageRenderer.shared.resolvedFrames(project: project, canvasSize: canvasSize, assets: assets.snapshot)
     }
 
     private func photoHit(from normalizedPoint: CGPoint, canvasSize: CGSize) -> UUID? {
         let canvasPoint = CGPoint(x: normalizedPoint.x * canvasSize.width, y: normalizedPoint.y * canvasSize.height)
-        if let selectedID, project.object(id: selectedID)?.kind == .photo,
-           let frame = photoFrames(canvasSize: canvasSize)[selectedID],
-           frame.insetBy(dx: -8, dy: -8).contains(canvasPoint) {
-            return selectedID
-        }
-        let frames = photoFrames(canvasSize: canvasSize)
-        return project.photoLayers.reversed().first { object in
-            frames[object.id]?.contains(canvasPoint) == true
-        }?.id
+        let photos = project.photoLayers.filter { !$0.isLocked && $0.isVisible }
+        return LayoutEngine.hitTest(canvasPoint, objects: photos, canvasSize: canvasSize,
+                                    frames: photoFrames(canvasSize: canvasSize),
+                                    layoutDrivenIDs: Set(photos.filter(usesLayoutPhotoFrame).map(\.id)))
     }
 
     private func canvasToPhoto(_ normalizedPoint: CGPoint, photoID: UUID, canvasSize: CGSize) -> CGPoint? {
@@ -626,32 +717,45 @@ public final class EditorSession: ObservableObject {
     }
 
     public func setZ(_ action: ZAction) {
-        guard let selectedID, let index = project.objects.firstIndex(where: { $0.id == selectedID }) else { return }
-        checkpoint()
+        guard let selectedID, selected?.isLocked != true else { return }
+        var ordered = project.objects.sorted { $0.zIndex < $1.zIndex }
+        guard let index = ordered.firstIndex(where: { $0.id == selectedID }) else { return }
+        let destination: Int
         switch action {
-        case .front: project.objects[index].zIndex = (project.objects.map(\.zIndex).max() ?? 0) + 1
-        case .back: project.objects[index].zIndex = (project.objects.map(\.zIndex).min() ?? 0) - 1
-        case .up: project.objects[index].zIndex += 1
-        case .down: project.objects[index].zIndex -= 1
+        case .front: destination = ordered.count - 1
+        case .back: destination = 0
+        case .up: destination = min(index + 1, ordered.count - 1)
+        case .down: destination = max(index - 1, 0)
         }
+        guard destination != index else { return }
+        checkpoint()
+        ordered.insert(ordered.remove(at: index), at: destination)
+        for i in ordered.indices { ordered[i].zIndex = i }
+        project.objects = ordered
         project.touch()
         scheduleSave()
     }
 
     public func toggleLock() {
+        guard selected != nil else { return }
         checkpoint()
-        updateSelected { $0.isLocked.toggle() }
+        updateSelected(allowLocked: true) { $0.isLocked.toggle() }
     }
 
     public func toggleVisible() {
+        guard selected != nil else { return }
         checkpoint()
-        updateSelected { $0.isVisible.toggle() }
+        updateSelected(allowLocked: true) { $0.isVisible.toggle() }
     }
 
     public func duplicateSelected() {
         guard let selected else { return }
         if !canAddObject {
             lastError = "画布最多 \(JiPin.maxObjects) 个对象。"
+            return
+        }
+        if selected.kind == .text && !canAddText {
+            lastError = "文字最多 \(JiPin.maxTextObjects) 个。"
             return
         }
         if selected.kind == .photo, let assetID = selected.photo?.assetID {
@@ -662,14 +766,22 @@ public final class EditorSession: ObservableObject {
             }
             checkpoint()
             project.photoOrder.append(assetID)
-            ProjectFactory.syncPhotos(in: &project)
+            var copy = selected
+            copy.id = UUID()
+            copy.isLocked = false
+            copy.zIndex = (project.objects.map(\.zIndex).max() ?? 0) + 1
+            copy.transform.centerX += 0.04
+            copy.transform.centerY += 0.04
+            project.objects.append(copy)
+            if project.mode != .freeform { ProjectFactory.syncPhotos(in: &project) }
+            selectedID = copy.id
             scheduleSave()
             return
         }
         checkpoint()
         var copy = selected
         copy.id = UUID()
-        copy.zIndex += 1
+        copy.zIndex = (project.objects.map(\.zIndex).max() ?? 0) + 1
         copy.transform.centerX += 0.04
         copy.transform.centerY += 0.04
         copy.isLocked = false
@@ -729,7 +841,9 @@ public final class EditorSession: ObservableObject {
     }
 
     public func scheduleSave() {
+        if gestureSnapshot == nil { checkpointPending = false }
         project.touch()
+        guard autosaves else { return }
         isSaving = true
         saveTask?.cancel()
         saveTask = Task { [weak self] in
@@ -739,26 +853,37 @@ public final class EditorSession: ObservableObject {
         }
     }
 
-    public func persistNow() async {
+    @discardableResult
+    public func persistNow() async -> Bool {
         saveTask?.cancel()
-        await persist()
+        while true {
+            let revision = project.updatedAt
+            guard await persist() else { return false }
+            if project.updatedAt == revision { return true }
+            saveTask?.cancel()
+        }
     }
 
-    private func persist() async {
+    @discardableResult
+    private func persist() async -> Bool {
+        let snapshot = project
+        isSaving = true
         do {
-            try store.prepare()
-            let preview = previewImage(maxSide: 512)
-            let thumb = preview?.jpegData(compressionQuality: 0.8)
-            try store.save(project: project, assets: assets.images, thumbnailJPEG: thumb)
-            lastError = nil
-            isSaving = false
+            try await DraftWriting.shared.save(project: snapshot, assets: assets.snapshot, store: store)
+            if project.updatedAt == snapshot.updatedAt {
+                lastError = nil
+                isSaving = false
+            }
+            return true
         } catch {
+            guard project.updatedAt == snapshot.updatedAt else { return false }
             if isDiskFull(error) {
                 lastError = DraftStoreError.diskFull.errorDescription
             } else {
                 lastError = error.localizedDescription
             }
             isSaving = false
+            return false
         }
     }
 
@@ -770,7 +895,7 @@ public final class EditorSession: ObservableObject {
         return false
     }
 
-    public func previewImage(maxSide: CGFloat) -> UIImage? {
+    public var previewProject: CollageProject {
         var project = self.project
         if compareOriginal {
             for index in project.objects.indices where project.objects[index].kind == .photo {
@@ -779,28 +904,35 @@ public final class EditorSession: ObservableObject {
                 project.objects[index].photo?.colorAdjust = ColorAdjust()
             }
         }
+        return project
+    }
+
+    public func previewImage(maxSide: CGFloat) -> UIImage? {
+        let project = previewProject
         let size: CGSize
         if project.mode == .longStrip {
-            switch ExportGeometry.outputSize(for: project, assets: assets) {
+            switch ExportGeometry.outputSize(for: project, assets: assets.snapshot) {
             case .ok(let value), .needsChoice(_, let value):
                 let scale = maxSide / max(value.width, value.height)
                 size = CGSize(width: max(value.width * scale, 1), height: max(value.height * scale, 1))
             }
         } else {
-            size = project.canvas.size(fitting: maxSide)
+            size = project.canvas.size(maxLongSide: maxSide)
         }
-        return CollageRenderer.shared.render(project: project, assets: assets, canvasSize: size, preview: true)
+        return CollageRenderer.shared.render(project: project, assets: assets.snapshot, canvasSize: size, preview: true)
     }
 
     public func refreshWarnings() {
         lowResolutionWarning = assets.pixelSizes.values.contains { min($0.width, $0.height) < 700 }
-        let photoMissing = project.photoOrder.contains { assets.data(for: $0) == nil }
+        func missing(_ id: UUID) -> Bool { assets.data(for: id) == nil || assets.pixelSizes[id] == .zero }
+        let photoMissing = project.photoOrder.contains(where: missing)
         let stickerMissing = project.objects.contains { object in
             guard object.kind == .sticker, let payload = object.sticker else { return false }
-            if let assetID = payload.assetID { return assets.data(for: assetID) == nil }
+            if let assetID = payload.assetID { return missing(assetID) }
             return StickerCatalog.sticker(id: payload.stickerID) == nil
         }
-        missingAssetWarning = photoMissing || stickerMissing
+        let backgroundMissing = project.background.kind == .image && (project.background.imageAssetID.map(missing) ?? true)
+        missingAssetWarning = photoMissing || stickerMissing || backgroundMissing
     }
 
     public enum ZAction { case up, down, front, back }

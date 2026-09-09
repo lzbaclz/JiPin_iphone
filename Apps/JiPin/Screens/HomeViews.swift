@@ -4,6 +4,7 @@ import JiPinCore
 
 struct RootView: View {
     @EnvironmentObject private var appState: AppState
+    @State private var didInitialize = false
 
     var body: some View {
         Group {
@@ -11,6 +12,7 @@ struct RootView: View {
                 EditorView(session: editor) {
                     appState.closeEditor()
                 }
+                .id(editor.project.id)
             } else {
                 mainTabs
             }
@@ -28,8 +30,7 @@ struct RootView: View {
             )
         }
         .sheet(item: $appState.modePickerLaunch) { launch in
-            ModePickerSheet(photos: launch.photos) { mode, layoutID, posterID in
-                let photos = launch.photos
+            ModePickerSheet(photos: launch.photos) { mode, layoutID, posterID, photos in
                 appState.modePickerLaunch = nil
                 let session = EditorSession(
                     project: ProjectFactory.make(mode: mode, photos: photos, layoutID: layoutID, posterID: posterID),
@@ -40,6 +41,8 @@ struct RootView: View {
             }
         }
         .onAppear {
+            guard !didInitialize else { return }
+            didInitialize = true
             try? appState.drafts.prepare()
             openSampleEditorIfNeeded()
             openQuickCollageIfNeeded()
@@ -139,18 +142,18 @@ struct CreateHomeView: View {
     @State private var loadError: String?
     @State private var pendingLayoutID: String?
     @State private var pendingPosterID: String?
+    @State private var showPhotoPicker = false
+    @State private var importTask: Task<Void, Never>?
+    @State private var importID = UUID()
+    @State private var importedCount = 0
+    @State private var importingCount = 0
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
-                    PhotosPicker(
-                        selection: $pickerItems,
-                        maxSelectionCount: PhotoLimits.pickerWithoutMode,
-                        matching: PhotoImporter.stillImages,
-                        photoLibrary: .shared()
-                    ) {
+                    Button { beginPick(mode: nil) } label: {
                         Label("选择照片", systemImage: "photo.on.rectangle.angled")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
@@ -160,15 +163,12 @@ struct CreateHomeView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .accessibilityIdentifier("home-pick-photos")
-                    .onChange(of: pickerItems) { _, items in
-                        Task { await importPicked(items) }
-                    }
                     Button {
                         imported = SamplePhotos.make(4)
                         presetMode = nil
                         showModePicker = true
                     } label: {
-                        Label("用示例照片开始", systemImage: "sparkles.rectangle.stack")
+                        Label("用示例插画体验", systemImage: "sparkles.rectangle.stack")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -176,15 +176,14 @@ struct CreateHomeView: View {
                             .foregroundStyle(JiPinTheme.ink)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    .accessibilityHint("使用内置色块示例图，无需打开相册即可试用四种模式")
+                    .accessibilityHint("使用内置原创插画，无需打开相册即可试用四种模式")
 
                     Text("拼图模式")
                         .font(.title3.weight(.semibold))
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         ForEach(CollageMode.allCases) { mode in
                             Button {
-                                presetMode = mode
-                                // PhotosPicker via confirmation
+                                beginPick(mode: mode)
                             } label: {
                                 modeCard(mode)
                             }
@@ -199,6 +198,7 @@ struct CreateHomeView: View {
             }
             .background(JiPinTheme.canvas.ignoresSafeArea())
             .navigationTitle("极拼")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { appState.showSettings = true } label: {
@@ -213,8 +213,8 @@ struct CreateHomeView: View {
                     preset: presetMode,
                     preferredLayoutID: pendingLayoutID,
                     preferredPosterID: pendingPosterID
-                ) { mode, layoutID, posterID in
-                    startEditor(mode: mode, layoutID: layoutID, posterID: posterID)
+                ) { mode, layoutID, posterID, chosen in
+                    startEditor(mode: mode, layoutID: layoutID, posterID: posterID, photos: chosen)
                 }
             }
             .alert("有照片未能导入", isPresented: Binding(
@@ -223,7 +223,7 @@ struct CreateHomeView: View {
             )) {
                 Button("继续已成功的照片") { showModePicker = !imported.isEmpty }
                 Button("重试") {
-                    Task { await importPicked(lastPickerItems) }
+                    beginImport(lastPickerItems)
                 }
                 Button("取消", role: .cancel) {
                     imported = []
@@ -245,30 +245,28 @@ struct CreateHomeView: View {
             }
             .overlay {
                 if isLoading {
-                    ProgressView("正在导入照片…\n若原图还在 iCloud，正在等待下载")
+                    ZStack {
+                        Color.black.opacity(0.12).ignoresSafeArea()
+                        VStack(spacing: 16) {
+                            ProgressView(value: Double(importedCount), total: Double(max(importingCount, 1)))
+                            Text("正在导入照片 \(importedCount)/\(importingCount)")
+                                .font(.headline)
+                            Text("云端原图可能需要下载，请稍候。")
+                                .font(.caption).foregroundStyle(.secondary)
+                            Button("取消导入", action: cancelImport)
+                                .accessibilityIdentifier("cancel-import")
+                        }
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .frame(maxWidth: 300)
+                    }
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                if let mode = presetMode {
-                    PhotosPicker(
-                        selection: $pickerItems,
-                        maxSelectionCount: PhotoLimits.range(for: mode).upperBound,
-                        matching: PhotoImporter.stillImages
-                    ) {
-                        Text("为\(mode.title)选择照片")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(JiPinTheme.ink)
-                            .foregroundStyle(.white)
-                    }
-                    .onChange(of: pickerItems) { _, items in
-                        Task { await importPicked(items) }
-                    }
-                    .padding()
-                }
-            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItems,
+                          maxSelectionCount: presetMode.map { PhotoLimits.range(for: $0).upperBound } ?? PhotoLimits.pickerWithoutMode,
+                          selectionBehavior: .ordered, matching: PhotoImporter.stillImages)
+            .onChange(of: pickerItems) { _, items in beginImport(items) }
+            .onDisappear { importTask?.cancel() }
         }
     }
 
@@ -276,7 +274,7 @@ struct CreateHomeView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("把多张照片做成一张图")
                 .font(.title2.weight(.bold))
-            Text("模板、自由、海报和长图都可以离线完成。无需登录。")
+            Text("四种拼图方式，照片导入后即可离线编辑。无需登录。")
                 .foregroundStyle(JiPinTheme.muted)
         }
     }
@@ -340,8 +338,7 @@ struct CreateHomeView: View {
                         HStack {
                             ForEach(layouts) { layout in
                                 Button {
-                                    pendingLayoutID = layout.id
-                                    presetMode = .template
+                                    beginPick(mode: .template, layoutID: layout.id)
                                 } label: {
                                     VStack {
                                         LayoutThumb(layout: layout)
@@ -361,8 +358,7 @@ struct CreateHomeView: View {
                         HStack {
                             ForEach(posters) { poster in
                                 Button {
-                                    pendingPosterID = poster.id
-                                    presetMode = .poster
+                                    beginPick(mode: .poster, posterID: poster.id)
                                 } label: {
                                     VStack {
                                         PosterThumb(poster: poster)
@@ -386,27 +382,49 @@ struct CreateHomeView: View {
         }
     }
 
-    private func importPicked(_ items: [PhotosPickerItem]) async {
-        guard !items.isEmpty else { return }
-        lastPickerItems = items
-        isLoading = true
-        let result = await PhotoImporter.load(items)
-        imported = result.ok
-        failedPhotos = result.failed
+    private func beginPick(mode: CollageMode?, layoutID: String? = nil, posterID: String? = nil) {
+        presetMode = mode
+        pendingLayoutID = layoutID
+        pendingPosterID = posterID
+        showPhotoPicker = true
+    }
+
+    private func cancelImport() {
+        importTask?.cancel()
+        importID = UUID()
         isLoading = false
         pickerItems = []
-        if failedPhotos.isEmpty && !imported.isEmpty {
-            showModePicker = true
-        }
-        if let error = result.failed.first?.failureReason, result.ok.isEmpty {
-            loadError = error
+        imported = []
+        failedPhotos = []
+    }
+
+    private func beginImport(_ items: [PhotosPickerItem]) {
+        guard !items.isEmpty else { return }
+        importTask?.cancel()
+        let request = UUID()
+        importID = request
+        lastPickerItems = items
+        failedPhotos = []
+        importedCount = 0
+        importingCount = items.count
+        isLoading = true
+        importTask = Task {
+            let result = await PhotoImporter.load(items) { done, _ in
+                if importID == request { importedCount = done }
+            }
+            guard !Task.isCancelled, importID == request else { return }
+            imported = result.ok
+            failedPhotos = result.failed
+            isLoading = false
+            pickerItems = []
+            if failedPhotos.isEmpty && !imported.isEmpty { showModePicker = true }
         }
     }
 
-    private func startEditor(mode: CollageMode, layoutID: String?, posterID: String?) {
+    private func startEditor(mode: CollageMode, layoutID: String?, posterID: String?, photos: [ImportedPhoto]) {
         let session = EditorSession(
-            project: ProjectFactory.make(mode: mode, photos: imported, layoutID: layoutID, posterID: posterID),
-            assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: imported.map { ($0.id, $0.data) }))
+            project: ProjectFactory.make(mode: mode, photos: photos, layoutID: layoutID, posterID: posterID),
+            assets: AssetLibrary(images: Dictionary(photos.map { ($0.id, $0.data) }, uniquingKeysWith: { first, _ in first }))
         )
         showModePicker = false
         imported = []
@@ -436,11 +454,13 @@ struct ModePickerSheet: View {
     var preset: CollageMode?
     var preferredLayoutID: String? = nil
     var preferredPosterID: String? = nil
-    var onStart: (CollageMode, String?, String?) -> Void
+    var locksMode = false
+    var onStart: (CollageMode, String?, String?, [ImportedPhoto]) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var mode: CollageMode?
     @State private var layoutID: String?
     @State private var posterID: String?
+    @State private var selectedPhotos: Set<Int> = []
 
     var body: some View {
         NavigationStack {
@@ -518,10 +538,30 @@ struct ModePickerSheet: View {
                         }
                     }
                     if PosterTemplateCatalog.matching(photoCount: photos.count).isEmpty {
-                        Text("没有正好 \(photos.count) 张照片位的海报。可先选相近模板，进入后再明确选择照片。")
+                        Text("没有正好 \(photos.count) 张照片位的海报。请选择模板，并确认要使用的照片。")
                             .foregroundStyle(.secondary)
                         ForEach(Array(PosterTemplateCatalog.closest(photoCount: photos.count).prefix(6))) { poster in
                             Button("\(poster.name) · \(poster.photoCount) 图") { posterID = poster.id }
+                        }
+                    }
+                }
+                if mode == .poster, let template = posterID.flatMap(PosterTemplateCatalog.template(id:)), template.photoCount != photos.count {
+                    Section("为「\(template.name)」选择 \(template.photoCount) 张照片") {
+                        if template.photoCount > photos.count {
+                            Text("照片不足，请换一个照片位更少的模板，或返回重新选图。")
+                        } else {
+                            ForEach(Array(photos.enumerated()), id: \.offset) { index, photo in
+                                Button {
+                                    if selectedPhotos.contains(index) { selectedPhotos.remove(index) }
+                                    else if selectedPhotos.count < template.photoCount { selectedPhotos.insert(index) }
+                                } label: {
+                                    HStack {
+                                        Text("照片 \(index + 1) · \(photo.filename)")
+                                        Spacer()
+                                        if selectedPhotos.contains(index) { Image(systemName: "checkmark") }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -533,18 +573,20 @@ struct ModePickerSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("开始") { start() }
-                        .disabled(mode == nil || availableModes.isEmpty)
+                        .disabled(!canStart)
                 }
             }
             .onAppear {
                 chooseMode(preset.flatMap { availableModes.contains($0) ? $0 : nil } ?? availableModes.first)
             }
+            .onChange(of: posterID) { _, _ in resetPosterPhotos() }
         }
         .presentationDetents([.medium, .large])
     }
 
     private var availableModes: [CollageMode] {
         let modes = PhotoLimits.modes(forPhotoCount: photos.count)
+        if locksMode, let preset { return modes.contains(preset) ? [preset] : [] }
         if let preset, modes.contains(preset) { return [preset] + modes.filter { $0 != preset } }
         return modes
     }
@@ -564,11 +606,27 @@ struct ModePickerSheet: View {
             layoutID = nil
             posterID = nil
         }
+        resetPosterPhotos()
+    }
+
+    private func resetPosterPhotos() {
+        let required = posterID.flatMap(PosterTemplateCatalog.template(id:))?.photoCount ?? photos.count
+        selectedPhotos = Set(0..<min(required, photos.count))
+    }
+
+    private var canStart: Bool {
+        guard let mode, availableModes.contains(mode) else { return false }
+        if mode == .poster {
+            guard let template = posterID.flatMap(PosterTemplateCatalog.template(id:)) else { return false }
+            return selectedPhotos.count == template.photoCount
+        }
+        return true
     }
 
     private func start() {
-        guard let mode else { return }
-        onStart(mode, layoutID, posterID)
+        guard canStart, let mode else { return }
+        let chosen = mode == .poster ? photos.enumerated().filter { selectedPhotos.contains($0.offset) }.map(\.element) : photos
+        onStart(mode, layoutID, posterID, chosen)
     }
 }
 
@@ -627,8 +685,8 @@ struct DraftsView: View {
             )) {
                 Button("删除项目", role: .destructive) {
                     if let id = deleteCandidate?.id {
-                        try? appState.drafts.delete(id: id)
-                        reload()
+                        do { try appState.drafts.delete(id: id); reload() }
+                        catch { errorMessage = error.localizedDescription }
                     }
                     deleteCandidate = nil
                 }
@@ -643,14 +701,14 @@ struct DraftsView: View {
                 TextField("名称", text: $renameText)
                 Button("保存") {
                     if let id = renameTarget?.id {
-                        try? appState.drafts.rename(id: id, to: renameText)
-                        reload()
+                        do { try appState.drafts.rename(id: id, to: renameText); reload() }
+                        catch { errorMessage = error.localizedDescription }
                     }
                     renameTarget = nil
                 }
                 Button("取消", role: .cancel) { renameTarget = nil }
             }
-            .alert("无法打开草稿", isPresented: Binding(
+            .alert("草稿操作未完成", isPresented: Binding(
                 get: { errorMessage != nil },
                 set: { if !$0 { errorMessage = nil } }
             )) {
@@ -677,8 +735,8 @@ struct DraftsView: View {
     }
 
     private func duplicate(_ id: UUID) {
-        _ = try? appState.drafts.duplicate(id: id)
-        reload()
+        do { _ = try appState.drafts.duplicate(id: id); reload() }
+        catch { errorMessage = error.localizedDescription }
     }
 
     private func delete(_ draft: DraftSummary) {
@@ -753,6 +811,7 @@ struct SettingsView: View {
     private let store = DraftStore.shared
     @State private var draftsSize: Int64 = 0
     @State private var cacheSize: Int64 = 0
+    @State private var storageMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -767,17 +826,17 @@ struct SettingsView: View {
                     Text("3. 扩展内可模板拼图、横竖长图、排序、裁切、背景和间距。")
                     Text("4. 保存到相册，或点「更多」保存草稿后到极拼草稿页继续。也可以直接系统分享，不必先保存到相册。取消不会改已有草稿。拒绝添加照片权限时项目仍可保存为草稿或改用分享。")
                     if store.isUsingAppGroup {
-                        Text("当前进程可以写入 App Group 容器。主 App 与相册扩展交接草稿仍需用同一 Development Team 签名。")
+                        Text("当前安装已配置相册草稿共享。保存后可在极拼的草稿页继续编辑。")
                     } else {
-                        Text("当前安装无法写入 App Group，草稿保存在本 App 沙盒。真机请用同一 Development Team 签名极拼与扩展，草稿才能在主 App 中交接。")
+                        Text("当前安装仅支持 App 内的本地草稿。相册草稿交接需要使用启用了该功能的安装包。")
                     }
                 }
                 Section("存储") {
                     LabeledContent("草稿占用", value: ByteCountFormatter.string(fromByteCount: draftsSize, countStyle: .file))
                     LabeledContent("导出缓存", value: ByteCountFormatter.string(fromByteCount: cacheSize, countStyle: .file))
                     Button("清理导出缓存") {
-                        try? store.clearExportCache()
-                        reload()
+                        do { try store.clearExportCache(); reload(); storageMessage = "导出缓存已清理，草稿和相册成品保留。" }
+                        catch { storageMessage = "清理失败：\(error.localizedDescription)" }
                     }
                     Text("清理缓存不会删除草稿，也不会删除已经保存到系统相册的成品。")
                         .font(.caption)
@@ -804,6 +863,9 @@ struct SettingsView: View {
                 }
             }
             .onAppear { reload() }
+            .alert("存储", isPresented: Binding(get: { storageMessage != nil }, set: { if !$0 { storageMessage = nil } })) {
+                Button("好", role: .cancel) { storageMessage = nil }
+            } message: { Text(storageMessage ?? "") }
         }
     }
 
@@ -819,9 +881,9 @@ struct PrivacyPolicyView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text("极拼只在你的设备上处理照片、文字、贴纸和草稿。首版不注册账号、不上传照片、不接入广告或行为分析。")
                 Text("从系统相册导入时使用系统选择器，不要求读取整个图库。只有你选择保存到相册时才会申请「添加照片」权限。权限被拒绝后，项目仍保留，可用系统分享或存储到文件。")
-                Text("主 App 与相册操作扩展各自单独申请添加照片权限。扩展通过 App Group（group.com.jipin.JiPin）把草稿交给主 App；未签名或未启用 App Group 时，草稿只留在当前进程沙盒。")
+                Text("主 App 与相册操作扩展只在你保存图片时申请相应权限。相册扩展可通过本机共享存储交接草稿；安装包不支持交接时会明确提示，并可改用保存图片或系统分享。")
                 Text("导出成品为 sRGB 静态图，不加默认品牌水印，也不会复制原图中的 GPS 等位置元数据。")
-                Text("草稿保存在本机。可在草稿页删除单个项目；共享素材只有在没有其他草稿引用时才会回收。清理导出缓存不会删除草稿，也不会删除已经保存到系统相册的成品。卸载应用会删除本机草稿。")
+                Text("草稿和工作副本保存在本机并排除云备份，导入时去除位置元数据并限制大图解码尺寸，系统相册原图保持不变。可在草稿页删除单个项目；共享素材只有在没有其他草稿引用时才会回收。清理导出缓存不会删除草稿，也不会删除已经保存到系统相册的成品。卸载应用会删除本机草稿。")
                 Text("极拼面向一般用户，不专为儿童设计，也不收集年龄或联系方式。如需了解相册入口，请查看设置中的支持与帮助。")
             }
             .padding()
@@ -840,7 +902,7 @@ struct SupportView: View {
             }
             Section("保存与权限") {
                 Text("保存到相册才会申请添加照片权限。拒绝后仍可保存草稿，或用系统分享、存储到文件。")
-                Text("取消快拼不会改已有草稿。同一 Development Team 签名主 App 与扩展后，草稿才会出现在主 App 草稿页。")
+                Text("取消快拼不会修改已有草稿。相册扩展提示交接成功后，请到极拼的草稿页继续；不支持交接的安装包会明确提示。")
             }
             Section("草稿与素材") {
                 Text("编辑后约 0.5 秒自动保存。删除草稿前会说明将删除该项目。收藏的布局、海报和贴纸只存在本机，无需登录。")

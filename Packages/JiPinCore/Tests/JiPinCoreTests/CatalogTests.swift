@@ -340,7 +340,7 @@ final class CatalogTests: XCTestCase {
         try store.prepare()
         var project = ProjectFactory.make(mode: .template, photos: dummyPhotos(2), originatedFromExtension: true)
         project.name = "相册快拼"
-        try store.save(project: project, assets: [:], thumbnailJPEG: nil)
+        try store.save(project: project, assets: Dictionary(uniqueKeysWithValues: project.photoOrder.map { ($0, Data([1])) }), thumbnailJPEG: nil)
         let listed = store.listDrafts()
         XCTAssertEqual(listed.first?.originatedFromExtension, true)
         XCTAssertTrue(store.isUsingAppGroup)
@@ -546,6 +546,41 @@ final class CatalogTests: XCTestCase {
         session.scaleSelected(1.5)
         XCTAssertEqual(session.selected?.photo?.crop.zoom ?? 0, 3, accuracy: 0.0001)
         XCTAssertEqual(session.selected?.transform.width ?? 0, transform.width, accuracy: 0.0001)
+    }
+
+    @MainActor
+    func testEditorOpensOnLayoutToolWithFirstPhotoSelected() {
+        for mode in CollageMode.allCases {
+            let count = PhotoLimits.range(for: mode).lowerBound
+            let session = EditorSession(
+                project: ProjectFactory.make(mode: mode, photos: dummyPhotos(count)),
+                assets: AssetLibrary()
+            )
+            XCTAssertEqual(session.activeTool, .layout, mode.rawValue)
+            XCTAssertEqual(session.selectedID, session.project.photoLayers.first?.id, mode.rawValue)
+        }
+    }
+
+    @MainActor
+    func testSelectingObjectSwitchesToolButKeepsPhotoEditors() {
+        let photos = dummyPhotos(2)
+        let session = EditorSession(
+            project: ProjectFactory.make(mode: .freeform, photos: photos),
+            assets: AssetLibrary()
+        )
+        session.addText("标题")
+        let textID = session.project.objects.first(where: { $0.kind == .text })?.id
+        let photoID = session.project.photoLayers[0].id
+        session.selectTool(.filter)
+        session.select(photoID)
+        XCTAssertEqual(session.activeTool, .filter)
+        session.select(textID)
+        XCTAssertEqual(session.activeTool, .text)
+        session.select(photoID)
+        XCTAssertEqual(session.activeTool, .adjust)
+        session.addSticker(StickerCatalog.all[0].id)
+        session.select(session.project.objects.first(where: { $0.kind == .sticker })?.id)
+        XCTAssertEqual(session.activeTool, .sticker)
     }
 
     @MainActor

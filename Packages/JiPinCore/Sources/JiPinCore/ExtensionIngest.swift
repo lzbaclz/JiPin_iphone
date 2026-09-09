@@ -69,7 +69,7 @@ public enum ExtensionIngest {
                 )
                 continue
             }
-            guard let stripped = ImageIOHelpers.strippedJPEG(from: data, quality: jpegQuality) else {
+            guard let stripped = ImageIOHelpers.sanitizedImageData(from: data, jpegQuality: jpegQuality, maxLongSide: 4096, maxPixelCount: 4_194_304) else {
                 failed.append(
                     ImportedPhoto(
                         filename: name,
@@ -87,7 +87,7 @@ public enum ExtensionIngest {
                     filename: name,
                     data: stripped,
                     pixelSize: ImageIOHelpers.pixelSize(of: stripped),
-                    utType: UTType.jpeg.identifier
+                    utType: ImageIOHelpers.typeIdentifier(of: stripped)
                 )
             )
         }

@@ -17,6 +17,10 @@ struct QuickCollageView: View {
     @State private var exportData: Data?
     @State private var showShare = false
     @State private var backgroundPicker: [PhotosPickerItem] = []
+    @State private var shareURL: URL?
+    @State private var showImportIssues = false
+    @State private var acceptedImportIssues = false
+    @State private var didCancel = false
 
     init(photos: [ImportedPhoto], failed: [ImportedPhoto], overflowCount: Int = 0, onCancel: @escaping () -> Void, onFinish: @escaping () -> Void) {
         self.photos = photos
@@ -31,12 +35,14 @@ struct QuickCollageView: View {
         )
         _session = StateObject(wrappedValue: EditorSession(
             project: project,
-            assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+            assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) })),
+            autosaves: false
         ))
     }
 
     var body: some View {
         NavigationStack {
+            ScrollView {
             VStack(spacing: 12) {
                 if photos.count < 2 {
                     ContentUnavailableView(
@@ -112,11 +118,11 @@ struct QuickCollageView: View {
                         }
                         .pickerStyle(.segmented)
                         .padding(.horizontal)
-                        Text("输出 \(session.outputSizeLabel)")
+                        Text("输出 \(quickOutputLabel)")
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.secondary)
                             .padding(.horizontal)
-                            .accessibilityLabel("实际输出尺寸 \(session.outputSizeLabel)")
+                            .accessibilityLabel("实际输出尺寸 \(quickOutputLabel)")
                     }
 
                     HStack {
@@ -234,13 +240,15 @@ struct QuickCollageView: View {
                         .font(.footnote)
                         .padding(.horizontal)
                 }
-                Spacer()
+            }
+            .padding(.vertical, 12)
+            .disabled(isWorking)
             }
             .navigationTitle("极拼")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消", action: onCancel)
+                    Button("取消") { didCancel = true; onCancel() }
                         .accessibilityLabel("取消快速拼图")
                         .accessibilityIdentifier("quick-cancel")
                 }
@@ -254,28 +262,58 @@ struct QuickCollageView: View {
                     }
                     .accessibilityLabel("更多")
                     .accessibilityIdentifier("quick-more")
-                    .disabled(photos.count < 2 || isWorking)
+                    .disabled(!canProcess || isWorking)
                     Button("保存") { Task { await saveImage() } }
-                        .disabled(photos.count < 2 || isWorking)
+                        .disabled(!canProcess || isWorking)
                         .accessibilityLabel("保存到相册")
                         .accessibilityIdentifier("quick-save-album")
                     Button("分享") { Task { await shareImage() } }
-                        .disabled(photos.count < 2 || isWorking)
+                        .disabled(!canProcess || isWorking)
                         .accessibilityLabel("系统分享")
                         .accessibilityIdentifier("quick-share")
                 }
             }
-            .onAppear { refresh(invalidateExport: false) }
-            .sheet(isPresented: $showShare) {
-                if let exportData {
-                    QuickShareSheet(data: exportData)
-                }
+            .onAppear {
+                refresh(invalidateExport: false)
+                showImportIssues = photos.count >= 2 && (!failed.isEmpty || overflowCount > 0)
+            }
+            .task(id: session.project) {
+                let request = PreviewRequest(project: session.project, displaySize: previewSize, displayScale: 1)
+                let rendered = await PreviewRendering.shared.render(request, assets: session.assets.snapshot)
+                if !Task.isCancelled { preview = rendered }
+            }
+            .alert("确认导入的照片", isPresented: $showImportIssues) {
+                Button("继续使用这 \(photos.count) 张") { acceptedImportIssues = true }
+                Button("取消并重新选择", role: .cancel, action: onCancel)
+            } message: {
+                Text("有 \(failed.count) 张读取失败，\(overflowCount) 张超过数量上限。确认后仅使用已成功导入的 \(photos.count) 张。")
+            }
+            .sheet(isPresented: $showShare, onDismiss: {
+                if let shareURL { try? FileManager.default.removeItem(at: shareURL) }
+                shareURL = nil
+            }) {
+                if let shareURL { QuickShareSheet(url: shareURL) }
             }
         }
     }
 
     private var JiPinThemeAccent: Color {
         Color(red: 1, green: 0.353, blue: 0.212)
+    }
+
+    private var canProcess: Bool {
+        PhotoLimits.extensionRange.contains(photos.count) && (acceptedImportIssues || (failed.isEmpty && overflowCount == 0))
+    }
+
+    private var previewSize: CGSize {
+        let output = ExportGeometry.extensionOutputSize(for: session.project, assets: session.assets.snapshot)
+        let scale = 900 / max(output.width, output.height, 1)
+        return CGSize(width: max(1, output.width * scale), height: max(1, output.height * scale))
+    }
+
+    private var quickOutputLabel: String {
+        let size = ExportGeometry.extensionOutputSize(for: session.project, assets: session.assets.snapshot)
+        return "\(Int(size.width))×\(Int(size.height)) 像素"
     }
 
     private func refresh(invalidateExport: Bool = true) {
@@ -285,22 +323,21 @@ struct QuickCollageView: View {
         if session.selectedID == nil {
             session.selectedID = session.project.photoLayers.first?.id
         }
-        preview = session.previewImage(maxSide: 900)
     }
 
     private func applyBackgroundPhoto(_ items: [PhotosPickerItem]) async {
         defer { backgroundPicker = [] }
         guard let item = items.first else { return }
         guard let data = try? await item.loadTransferable(type: Data.self),
-              let stripped = ImageIOHelpers.strippedJPEG(from: data, quality: 0.95) else {
+              let stripped = ImageIOHelpers.sanitizedImageData(from: data, maxLongSide: 4096, maxPixelCount: 4_194_304) else {
             message = "背景图无法导入。如果原图还在 iCloud，请联网后重试。"
             return
         }
         let photo = ImportedPhoto(
-            filename: "background.jpg",
+            filename: "背景图片",
             data: stripped,
             pixelSize: ImageIOHelpers.pixelSize(of: stripped),
-            utType: "public.jpeg"
+            utType: ImageIOHelpers.typeIdentifier(of: stripped)
         )
         session.assets.ingest([photo])
         session.checkpoint()
@@ -337,9 +374,15 @@ struct QuickCollageView: View {
     }
 
     private func saveDraft() async {
+        guard canProcess, !isWorking else { return }
+        if Bundle.main.bundleURL.pathExtension == "appex" && !session.store.isUsingAppGroup {
+            message = "当前安装无法与极拼共享草稿。请先保存拼图或系统分享，重新安装正确签名的极拼后再试。"
+            return
+        }
         isWorking = true
         session.project.originatedFromExtension = true
-        session.project.name = "相册快拼 \(session.project.name)"
+        if !session.project.name.hasPrefix("相册快拼") { session.project.name = "相册快拼 \(session.project.name)" }
+        session.project.touch()
         await session.persistNow()
         if let error = session.lastError {
             message = error
@@ -352,8 +395,10 @@ struct QuickCollageView: View {
     }
 
     private func generateJPEG() async -> Data? {
+        session.refreshWarnings()
+        guard !session.missingAssetWarning else { return nil }
         if let exportData { return exportData }
-        let size = ExportGeometry.extensionOutputSize(for: session.project, assets: session.assets)
+        let size = ExportGeometry.extensionOutputSize(for: session.project, assets: session.assets.snapshot)
         let assets = DataAssetLibrary(images: session.assets.images)
         let project = session.project
         return await Task.detached(priority: .userInitiated) {
@@ -362,6 +407,7 @@ struct QuickCollageView: View {
     }
 
     private func shareImage() async {
+        guard canProcess, !isWorking else { return }
         isWorking = true
         message = "正在生成…"
         guard let data = await generateJPEG() else {
@@ -371,18 +417,26 @@ struct QuickCollageView: View {
         }
         exportData = data
         isWorking = false
-        showShare = true
+        guard !didCancel else { return }
+        do {
+            shareURL = try ExportFile.write(data: data, format: .jpeg)
+            showShare = true
+        } catch { message = "无法准备分享文件：\(error.localizedDescription)" }
     }
 
     private func saveImage() async {
+        guard canProcess, !isWorking else { return }
         isWorking = true
+        defer { isWorking = false }
         guard let data = await generateJPEG() else {
             message = "生成失败。"
             isWorking = false
             return
         }
         exportData = data
+        guard !didCancel else { return }
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard !didCancel else { return }
         guard status == .authorized || status == .limited else {
             message = "没有添加照片权限。草稿仍可保存，也可以用系统分享。"
             isWorking = false
@@ -403,11 +457,9 @@ struct QuickCollageView: View {
 }
 
 private struct QuickShareSheet: UIViewControllerRepresentable {
-    var data: Data
+    var url: URL
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("jipin-quick.jpg")
-        try? data.write(to: url)
         return UIActivityViewController(activityItems: [url], applicationActivities: nil)
     }
 

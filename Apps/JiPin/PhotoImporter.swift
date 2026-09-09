@@ -10,16 +10,21 @@ enum PhotoImporter {
         .any(of: [.images, .livePhotos])
     }
 
-    static func load(_ items: [PhotosPickerItem]) async -> (ok: [ImportedPhoto], failed: [ImportedPhoto]) {
+    static func load(_ items: [PhotosPickerItem], progress: (@MainActor (Int, Int) -> Void)? = nil) async -> (ok: [ImportedPhoto], failed: [ImportedPhoto]) {
         var ok: [ImportedPhoto] = []
         var failed: [ImportedPhoto] = []
         for (index, item) in items.enumerated() {
+            if Task.isCancelled { break }
+            await progress?(index, items.count)
             switch await loadOne(item, index: index) {
             case .ok(let photo):
                 ok.append(photo)
             case .failed(let photo):
                 failed.append(photo)
+            case .cancelled:
+                return (ok, failed)
             }
+            await progress?(index + 1, items.count)
         }
         return (ok, failed)
     }
@@ -27,6 +32,7 @@ enum PhotoImporter {
     private enum LoadOutcome {
         case ok(ImportedPhoto)
         case failed(ImportedPhoto)
+        case cancelled
     }
 
     private static func loadOne(_ item: PhotosPickerItem, index: Int) async -> LoadOutcome {
@@ -58,7 +64,8 @@ enum PhotoImporter {
                         failureReason: "照片文件损坏或格式无法识别。"
                     ))
                 }
-                guard let stripped = ImageIOHelpers.strippedJPEG(from: data, quality: 0.95) else {
+                if Task.isCancelled { return .cancelled }
+                guard let stripped = ImageIOHelpers.sanitizedImageData(from: data) else {
                     return .failed(ImportedPhoto(
                         filename: "照片 \(index + 1)",
                         data: Data(),
@@ -73,10 +80,11 @@ enum PhotoImporter {
                         filename: "照片 \(index + 1)",
                         data: stripped,
                         pixelSize: ImageIOHelpers.pixelSize(of: stripped),
-                        utType: UTType.jpeg.identifier
+                        utType: ImageIOHelpers.typeIdentifier(of: stripped)
                     )
                 )
             } catch {
+                if Task.isCancelled || error is CancellationError { return .cancelled }
                 lastError = error
                 if attempt < 2 {
                     try? await Task.sleep(nanoseconds: 1_200_000_000)
@@ -116,61 +124,30 @@ enum PhotoImporter {
 
     static func loadImages(_ images: [UIImage]) -> [ImportedPhoto] {
         images.enumerated().compactMap { index, image in
-            guard let cgImage = image.cgImage,
-                  let data = ImageIOHelpers.jpegData(from: cgImage, quality: 0.95)
+            guard let data = ImageIOHelpers.sanitizedImageData(from: image, maxLongSide: 8192, maxPixelCount: 16_777_216)
             else { return nil }
             return ImportedPhoto(
                 filename: "照片 \(index + 1)",
                 data: data,
                 pixelSize: ImageIOHelpers.pixelSize(of: data),
-                utType: UTType.jpeg.identifier
+                utType: ImageIOHelpers.typeIdentifier(of: data)
             )
         }
     }
 }
 
 enum SamplePhotos {
-    static func make(_ count: Int) -> [ImportedPhoto] {
-        let colors: [(UIColor, String)] = [
-            (UIColor(red: 0.98, green: 0.45, blue: 0.32, alpha: 1), "旅行"),
-            (UIColor(red: 0.95, green: 0.78, blue: 0.42, alpha: 1), "日常"),
-            (UIColor(red: 0.45, green: 0.67, blue: 0.86, alpha: 1), "海边"),
-            (UIColor(red: 0.62, green: 0.80, blue: 0.50, alpha: 1), "公园"),
-            (UIColor(red: 0.76, green: 0.58, blue: 0.85, alpha: 1), "城市"),
-            (UIColor(red: 0.95, green: 0.62, blue: 0.70, alpha: 1), "节日")
-        ]
-        return (0..<count).compactMap { index in
-            let item = colors[index % colors.count]
-            let image = render(color: item.0, title: item.1, number: index + 1)
-            guard let data = image.jpegData(compressionQuality: 0.9) else { return nil }
-            return ImportedPhoto(
-                filename: "示例 \(index + 1).jpg",
-                data: data,
-                pixelSize: image.size,
-                utType: UTType.jpeg.identifier
-            )
+    private static let examples: [Data] = (0..<6).compactMap { index in
+        autoreleasepool {
+            StudioArtwork.image(index: index, size: CGSize(width: 1200, height: 1600)).jpegData(compressionQuality: 0.95)
         }
     }
 
-    private static func render(color: UIColor, title: String, number: Int) -> UIImage {
-        let size = CGSize(width: 1200, height: 1600)
-        let format = UIGraphicsImageRendererFormat.default()
-        format.scale = 1
-        return UIGraphicsImageRenderer(size: size, format: format).image { ctx in
-            color.setFill()
-            ctx.fill(CGRect(origin: .zero, size: size))
-            UIColor.white.withAlphaComponent(0.18).setFill()
-            UIBezierPath(ovalIn: CGRect(x: 200, y: 240, width: 800, height: 800)).fill()
-            let attrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 96, weight: .bold),
-                .foregroundColor: UIColor.white
-            ]
-            let text = "\(title)\n\(number)" as NSString
-            let textSize = text.size(withAttributes: attrs)
-            text.draw(
-                at: CGPoint(x: (size.width - textSize.width) / 2, y: (size.height - textSize.height) / 2),
-                withAttributes: attrs
-            )
+    static func make(_ count: Int) -> [ImportedPhoto] {
+        guard count > 0, !examples.isEmpty else { return [] }
+        return (0..<count).map { index in
+            ImportedPhoto(filename: "示例插画 \(index + 1)", data: examples[index % examples.count],
+                          pixelSize: CGSize(width: 1200, height: 1600), utType: UTType.jpeg.identifier)
         }
     }
 }

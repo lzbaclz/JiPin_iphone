@@ -570,7 +570,12 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
     }
 
     public var photoLayers: [LayerObject] {
-        objects.filter { $0.kind == .photo }.sorted { $0.zIndex < $1.zIndex }
+        var remaining = objects.filter { $0.kind == .photo }
+        let ordered = photoOrder.compactMap { assetID -> LayerObject? in
+            guard let index = remaining.firstIndex(where: { $0.photo?.assetID == assetID }) else { return nil }
+            return remaining.remove(at: index)
+        }
+        return ordered + remaining
     }
 
     public var textCount: Int {

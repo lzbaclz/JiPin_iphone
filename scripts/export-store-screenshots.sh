@@ -4,14 +4,14 @@ set -euo pipefail
 export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/docs/store-screenshots"
-DERIVED="${TMPDIR:-/tmp}/jipin-store-screenshots"
+DERIVED="${JIPIN_SCREENSHOT_DERIVED_DATA:-${TMPDIR:-/tmp}/jipin-store-screenshots}"
 BUNDLE="com.jipin.JiPin"
 
 mkdir -p "$OUT"
 
 device_udid() {
   local name="$1"
-  xcrun simctl list devices available | grep "$name (" | head -n 1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/'
+  xcrun simctl list devices available | rg -F "$name (" | head -n 1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/'
 }
 
 echo "Building Debug simulator app"
@@ -19,7 +19,8 @@ xcodebuild -project "$ROOT/JiPin.xcodeproj" -scheme JiPin \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   -configuration Debug CODE_SIGNING_ALLOWED=NO \
   -derivedDataPath "$DERIVED" build
-APP="$(find "$DERIVED/Build/Products/Debug-iphonesimulator" -name 'JiPin.app' -maxdepth 2 | head -n 1)"
+APP="$DERIVED/Build/Products/Debug-iphonesimulator/JiPin.app"
+[[ -d "$APP" ]]
 
 capture_device() {
   local dest_name="$1"
@@ -41,7 +42,7 @@ capture_device() {
     shift
     xcrun simctl terminate "$udid" "$BUNDLE" >/dev/null 2>&1 || true
     xcrun simctl launch "$udid" "$BUNDLE" "$@" >/dev/null
-    sleep 3
+    sleep 4
     xcrun simctl io "$udid" screenshot "$OUT/${prefix}-${file}.png"
   }
 
@@ -51,6 +52,7 @@ capture_device() {
   capture "04-editor-poster" -sampleEditor -sampleMode poster
   capture "05-quick-collage" -quickCollage
   capture "06-settings" -showSettings
+  capture "07-editor-long-strip" -sampleEditor -sampleMode longStrip
 }
 
 capture_device "iPhone 17 Pro Max" "6.9in"

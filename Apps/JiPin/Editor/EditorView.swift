@@ -3,6 +3,7 @@ import UIKit
 import JiPinCore
 
 struct EditorView: View {
+    @EnvironmentObject private var appState: AppState
     @ObservedObject var session: EditorSession
     var onClose: () -> Void
     @State private var showExport = false
@@ -30,7 +31,7 @@ struct EditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("完成", action: onClose)
+                    Button(appState.isClosingEditor ? "保存中…" : "完成", action: onClose)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
@@ -89,6 +90,7 @@ struct EditorView: View {
                 Button("保存") { session.renameProject(renameText) }
                 Button("取消", role: .cancel) {}
             }
+            .disabled(appState.isClosingEditor)
         }
     }
 
@@ -122,8 +124,8 @@ struct EditorView: View {
                         .frame(width: fitted.width, height: fitted.height)
                         .scaleEffect(canvasZoom)
                         .frame(width: fitted.width * canvasZoom, height: fitted.height * canvasZoom)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
+                        .clipShape(RoundedRectangle(cornerRadius: session.project.mode == .longStrip ? 0 : 4))
+                        .shadow(color: .black.opacity(0.12), radius: session.project.mode == .longStrip ? 0 : 12, y: 6)
                         .padding(16)
                 }
             }
@@ -160,18 +162,24 @@ struct EditorView: View {
     }
 
     private func fittedCanvas(in size: CGSize) -> CGSize {
+        let available = CGSize(width: max(size.width - 32, 1), height: max(size.height - 32, 1))
         if session.project.mode == .longStrip {
-            let preview = session.previewImage(maxSide: min(size.width, size.height) * 0.9) ?? UIImage()
-            if preview.size.width > 1 {
-                let scale = min(size.width / preview.size.width, size.height / preview.size.height, 1)
-                return CGSize(width: preview.size.width * scale, height: preview.size.height * scale)
+            let output = ExportGeometry.outputSize(for: session.project, assets: session.assets.snapshot)
+            let dimensions: CGSize
+            switch output {
+            case .ok(let value), .needsChoice(_, let value): dimensions = value
             }
+            let ratio = max(dimensions.width, 1) / max(dimensions.height, 1)
+            if session.project.longStrip?.direction == .horizontal {
+                return CGSize(width: available.height * ratio, height: available.height)
+            }
+            return CGSize(width: available.width, height: available.width / ratio)
         }
         let ratio = session.project.canvas.ratio
-        var width = size.width * 0.9
+        var width = available.width
         var height = width / ratio
-        if height > size.height * 0.9 {
-            height = size.height * 0.9
+        if height > available.height {
+            height = available.height
             width = height * ratio
         }
         return CGSize(width: max(width, 10), height: max(height, 10))
@@ -182,6 +190,7 @@ struct CanvasInteractView: View {
     @ObservedObject var session: EditorSession
     var canvasSize: CGSize
     @Binding var canvasZoom: CGFloat
+    @Environment(\.displayScale) private var displayScale
     @State private var preview: UIImage?
     @State private var dragStart: CanvasTransform?
     @State private var cropStart: PhotoCrop?
@@ -192,6 +201,18 @@ struct CanvasInteractView: View {
 
     var body: some View {
         ZStack {
+            if session.project.background.isHidden && session.project.exportPreference.format == .png {
+                Canvas { context, size in
+                    let step: CGFloat = 14
+                    context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(.white))
+                    for row in 0..<Int(ceil(size.height / step)) {
+                        for column in 0..<Int(ceil(size.width / step)) where (row + column).isMultiple(of: 2) {
+                            context.fill(Path(CGRect(x: CGFloat(column) * step, y: CGFloat(row) * step, width: step, height: step)), with: .color(.gray.opacity(0.16)))
+                        }
+                    }
+                }
+                .accessibilityHidden(true)
+            }
             if let preview {
                 Image(uiImage: preview)
                     .resizable()
@@ -205,10 +226,17 @@ struct CanvasInteractView: View {
             }
             if let selected = session.selected, selected.isVisible, !session.isDrawingTool {
                 selectionChrome(selected)
+                    .accessibilityHidden(true)
             }
             liveInk
         }
         .contentShape(Rectangle())
+        .simultaneousGesture(
+            SpatialTapGesture(count: 1).onEnded { event in
+                guard !session.isDrawingTool else { return }
+                session.select(session.hitTest(event.location, canvasSize: canvasSize))
+            }
+        )
         .simultaneousGesture(
             SpatialTapGesture(count: 2).onEnded { event in
                 guard !session.isDrawingTool else { return }
@@ -216,17 +244,18 @@ struct CanvasInteractView: View {
                     session.select(id)
                     if session.project.object(id: id)?.kind == .text {
                         session.activeTool = .text
+                        session.wantsTextFocus = true
                     }
                 }
             }
         )
         .gesture(canvasGesture)
+        .accessibilityElement(children: .ignore)
         .accessibilityHint(session.isDrawingTool ? "在画布上拖动即可绘制" : "拖动可移动当前对象；模板和长图中拖到另一张照片可交换；选中格子内照片时小幅拖动可平移画面；双指缩放或旋转。旋转、排序和层级也可用按钮完成。")
+        .accessibilityLabel("拼图画布")
         .accessibilityValue(canvasAccessibilityValue)
-        .onAppear { refreshPreview() }
-        .onChange(of: session.project) { _, _ in refreshPreview() }
-        .onChange(of: session.compareOriginal) { _, _ in refreshPreview() }
-        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("editor-canvas")
+        .task(id: previewRequest) { await refreshPreview() }
         .overlay(alignment: .bottom) {
             VStack {
                 if session.compareOriginal {
@@ -254,11 +283,14 @@ struct CanvasInteractView: View {
 
     private var canvasAccessibilityValue: String {
         var parts: [String] = []
+        if let preview { parts.append("预览 \(Int(preview.size.width)) × \(Int(preview.size.height)) 像素") }
         if session.project.mode == .longStrip {
             parts.append("输出 \(session.outputSizeLabel)")
         }
         if let selected = session.selected {
-            parts.append("已选中\(selected.displayName)")
+            if let index = session.project.photoLayers.firstIndex(where: { $0.id == selected.id }) {
+                parts.append("已选中第 \(index + 1) 张照片")
+            } else { parts.append("已选中\(selected.displayName)") }
             if selected.isLocked { parts.append("已锁定") }
         } else {
             parts.append("未选中对象，双指可缩放画布")
@@ -267,7 +299,7 @@ struct CanvasInteractView: View {
     }
 
     private var canvasGesture: some Gesture {
-        DragGesture(minimumDistance: 1, coordinateSpace: .local)
+        DragGesture(minimumDistance: session.isDrawingTool ? 0 : 8, coordinateSpace: .local)
             .onChanged { value in
                 if session.isDrawingTool {
                     if session.livePoints.isEmpty {
@@ -278,16 +310,6 @@ struct CanvasInteractView: View {
                 }
                 if dragStart == nil {
                     if let id = session.hitTest(value.startLocation, canvasSize: canvasSize) {
-                        if hypot(value.translation.width, value.translation.height) < 2,
-                           session.project.mode == .template,
-                           let current = session.selectedID,
-                           current != id,
-                           session.selected?.kind == .photo,
-                           session.project.object(id: id)?.kind == .photo {
-                            session.swapPhotos(a: current, b: id)
-                            session.select(id)
-                            return
-                        }
                         session.select(id)
                         session.beginGesture()
                         dragStart = session.selected?.transform
@@ -302,9 +324,10 @@ struct CanvasInteractView: View {
                 let dx = value.translation.width / canvasSize.width
                 let dy = value.translation.height / canvasSize.height
                 if session.pansPhotoContent {
+                    let pan = session.photoPanTranslation(value.translation, canvasSize: canvasSize)
                     session.setPhotoContent(
-                        offsetX: (cropStart?.offsetX ?? 0) + dx,
-                        offsetY: (cropStart?.offsetY ?? 0) + dy
+                        offsetX: (cropStart?.offsetX ?? 0) + pan.width,
+                        offsetY: (cropStart?.offsetY ?? 0) + pan.height
                     )
                 } else {
                     session.moveSelected(centerX: start.centerX + dx, centerY: start.centerY + dy, canvasSize: canvasSize)
@@ -316,6 +339,7 @@ struct CanvasInteractView: View {
                     return
                 }
                 let startID = dragObjectID
+                let originalCrop = cropStart
                 dragStart = nil
                 cropStart = nil
                 dragObjectID = nil
@@ -326,6 +350,7 @@ struct CanvasInteractView: View {
                    startID != endID,
                    session.project.object(id: startID)?.kind == .photo,
                    session.project.object(id: endID)?.kind == .photo {
+                    if let originalCrop { session.project.updateObject(id: startID) { $0.photo?.crop = originalCrop } }
                     session.swapPhotos(a: startID, b: endID)
                     session.select(endID)
                 }
@@ -417,27 +442,6 @@ struct CanvasInteractView: View {
             .stroke(JiPinTheme.accent, lineWidth: 2)
             .frame(width: rect.width, height: rect.height)
             .position(x: rect.midX, y: rect.midY)
-            .overlay(alignment: .top) {
-                HStack(spacing: 8) {
-                    Button {
-                        session.rotateSelected(degrees: 90)
-                    } label: {
-                        Image(systemName: "rotate.right")
-                    }
-                    .accessibilityLabel("旋转 90 度")
-                    if object.kind == .photo {
-                        Button {
-                            session.flipSelected(horizontal: true)
-                        } label: {
-                            Image(systemName: "flip.horizontal")
-                        }
-                        .accessibilityLabel("水平翻转")
-                    }
-                }
-                .padding(6)
-                .background(.ultraThinMaterial, in: Capsule())
-                .position(x: rect.midX, y: max(rect.minY - 22, 18))
-            }
     }
 
     private func guideView(_ guide: SnapGuide) -> some View {
@@ -453,8 +457,20 @@ struct CanvasInteractView: View {
             )
     }
 
-    private func refreshPreview() {
-        preview = session.previewImage(maxSide: max(canvasSize.width, canvasSize.height) * UIScreen.main.scale)
+    private var previewRequest: PreviewRequest {
+        PreviewRequest(project: session.previewProject, displaySize: canvasSize,
+                       displayScale: displayScale, zoom: canvasZoom, assetRevision: session.assets.revision)
+    }
+
+    private func refreshPreview() async {
+        guard canvasSize.width >= 24, canvasSize.height >= 24 else { return }
+        let request = previewRequest
+        let assets = session.assets.snapshot
+        await Task.yield()
+        guard !Task.isCancelled else { return }
+        let rendered = await PreviewRendering.shared.render(request, assets: assets)
+        guard !Task.isCancelled else { return }
+        preview = rendered
     }
 }
 
@@ -507,7 +523,10 @@ struct CopyModeView: View {
     @EnvironmentObject private var appState: AppState
     @State private var target: CollageMode = .freeform
     @State private var preview: ModeCopyPreview?
-    @State private var kept: Set<UUID> = []
+    @State private var kept: Set<Int> = []
+    @State private var posterID: String?
+    @State private var isCopying = false
+    @State private var copyError: String?
 
     var body: some View {
         NavigationStack {
@@ -524,37 +543,52 @@ struct CopyModeView: View {
                         }
                     }
                     if !preview.droppedKinds.isEmpty {
-                        Section("无法承接") {
+                        Section("切换说明") {
                             ForEach(preview.droppedKinds, id: \.self, content: Text.init)
                         }
                     }
                 }
                 if needsPhotoPick {
                     Section("选择要带走的照片（\(PhotoLimits.range(for: target).lowerBound)–\(PhotoLimits.range(for: target).upperBound) 张）") {
-                        ForEach(session.project.photoOrder, id: \.self) { id in
+                        ForEach(Array(session.project.photoOrder.enumerated()), id: \.offset) { index, _ in
                             Button {
-                                toggle(id)
+                                toggle(index)
                             } label: {
                                 HStack {
-                                    Text(photoName(id))
+                                    Text("照片 \(index + 1)")
                                     Spacer()
-                                    if kept.contains(id) { Image(systemName: "checkmark") }
+                                    if kept.contains(index) { Image(systemName: "checkmark") }
                                 }
                             }
-                            .accessibilityAddTraits(kept.contains(id) ? .isSelected : [])
+                            .accessibilityAddTraits(kept.contains(index) ? .isSelected : [])
                         }
                     }
                 }
+                if target == .poster {
+                    Section("海报模板") {
+                        if matchingPosters.isEmpty {
+                            Text("当前照片数量没有匹配的海报，请在上方调整选择数量。")
+                        } else {
+                            Picker("选择版式", selection: $posterID) {
+                                ForEach(matchingPosters) { template in
+                                    Text(template.name).tag(Optional(template.id))
+                                }
+                            }
+                        }
+                    }
+                }
+                if let copyError { Text(copyError).foregroundStyle(.red) }
             }
             .navigationTitle("复制到其他模式")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("创建副本") { createCopy() }
-                        .disabled(!canCreate)
+                    Button(isCopying ? "正在保存…" : "创建副本") { Task { await createCopy() } }
+                        .disabled(!canCreate || isCopying)
                 }
             }
             .onAppear {
+                if target == session.project.mode { target = CollageMode.allCases.first { $0 != session.project.mode } ?? .template }
                 preview = ProjectFactory.previewCopy(from: session.project, to: target)
                 resetKept()
             }
@@ -562,19 +596,22 @@ struct CopyModeView: View {
                 preview = ProjectFactory.previewCopy(from: session.project, to: value)
                 resetKept()
             }
+            .onChange(of: kept) { _, _ in posterID = matchingPosters.first?.id }
         }
     }
 
     private var range: ClosedRange<Int> { PhotoLimits.range(for: target) }
-    private var needsPhotoPick: Bool { session.project.photoOrder.count > range.upperBound }
+    private var needsPhotoPick: Bool { session.project.photoOrder.count > range.upperBound || target == .poster }
     private var selectedCount: Int { needsPhotoPick ? kept.count : session.project.photoOrder.count }
-    private var canCreate: Bool { range.contains(selectedCount) }
+    private var matchingPosters: [PosterTemplate] { PosterTemplateCatalog.matching(photoCount: selectedCount) }
+    private var canCreate: Bool { range.contains(selectedCount) && (target != .poster || matchingPosters.contains { $0.id == posterID }) }
 
     private func resetKept() {
-        kept = Set(session.project.photoOrder.prefix(range.upperBound))
+        kept = Set(0..<min(session.project.photoOrder.count, range.upperBound))
+        posterID = matchingPosters.first?.id
     }
 
-    private func toggle(_ id: UUID) {
+    private func toggle(_ id: Int) {
         if kept.contains(id) {
             kept.remove(id)
         } else if kept.count < range.upperBound {
@@ -589,21 +626,27 @@ struct CopyModeView: View {
         return id.uuidString
     }
 
-    private func createCopy() {
+    private func createCopy() async {
+        isCopying = true
+        defer { isCopying = false }
         let ids = needsPhotoPick
-            ? session.project.photoOrder.filter { kept.contains($0) }
+            ? session.project.photoOrder.enumerated().filter { kept.contains($0.offset) }.map(\.element)
             : session.project.photoOrder
         let photos = ids.compactMap { id -> ImportedPhoto? in
             guard let data = session.assets.data(for: id) else { return nil }
             return ImportedPhoto(
+                id: id,
                 filename: id.uuidString,
                 data: data,
                 pixelSize: session.assets.pixelSizes[id] ?? .zero,
-                utType: "public.jpeg"
+                utType: ImageIOHelpers.typeIdentifier(of: data)
             )
         }
-        let copy = ProjectFactory.copy(project: session.project, to: target, photos: photos)
+        guard photos.count == ids.count else { copyError = "照片素材缺失，请先回到编辑器替换素材。"; return }
+        guard await session.persistNow() else { copyError = session.lastError; return }
+        let copy = ProjectFactory.copy(project: session.project, to: target, photos: photos, posterID: posterID)
         let newSession = EditorSession(project: copy, assets: AssetLibrary(images: session.assets.images))
+        guard await newSession.persistNow() else { copyError = newSession.lastError; return }
         dismiss()
         appState.openEditor(newSession)
     }

@@ -279,7 +279,7 @@ final class RenderExportTests: XCTestCase {
 
     func testExtensionExportUses2048LongSideAndKeepsDraftFlag() throws {
         let photos = makePhotos(4)
-        var project = ProjectFactory.make(mode: .template, photos: photos, originatedFromExtension: true)
+        let project = ProjectFactory.make(mode: .template, photos: photos, originatedFromExtension: true)
         let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
         let size = ExportGeometry.extensionOutputSize(for: project, assets: assets)
         XCTAssertEqual(max(size.width, size.height), JiPin.Export.extensionLongSide, accuracy: 1)
@@ -796,7 +796,7 @@ final class RenderExportTests: XCTestCase {
         XCTAssertGreaterThan(pngEstimate, estimate)
     }
 
-    func testHEICAndPNGImportStripToJPEGWithoutGPSAndKeepOrder() {
+    func testHEICAndPNGImportRemoveGPSPreservePNGAndKeepOrder() {
         let first = solidImage(color: .red, size: CGSize(width: 240, height: 180))
         let second = solidImage(color: .blue, size: CGSize(width: 180, height: 240))
         guard let png = ImageIOHelpers.pngData(from: first) else {
@@ -810,7 +810,8 @@ final class RenderExportTests: XCTestCase {
         let result = ExtensionIngest.process(items)
         XCTAssertEqual(result.photos.first?.filename, "one.png")
         XCTAssertTrue(result.photos.allSatisfy { !ImageIOHelpers.containsGPS($0.data) })
-        XCTAssertTrue(result.photos.allSatisfy { $0.utType == "public.jpeg" })
+        XCTAssertEqual(result.photos.first?.utType, "public.png")
+        XCTAssertTrue(result.photos.allSatisfy { $0.utType == ImageIOHelpers.typeIdentifier(of: $0.data) })
         XCTAssertEqual(result.failed.count, 1)
         if items.contains(where: { $0.filename == "two.heic" }) {
             XCTAssertEqual(result.photos.map(\.filename), ["one.png", "two.heic"])
@@ -1070,6 +1071,29 @@ final class RenderExportTests: XCTestCase {
             }
         }
         return count == 0 ? 0 : total / Double(count)
+    }
+
+    func testEveryLayoutAndPosterRendersNonEmptyImage() {
+        for layout in CollageGridLayoutCatalog.all {
+            let photos = makePhotos(layout.photoCount)
+            let project = ProjectFactory.make(mode: .template, photos: photos, layoutID: layout.id)
+            let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+            let image = CollageRenderer.shared.render(
+                project: project,
+                assets: assets,
+                canvasSize: CGSize(width: 240, height: 240),
+                preview: true
+            )
+            XCTAssertGreaterThan(image.size.width, 1, "layout \(layout.id) rendered empty")
+        }
+        for poster in PosterTemplateCatalog.all {
+            let photos = makePhotos(poster.photoCount)
+            let project = ProjectFactory.make(mode: .poster, photos: photos, posterID: poster.id)
+            let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+            let size = project.canvas.size(maxLongSide: 240)
+            let image = CollageRenderer.shared.render(project: project, assets: assets, canvasSize: size, preview: true)
+            XCTAssertGreaterThan(image.size.height, 1, "poster \(poster.id) rendered empty")
+        }
     }
 
     private func makePhotos(_ count: Int) -> [ImportedPhoto] {

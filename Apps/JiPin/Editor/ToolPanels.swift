@@ -8,6 +8,7 @@ struct ToolDetailPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
+            ScrollView(.vertical) {
             Group {
                 switch session.activeTool {
                 case .layout: LayoutTools(session: session)
@@ -25,7 +26,9 @@ struct ToolDetailPanel: View {
                 }
             }
             .padding()
-            .frame(minHeight: 132, maxHeight: 280)
+            }
+            .frame(height: 240)
+            .accessibilityIdentifier("editor-tool-panel")
             .background(JiPinTheme.surface)
             .scrollDismissesKeyboard(.interactively)
         }
@@ -87,14 +90,14 @@ struct LayoutTools: View {
                     Text("间距")
                     Slider(value: Binding(
                         get: { session.project.spacing },
-                        set: { session.project.spacing = $0 }
+                        set: { value in session.updateProject { $0.spacing = value } }
                     ), in: 0...0.08) { editing in
                         if editing { session.beginGesture() } else { session.endGesture() }
                     }
                     Text("边距")
                     Slider(value: Binding(
                         get: { session.project.outerMargin },
-                        set: { session.project.outerMargin = $0 }
+                        set: { value in session.updateProject { $0.outerMargin = value } }
                     ), in: 0...0.1) { editing in
                         if editing { session.beginGesture() } else { session.endGesture() }
                     }
@@ -108,7 +111,7 @@ struct LayoutTools: View {
                     .accessibilityHint("间距和边距设为零")
                 }
                 .font(.caption)
-                Text("把一张照片拖到另一格即可交换，也可以先选中再点另一张。")
+                Text("点选照片后调整内容，拖到另一格可以交换照片。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } else if session.project.mode == .poster {
@@ -186,11 +189,18 @@ struct LayoutTools: View {
                     Text("间距")
                     Slider(value: Binding(
                         get: { session.project.spacing },
-                        set: { session.project.spacing = $0 }
+                        set: { value in session.updateProject { $0.spacing = value } }
                     ), in: 0...0.08) { editing in
                         if editing { session.beginGesture() } else { session.endGesture() }
                     }
                 }
+                Button("无缝拼接") {
+                    session.checkpoint()
+                    session.project.spacing = 0
+                    session.scheduleSave()
+                }
+                .accessibilityIdentifier("longstrip-seamless")
+                .accessibilityHint("间距设为零")
                 Text("输出 \(session.outputSizeLabel)")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
@@ -217,7 +227,7 @@ struct LayoutTools: View {
                 .font(.caption)
                 Toggle("对齐吸附", isOn: Binding(
                     get: { session.project.snapEnabled },
-                    set: { session.project.snapEnabled = $0 }
+                    set: { value in session.updateProject { $0.snapEnabled = value } }
                 ))
                 .accessibilityIdentifier("canvas-snap-toggle")
                 Text("可吸附画布中心、边缘和其他对象的边缘。关闭后自由移动。")
@@ -259,46 +269,22 @@ struct PosterThumb: View {
     let poster: PosterTemplate
 
     var body: some View {
-        Canvas { context, size in
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(hex: poster.background.colorHex)))
-            if let secondary = poster.background.secondaryHex {
-                let gradient = Gradient(colors: [Color(hex: poster.background.colorHex), Color(hex: secondary)])
-                context.fill(
-                    Path(CGRect(origin: .zero, size: size)),
-                    with: .linearGradient(gradient, startPoint: .zero, endPoint: CGPoint(x: size.width, y: size.height))
-                )
-            }
-            for slot in poster.photoSlots {
-                let rect = CGRect(
-                    x: slot.frame.x * size.width + 1,
-                    y: slot.frame.y * size.height + 1,
-                    width: max(slot.frame.width * size.width - 2, 1),
-                    height: max(slot.frame.height * size.height - 2, 1)
-                )
-                context.fill(
-                    Path(roundedRect: rect, cornerRadius: CGFloat(slot.cornerRadius) * min(size.width, size.height)),
-                    with: .color(Color.white.opacity(0.55))
-                )
-            }
-            for text in poster.texts {
-                let rect = CGRect(
-                    x: text.frame.x * size.width + 1,
-                    y: text.frame.y * size.height + 1,
-                    width: max(text.frame.width * size.width - 2, 1),
-                    height: max(text.frame.height * size.height - 2, 1)
-                )
-                context.fill(Path(roundedRect: rect, cornerRadius: 1), with: .color(Color(hex: text.style.colorHex).opacity(0.45)))
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(JiPinTheme.ink.opacity(0.08)))
-        .accessibilityLabel("海报预览 \(poster.name)，\(poster.photoCount) 个照片位")
+        Image(uiImage: StudioPreviewCache.poster(poster))
+            .resizable()
+            .scaledToFit()
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(JiPinTheme.ink.opacity(0.08)))
+            .accessibilityLabel("海报预览 \(poster.name)，\(poster.photoCount) 个照片位")
     }
 }
 
 struct PhotoRosterBar: View {
     @ObservedObject var session: EditorSession
     @State private var picker: [PhotosPickerItem] = []
+    @State private var posterBatch: ModePickerLaunch?
+    @State private var pendingPhotos: [ImportedPhoto] = []
+    @State private var importErrors = ""
+    @State private var showImportErrors = false
 
     var body: some View {
         let range = PhotoLimits.range(for: session.project.mode)
@@ -315,17 +301,19 @@ struct PhotoRosterBar: View {
                     ) {
                         Label("添加照片", systemImage: "plus")
                     }
-                    .onChange(of: picker) { _, items in
-                        Task {
-                            let loaded = await PhotoImporter.load(items)
-                            if !loaded.ok.isEmpty {
-                                session.addPhotos(loaded.ok)
-                            }
-                            if !loaded.failed.isEmpty {
-                                session.lastError = loaded.failed.compactMap(\.failureReason).joined(separator: "\n")
-                            }
-                            picker = []
+                    .task(id: picker) {
+                        let items = picker
+                        guard !items.isEmpty else { return }
+                        let loaded = await PhotoImporter.load(items)
+                        guard !Task.isCancelled else { return }
+                        if !loaded.failed.isEmpty {
+                            pendingPhotos = loaded.ok
+                            importErrors = loaded.failed.compactMap(\.failureReason).joined(separator: "\n")
+                            showImportErrors = true
+                        } else {
+                            appendPhotos(loaded.ok)
                         }
+                        picker = []
                     }
                     .accessibilityHint("增加照片后会按新数量重新匹配布局")
                 }
@@ -338,6 +326,31 @@ struct PhotoRosterBar: View {
             .buttonStyle(.bordered)
             .font(.subheadline)
         }
+        .alert("部分照片未能导入", isPresented: $showImportErrors) {
+            if !pendingPhotos.isEmpty {
+                Button("添加成功的 \(pendingPhotos.count) 张") { appendPhotos(pendingPhotos); pendingPhotos = [] }
+            }
+            Button("取消", role: .cancel) { pendingPhotos = [] }
+        } message: { Text(importErrors) }
+        .sheet(item: $posterBatch) { batch in
+            ModePickerSheet(photos: batch.photos, preset: .poster, locksMode: true) { _, _, posterID, photos in
+                if let template = posterID.flatMap(PosterTemplateCatalog.template(id:)) {
+                    session.applyPoster(template, importing: photos)
+                }
+                posterBatch = nil
+            }
+        }
+    }
+
+    private func appendPhotos(_ photos: [ImportedPhoto]) {
+        guard !photos.isEmpty else { return }
+        if session.project.mode == .poster {
+            let current = session.project.photoOrder.compactMap { id -> ImportedPhoto? in
+                guard let data = session.assets.data(for: id) else { return nil }
+                return ImportedPhoto(id: id, filename: "已有照片", data: data, pixelSize: session.assets.pixelSizes[id] ?? .zero, utType: ImageIOHelpers.typeIdentifier(of: data))
+            }
+            posterBatch = ModePickerLaunch(photos: current + photos)
+        } else { session.addPhotos(photos) }
     }
 }
 
@@ -375,8 +388,8 @@ struct AdjustTools: View {
             .accessibilityLabel("精细旋转")
             .accessibilityIdentifier("adjust-rotation-slider")
             HStack {
-                Button("锁定") { session.toggleLock() }
-                Button("隐藏") { session.toggleVisible() }
+                Button(session.selected?.isLocked == true ? "解锁" : "锁定") { session.toggleLock() }
+                Button(session.selected?.isVisible == false ? "显示" : "隐藏") { session.toggleVisible() }
                 Button("复制") { session.duplicateSelected() }
                 Button("删除", role: .destructive) { session.deleteSelected() }
             }
@@ -388,7 +401,7 @@ struct AdjustTools: View {
                         session.updateSelected { $0.opacity = value }
                     }
                 ),
-                in: 0.15...1
+                in: 0...1
             ) { editing in
                 if editing {
                     session.beginGesture()
@@ -405,20 +418,27 @@ struct AdjustTools: View {
                     Button("照片后移") { session.movePhoto(forward: true) }
                 }
                 .buttonStyle(.bordered)
-                Text("拖到另一张照片上可交换；也可以先选中再点另一张，或用前移后移按钮。")
+                Text("拖到另一张照片上可交换，也可以使用前移、后移按钮。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 PhotosPicker(selection: $picker, maxSelectionCount: 1, matching: PhotoImporter.stillImages) {
                     Label("替换这张照片", systemImage: "photo.badge.plus")
                 }
-                .onChange(of: picker) { _, items in
-                    Task {
-                        let loaded = await PhotoImporter.load(items)
-                        if let photo = loaded.ok.first {
-                            session.replaceSelectedPhoto(photo)
-                        }
+                .task(id: picker) {
+                    let items = picker
+                    guard !items.isEmpty else { return }
+                    let originalSelection = session.selectedID
+                    let loaded = await PhotoImporter.load(items)
+                    guard !Task.isCancelled else { return }
+                    guard session.selectedID == originalSelection else {
+                        session.lastError = "当前照片已改变，请重新选择要替换的照片。"
                         picker = []
+                        return
                     }
+                    if let photo = loaded.ok.first {
+                        session.replaceSelectedPhoto(photo)
+                    } else if let error = loaded.failed.first?.failureReason { session.lastError = error }
+                    picker = []
                 }
                 Picker("显示", selection: Binding(
                     get: { session.selected?.photo?.contentMode ?? .fill },
@@ -623,6 +643,15 @@ struct TextTools: View {
         .onChange(of: session.activeTool) { _, tool in
             if tool == .text { focused = true }
         }
+        .onChange(of: session.wantsTextFocus) { _, requested in
+            if requested { focused = true; session.wantsTextFocus = false }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("收起键盘") { focused = false }
+            }
+        }
         .onChange(of: focused) { _, isFocused in
             if isFocused {
                 session.beginGesture()
@@ -742,10 +771,13 @@ struct StickerTools: View {
                             Button {
                                 session.addSticker(sticker.id)
                             } label: {
-                                Text(sticker.name)
-                                    .font(.caption)
-                                    .padding(8)
-                                    .background(JiPinTheme.canvas, in: Capsule())
+                                VStack(spacing: 6) {
+                                    Image(uiImage: StudioPreviewCache.sticker(sticker))
+                                        .resizable().scaledToFit().frame(width: 54, height: 54)
+                                    Text(sticker.name).font(.caption2)
+                                }
+                                .padding(8)
+                                .background(JiPinTheme.canvas, in: RoundedRectangle(cornerRadius: 12))
                             }
                             .buttonStyle(.plain)
                             Button {
@@ -763,13 +795,14 @@ struct StickerTools: View {
                 PhotosPicker(selection: $picker, maxSelectionCount: 1, matching: PhotoImporter.stillImages) {
                     Label("从相册添加装饰图", systemImage: "plus")
                 }
-                .onChange(of: picker) { _, items in
-                    Task {
-                        if let photo = await PhotoImporter.load(items).ok.first {
-                            session.addImageDecoration(photo)
-                        }
-                        picker = []
-                    }
+                .task(id: picker) {
+                    let items = picker
+                    guard !items.isEmpty else { return }
+                    let loaded = await PhotoImporter.load(items)
+                    guard !Task.isCancelled else { return }
+                    if let photo = loaded.ok.first { session.addImageDecoration(photo) }
+                    else if let error = loaded.failed.first?.failureReason { session.lastError = error }
+                    picker = []
                 }
             }
             Text("几何形状")
@@ -834,44 +867,74 @@ struct BackgroundTools: View {
     @State private var picker: [PhotosPickerItem] = []
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-                ForEach(BackgroundCatalog.all) { preset in
-                    Button {
-                        session.checkpoint()
-                        session.project.background = preset.spec
-                        session.scheduleSave()
-                    } label: {
-                        VStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(hex: preset.spec.colorHex))
-                                .frame(width: 44, height: 44)
-                            Text(preset.name).font(.caption2)
+        VStack(alignment: .leading, spacing: 14) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(BackgroundCatalog.all) { preset in
+                        Button {
+                            session.updateProject { $0.background = preset.spec; $0.exportPreference.transparentBackground = false }
+                        } label: {
+                            VStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(LinearGradient(colors: [Color(hex: preset.spec.colorHex), Color(hex: preset.spec.secondaryHex ?? preset.spec.colorHex)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 48, height: 48)
+                                Text(preset.name).font(.caption2)
+                            }
                         }
-                    }
-                    .buttonStyle(.plain)
-                }
-                PhotosPicker(selection: $picker, maxSelectionCount: 1, matching: PhotoImporter.stillImages) {
-                    Label("选图", systemImage: "photo")
-                }
-                .onChange(of: picker) { _, items in
-                    Task {
-                        if let photo = await PhotoImporter.load(items).ok.first {
-                            session.assets.ingest([photo])
-                            session.checkpoint()
-                            session.project.background = BackgroundSpec(kind: .image, imageAssetID: photo.id)
-                            session.scheduleSave()
-                        }
-                        picker = []
+                        .buttonStyle(.plain)
                     }
                 }
-                Toggle("隐藏背景", isOn: Binding(
+            }
+            Picker("背景类型", selection: Binding(
+                get: { session.project.background.kind },
+                set: { kind in session.updateProject { $0.background.kind = kind; $0.background.isHidden = false; $0.background.presetID = nil } }
+            )) {
+                Text("纯色").tag(BackgroundKind.solid)
+                Text("渐变").tag(BackgroundKind.gradient)
+                if session.project.background.kind == .image { Text("图片").tag(BackgroundKind.image) }
+                if session.project.background.kind == .texture { Text("纹理").tag(BackgroundKind.texture) }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("background-kind")
+            if session.project.background.kind == .solid || session.project.background.kind == .gradient {
+                ColorPicker("背景颜色", selection: Binding(
+                    get: { Color(hex: session.project.background.colorHex) },
+                    set: { color in session.updateProject { $0.background.colorHex = color.hexString; $0.background.isHidden = false } }
+                ), supportsOpacity: false)
+                if session.project.background.kind == .gradient {
+                    ColorPicker("渐变终点", selection: Binding(
+                        get: { Color(hex: session.project.background.secondaryHex ?? "#FFFFFF") },
+                        set: { color in session.updateProject { $0.background.secondaryHex = color.hexString } }
+                    ), supportsOpacity: false)
+                }
+            }
+            PhotosPicker(selection: $picker, maxSelectionCount: 1, matching: PhotoImporter.stillImages) {
+                Label("选图作背景", systemImage: "photo")
+            }
+            .task(id: picker) {
+                let items = picker
+                guard !items.isEmpty else { return }
+                let loaded = await PhotoImporter.load(items)
+                guard !Task.isCancelled else { return }
+                if let photo = loaded.ok.first {
+                    session.assets.ingest([photo])
+                    session.updateProject { $0.background = BackgroundSpec(kind: .image, imageAssetID: photo.id) }
+                } else if let error = loaded.failed.first?.failureReason { session.lastError = error }
+                picker = []
+            }
+            if session.project.mode == .freeform || session.project.mode == .poster {
+                Toggle("透明背景", isOn: Binding(
                     get: { session.project.background.isHidden },
-                    set: {
-                        session.project.background.isHidden = $0
-                        session.scheduleSave()
+                    set: { value in
+                        session.updateProject {
+                            $0.background.isHidden = value
+                            $0.exportPreference.transparentBackground = value
+                            if value { $0.exportPreference.format = .png }
+                        }
                     }
                 ))
+                Text("透明背景使用 PNG 保存；JPEG 会填充背景色。")
+                    .font(.caption).foregroundStyle(.secondary)
             }
         }
     }

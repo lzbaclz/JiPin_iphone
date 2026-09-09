@@ -26,7 +26,7 @@ public enum ProjectFactory {
             project.objects = makePhotoObjects(ids: ids, layout: layout)
         case .freeform:
             project.canvas = .square
-            project.objects = makeFreeformPhotos(ids: ids)
+            project.objects = makeFreeformPhotos(photos: photos)
         case .poster:
             let poster = posterID.flatMap(PosterTemplateCatalog.template(id:))
                 ?? PosterTemplateCatalog.matching(photoCount: photos.count).first
@@ -60,7 +60,6 @@ public enum ProjectFactory {
                 var photo = existing[index]
                 photo.photo?.slotID = "c\(index)"
                 photo.transform = transform(from: cell)
-                photo.zIndex = index
                 objects.append(photo)
             }
         }
@@ -73,9 +72,7 @@ public enum ProjectFactory {
         var unused = project.photoLayers
         func takeLayer(assetID: UUID, index: Int, slotPrefix: String) -> LayerObject {
             if let match = unused.firstIndex(where: { $0.photo?.assetID == assetID }) {
-                var existing = unused.remove(at: match)
-                existing.zIndex = index
-                return existing
+                return unused.remove(at: match)
             }
             return LayerObject.photo(
                 assetID: assetID,
@@ -107,13 +104,16 @@ public enum ProjectFactory {
         case .poster:
             if let poster = project.posterID.flatMap(PosterTemplateCatalog.template(id:)) {
                 var photos: [LayerObject] = []
-                for (index, slot) in poster.photoSlots.enumerated() {
-                    guard index < project.photoOrder.count else { break }
-                    let id = project.photoOrder[index]
+                for (index, id) in project.photoOrder.enumerated() {
                     var layer = takeLayer(assetID: id, index: index, slotPrefix: "p")
-                    layer.photo?.slotID = slot.id
-                    layer.photo?.cornerRadius = slot.cornerRadius
-                    layer.transform = transform(from: slot.frame)
+                    if index < poster.photoSlots.count {
+                        let slot = poster.photoSlots[index]
+                        layer.photo?.slotID = slot.id
+                        layer.photo?.cornerRadius = slot.cornerRadius
+                        layer.transform = transform(from: slot.frame)
+                    } else {
+                        layer.photo?.slotID = nil
+                    }
                     photos.append(layer)
                 }
                 project.objects = extras + photos
@@ -189,30 +189,35 @@ public enum ProjectFactory {
         if project.photoOrder.count < range.lowerBound {
             warnings.append("目标模式至少需要 \(range.lowerBound) 张照片。")
         }
-        if mode == .template || mode == .longStrip {
-            if project.objects.contains(where: { $0.kind == .sticker }) { dropped.append("自由摆放的贴纸位置") }
-        }
-        if mode != .freeform && mode != .poster {
-            if project.objects.contains(where: { $0.kind == .doodle }) { dropped.append("涂鸦图层") }
-        }
-        if mode == .longStrip {
-            dropped.append("模板格子结构")
-        }
+        if mode != project.mode { dropped.append("照片将按目标模式重新排列，文字和装饰会保留") }
         return ModeCopyPreview(target: mode, keptPhotos: kept, droppedKinds: dropped, warnings: warnings)
     }
 
-    public static func copy(project: CollageProject, to mode: CollageMode, photos: [ImportedPhoto]) -> CollageProject {
-        var copy = make(mode: mode, photos: photos)
+    public static func copy(project: CollageProject, to mode: CollageMode, photos: [ImportedPhoto], posterID: String? = nil) -> CollageProject {
+        var copy = make(mode: mode, photos: photos, posterID: posterID)
         copy.name = project.name + " · \(mode.title)"
         copy.background = project.background
-        if mode == .freeform || mode == .poster {
-            let extras = project.objects.filter { $0.kind == .text || $0.kind == .sticker || $0.kind == .doodle }
-            copy.objects.append(contentsOf: extras.map { object in
+        var sourcePhotos = project.photoLayers
+        for index in copy.objects.indices where copy.objects[index].kind == .photo {
+            guard let assetID = copy.objects[index].photo?.assetID,
+                  let match = sourcePhotos.firstIndex(where: { $0.photo?.assetID == assetID }) else { continue }
+            let original = sourcePhotos.remove(at: match)
+            var payload = original.photo
+            payload?.slotID = copy.objects[index].photo?.slotID
+            copy.objects[index].photo = payload
+            copy.objects[index].transform.rotation = original.transform.rotation
+            copy.objects[index].transform.scaleX = original.transform.scaleX
+            copy.objects[index].transform.scaleY = original.transform.scaleY
+        }
+        let extras = project.objects.filter { $0.kind != .photo }.sorted { $0.zIndex < $1.zIndex }
+        if !extras.isEmpty {
+            let photoLayers = copy.photoLayers
+            copy.objects = photoLayers + extras.enumerated().map { index, object in
                 var item = object
                 item.id = UUID()
-                item.zIndex += 300
+                item.zIndex = photoLayers.count + index
                 return item
-            })
+            }
         }
         return copy
     }
@@ -225,24 +230,27 @@ public enum ProjectFactory {
         }
     }
 
-    private static func makeFreeformPhotos(ids: [UUID]) -> [LayerObject] {
-        let count = max(ids.count, 1)
+    private static func makeFreeformPhotos(photos: [ImportedPhoto]) -> [LayerObject] {
+        let count = max(photos.count, 1)
         let cols = Int(ceil(sqrt(Double(count))))
         let rows = Int(ceil(Double(count) / Double(cols)))
         let cellW = 0.78 / Double(cols)
         let cellH = 0.78 / Double(rows)
-        return ids.enumerated().map { index, id in
+        return photos.enumerated().map { index, photo in
             let c = index % cols
             let r = index / cols
+            let ratio = max(photo.pixelSize.width, 1) / max(photo.pixelSize.height, 1)
+            let width = min(cellW * 0.9, cellH * 0.9 * ratio)
+            let height = width / ratio
             return LayerObject.photo(
-                assetID: id,
+                assetID: photo.id,
                 slotID: nil,
                 zIndex: index,
                 transform: CanvasTransform(
                     centerX: 0.14 + cellW * (Double(c) + 0.5),
                     centerY: 0.14 + cellH * (Double(r) + 0.5),
-                    width: cellW * 0.9,
-                    height: cellH * 0.9,
+                    width: width,
+                    height: height,
                     rotation: Double(index % 3 - 1) * 3
                 )
             )
@@ -280,13 +288,12 @@ public enum ExportGeometry {
     public static func extensionOutputSize(for project: CollageProject, assets: AssetProviding) -> CGSize {
         switch project.mode {
         case .longStrip:
-            if case .ok(let size) = longStripSize(project, assets: assets, long: JiPin.Export.extensionLongSide) {
-                return size
+            let dimensions: CGSize
+            switch longStripSize(project, assets: assets) {
+            case .ok(let size), .needsChoice(_, let size): dimensions = size
             }
-            if case .needsChoice(_, let scaled) = longStripSize(project, assets: assets, long: JiPin.Export.extensionLongSide) {
-                return scaled
-            }
-            return CGSize(width: JiPin.Export.extensionLongSide, height: JiPin.Export.extensionLongSide)
+            let factor = JiPin.Export.extensionLongSide / max(dimensions.width, dimensions.height, 1)
+            return CGSize(width: max(1, floor(dimensions.width * factor)), height: max(1, floor(dimensions.height * factor)))
         default:
             return project.canvas.size(maxLongSide: JiPin.Export.extensionLongSide)
         }
@@ -300,8 +307,8 @@ public enum ExportGeometry {
             let size = assets.imageData(for: payload.assetID).map(ImageIOHelpers.pixelSize(of:)) ?? CGSize(width: 1200, height: 1600)
             return (object.id, size, payload.crop)
         }
-        let spacing = CGFloat(project.spacing) * 40
-        let margin = CGFloat(project.outerMargin) * 40
+        let spacing = CGFloat(project.spacing) * base
+        let margin = CGFloat(project.outerMargin) * base
         let result = LayoutEngine.longStripFrames(
             photos: photos,
             direction: project.longStrip?.direction ?? .vertical,

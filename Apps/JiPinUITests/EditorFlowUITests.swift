@@ -8,6 +8,9 @@ final class EditorFlowUITests: XCTestCase {
             app.launch()
             XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 10), "missing export in \(mode)")
             XCTAssertTrue(app.buttons["完成"].exists)
+            if mode == "template" {
+                XCTAssertTrue(app.buttons["template-seamless"].exists || app.buttons["无缝"].exists)
+            }
             tapToolbarItem(app, id: "editor-rename")
             XCTAssertTrue(app.alerts["重命名草稿"].waitForExistence(timeout: 4), "missing rename alert in \(mode)")
             app.alerts["重命名草稿"].buttons["取消"].tap()
@@ -83,6 +86,9 @@ final class EditorFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-quickCollage", "-quickCollageOverflow", "-quickCollageFailed"]
         app.launch()
+        let consent = app.alerts["确认导入的照片"]
+        XCTAssertTrue(consent.waitForExistence(timeout: 10))
+        consent.buttons.matching(NSPredicate(format: "label CONTAINS '继续使用'")).firstMatch.tap()
         XCTAssertTrue(app.buttons["quick-cancel"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.otherElements["quick-overflow"].waitForExistence(timeout: 4) || app.staticTexts["quick-overflow"].exists)
         XCTAssertTrue(app.otherElements["quick-failed"].exists || app.staticTexts["quick-failed"].exists)
@@ -179,6 +185,7 @@ final class EditorFlowUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["canvas-zoom-in"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.buttons["longstrip-seamless"].exists || app.buttons["无缝拼接"].exists)
         app.buttons["canvas-zoom-in"].tap()
         XCTAssertTrue(app.buttons["canvas-zoom-reset"].exists)
         app.buttons["canvas-zoom-reset"].tap()
@@ -268,6 +275,71 @@ final class EditorFlowUITests: XCTestCase {
         )
         XCTAssertTrue(album.exists || app.buttons["保存到相册"].exists)
         XCTAssertTrue(app.buttons["export-share"].exists || app.buttons["系统分享"].exists)
+    }
+
+    func testInitialCanvasUsesRetinaPreviewAndUpdatesWhenRatioChanges() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launch()
+        let image = app.descendants(matching: .any)["editor-canvas"]
+        XCTAssertTrue(image.waitForExistence(timeout: 15))
+        let ready = NSPredicate { _, _ in
+            let numbers = (image.value as? String ?? "").components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap(Int.init)
+            return numbers.count >= 2 && numbers[0] >= 600 && numbers[1] >= 600
+        }
+        expectation(for: ready, evaluatedWith: nil)
+        waitForExpectations(timeout: 10)
+        let before = image.value as? String
+        let ratio = app.buttons["3:4"].firstMatch
+        XCTAssertTrue(ratio.waitForExistence(timeout: 5))
+        ratio.tap()
+        let changed = NSPredicate { _, _ in (image.value as? String) != before }
+        expectation(for: changed, evaluatedWith: nil)
+        waitForExpectations(timeout: 10)
+    }
+
+    func testModeCopyPreservesPhotosAndCanExportTheCopy() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "freeform"]
+        app.launch()
+        XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 10))
+        tapToolbarItem(app, id: "editor-copy-mode")
+        XCTAssertTrue(app.buttons["创建副本"].waitForExistence(timeout: 6))
+        app.buttons["创建副本"].tap()
+        XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 15))
+        app.buttons["editor-export"].tap()
+        let generate = app.buttons["export-generate"]
+        XCTAssertTrue(generate.waitForExistence(timeout: 8))
+        generate.tap()
+        let success = app.staticTexts.matching(NSPredicate(format: "label CONTAINS '已生成'")).firstMatch
+        let actual = app.staticTexts.matching(NSPredicate(format: "(label CONTAINS 'KB' OR label CONTAINS 'MB') AND NOT label CONTAINS '预估'")).firstMatch
+        XCTAssertTrue(success.waitForExistence(timeout: 15) || actual.waitForExistence(timeout: 2), app.debugDescription)
+    }
+
+    func testSingleTapSelectsAnotherPhotoWithoutEditingIt() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launch()
+        let image = app.descendants(matching: .any)["editor-canvas"]
+        XCTAssertTrue(image.waitForExistence(timeout: 15))
+        image.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.25)).tap()
+        let canvas = app.descendants(matching: .any)["editor-canvas"]
+        let selectedSecond = NSPredicate { _, _ in (canvas.value as? String ?? "").contains("第 2 张") }
+        expectation(for: selectedSecond, evaluatedWith: nil)
+        waitForExpectations(timeout: 5)
+        XCTAssertFalse(app.buttons["撤销"].isEnabled)
+    }
+
+    func testPhotoModeCardOpensSystemPickerDirectly() {
+        let app = XCUIApplication()
+        app.launch()
+        let card = app.buttons["mode-template"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10))
+        card.tap()
+        let cancel = app.buttons["取消"].firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        cancel.tap()
+        XCTAssertTrue(app.buttons["home-pick-photos"].waitForExistence(timeout: 8))
     }
 
     private func tapToolbarItem(_ app: XCUIApplication, id: String) {

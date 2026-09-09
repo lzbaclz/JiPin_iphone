@@ -9,7 +9,7 @@
 | 名称 | 极拼 |
 | 副标题 | 模板、自由、海报与长图拼图 |
 | 类别 | 摄影与录像 |
-| 年龄分级 | 4+（无用户生成社交、无暴力、无广告） |
+| 年龄分级 | 按实际内容填写问卷，由 App Store Connect 生成最终分级 |
 | 最低系统 | iOS 17 |
 | 设备 | iPhone |
 | 价格 | 免费 |
@@ -31,8 +31,10 @@
 
 极拼是本地拼图工具，随安装包提供相册 **Action Extension**。
 
-1. 用同一 Development Team 签名 `JiPin` 与 `JiPinAction`，启用 App Group `group.com.jipin.JiPin`。
-2. 主 App：打开极拼 → 选择照片或「用示例照片开始」→ 四种模式均可编辑并导出。不必登录。
+提交前由开发者配置同一 Development Team 与 App Group，审核人员无需修改工程。
+
+1. 主 App：打开极拼 → 选择照片或「用示例插画体验」→ 四种模式均可编辑并导出。不必登录。
+2. 模式卡可直接打开系统选图；首次使用也可用原创插画体验。
 3. 相册入口：不必先打开主 App。系统「照片」多选 2 到 9 张 → 分享 → **操作区**「极拼」（不是相册原生工具栏）。扩展可模板/长图快拼、保存到相册、系统分享、保存草稿。
 4. 草稿交接：扩展内「更多 → 保存草稿」后，打开极拼 → 草稿，应看到「来自相册」条目。
 5. 拒绝「添加照片」后，项目仍可保存为草稿或用系统分享，不要求读取整个图库。
@@ -49,6 +51,7 @@
 4. 海报编辑器
 5. 相册快拼
 6. 设置
+7. 长图编辑器
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
@@ -56,7 +59,7 @@ chmod +x scripts/export-store-screenshots.sh
 ./scripts/export-store-screenshots.sh
 ```
 
-`JiPinUITests/testStoreScreenshotAttachments` 仍会把同类画面附在 xcresult 中。真机截图建议用实拍素材替换示例色块后再上传。
+`JiPinUITests/testStoreScreenshotAttachments` 仍会把同类画面附在 xcresult 中。现有截图使用项目原创插画，提交前可换成获得授权的实拍素材，并复核最终发布包显示。
 
 ## 中国大陆
 
