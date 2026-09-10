@@ -204,13 +204,7 @@ struct CanvasInteractView: View {
     var canvasSize: CGSize
     @Binding var canvasZoom: CGFloat
     @Environment(\.displayScale) private var displayScale
-    @State private var preview: UIImage?
-    @State private var dragStart: CanvasTransform?
-    @State private var cropStart: PhotoCrop?
-    @State private var pinchBaseZoom: CGFloat?
-    @State private var pinchLastValue: CGFloat = 1
-    @State private var rotationBase: Double?
-    @State private var dragObjectID: UUID?
+    @StateObject private var previewState = CanvasPreview()
 
     var body: some View {
         ZStack {
@@ -226,49 +220,30 @@ struct CanvasInteractView: View {
                 }
                 .accessibilityHidden(true)
             }
-            if let preview {
+            if let preview = previewState.image {
                 Image(uiImage: preview)
                     .resizable()
                     .interpolation(.high)
                     .frame(width: canvasSize.width, height: canvasSize.height)
+                    .accessibilityHidden(true)
             } else {
                 JiPinTheme.canvas
             }
+            CanvasTouchSurface(session: session, canvasSize: canvasSize, canvasZoom: $canvasZoom, description: canvasAccessibilityValue)
+                .frame(width: canvasSize.width, height: canvasSize.height)
             ForEach(session.guides, id: \.position) { guide in
-                guideView(guide)
+                guideView(guide).allowsHitTesting(false)
             }
             if let selected = session.selected, selected.isVisible, !session.isDrawingTool {
-                selectionChrome(selected)
+                selectionChrome(selected).allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
             liveInk
         }
         .contentShape(Rectangle())
-        .simultaneousGesture(
-            SpatialTapGesture(count: 1).onEnded { event in
-                guard !session.isDrawingTool else { return }
-                session.select(session.hitTest(event.location, canvasSize: canvasSize))
-            }
-        )
-        .simultaneousGesture(
-            SpatialTapGesture(count: 2).onEnded { event in
-                guard !session.isDrawingTool else { return }
-                if let id = session.hitTest(event.location, canvasSize: canvasSize) {
-                    session.select(id)
-                    if session.project.object(id: id)?.kind == .text {
-                        session.activeTool = .text
-                        session.wantsTextFocus = true
-                    }
-                }
-            }
-        )
-        .gesture(canvasGesture)
-        .accessibilityElement(children: .ignore)
-        .accessibilityHint(session.isDrawingTool ? "在画布上拖动即可绘制" : "拖动可移动当前对象；模板和长图中拖到另一张照片可交换；选中格子内照片时小幅拖动可平移画面；双指缩放或旋转。旋转、排序和层级也可用按钮完成。")
-        .accessibilityLabel("拼图画布")
-        .accessibilityValue(canvasAccessibilityValue)
-        .accessibilityIdentifier("editor-canvas")
-        .task(id: previewRequest) { await refreshPreview() }
+        .gesture(drawingGesture, including: session.isDrawingTool ? .all : .subviews)
+        .onChange(of: previewRequest, initial: true) { _, request in previewState.submit(request, assets: session.assets.snapshot) }
+        .onDisappear { previewState.stop() }
         .overlay(alignment: .bottom) {
             VStack {
                 if session.compareOriginal {
@@ -296,7 +271,7 @@ struct CanvasInteractView: View {
 
     private var canvasAccessibilityValue: String {
         var parts: [String] = []
-        if let preview { parts.append("预览 \(Int(preview.size.width)) × \(Int(preview.size.height)) 像素") }
+        if let preview = previewState.image { parts.append("预览 \(Int(preview.size.width)) × \(Int(preview.size.height)) 像素") }
         if session.project.mode == .longStrip {
             parts.append("输出 \(session.outputSizeLabel)")
         }
@@ -308,98 +283,24 @@ struct CanvasInteractView: View {
         } else {
             parts.append("未选中对象，双指可缩放画布")
         }
+        #if DEBUG
+        parts.append("预览帧 \(previewState.displayedFrames)")
+        if let photo = session.selected?.photo {
+            parts.append("照片缩放 \(String(format: "%.3f", photo.crop.zoom))")
+            parts.append("照片角度 \(String(format: "%.2f", session.selected?.transform.rotation ?? 0))")
+        }
+        #endif
         return parts.joined(separator: "，")
     }
 
-    private var canvasGesture: some Gesture {
-        DragGesture(minimumDistance: session.isDrawingTool ? 0 : 8, coordinateSpace: .local)
+    private var drawingGesture: some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { value in
-                if session.isDrawingTool {
-                    if session.livePoints.isEmpty {
-                        session.beginDraw(at: value.startLocation, canvasSize: canvasSize)
-                    }
-                    session.continueDraw(at: value.location, canvasSize: canvasSize)
-                    return
-                }
-                if dragStart == nil {
-                    if let id = session.hitTest(value.startLocation, canvasSize: canvasSize) {
-                        session.select(id)
-                        session.beginGesture()
-                        dragStart = session.selected?.transform
-                        cropStart = session.selected?.photo?.crop
-                        dragObjectID = id
-                    } else {
-                        session.select(nil)
-                        dragObjectID = nil
-                    }
-                }
-                guard let start = dragStart, session.selected?.isLocked != true else { return }
-                let dx = value.translation.width / canvasSize.width
-                let dy = value.translation.height / canvasSize.height
-                if session.pansPhotoContent {
-                    let pan = session.photoPanTranslation(value.translation, canvasSize: canvasSize)
-                    session.setPhotoContent(
-                        offsetX: (cropStart?.offsetX ?? 0) + pan.width,
-                        offsetY: (cropStart?.offsetY ?? 0) + pan.height
-                    )
-                } else {
-                    session.moveSelected(centerX: start.centerX + dx, centerY: start.centerY + dy, canvasSize: canvasSize)
-                }
+                guard session.isDrawingTool else { return }
+                if session.livePoints.isEmpty { session.beginDraw(at: value.startLocation, canvasSize: canvasSize) }
+                session.continueDraw(at: value.location, canvasSize: canvasSize)
             }
-            .onEnded { value in
-                if session.isDrawingTool {
-                    session.endDraw(canvasSize: canvasSize)
-                    return
-                }
-                let startID = dragObjectID
-                let originalCrop = cropStart
-                dragStart = nil
-                cropStart = nil
-                dragObjectID = nil
-                if let startID,
-                   session.project.mode != .freeform,
-                   hypot(value.translation.width, value.translation.height) > 28,
-                   let endID = session.hitTest(value.location, canvasSize: canvasSize),
-                   startID != endID,
-                   session.project.object(id: startID)?.kind == .photo,
-                   session.project.object(id: endID)?.kind == .photo {
-                    if let originalCrop { session.project.updateObject(id: startID) { $0.photo?.crop = originalCrop } }
-                    session.swapPhotos(a: startID, b: endID)
-                    session.select(endID)
-                }
-                session.endGesture()
-            }
-            .simultaneously(with: MagnificationGesture().onChanged { value in
-                guard !session.isDrawingTool else { return }
-                let zoomCanvas = session.selected == nil || session.selected?.isLocked == true
-                if zoomCanvas {
-                    if pinchBaseZoom == nil { pinchBaseZoom = canvasZoom }
-                    canvasZoom = min(max((pinchBaseZoom ?? 1) * value, 0.4), 4)
-                } else {
-                    if pinchBaseZoom == nil {
-                        session.beginGesture()
-                        pinchBaseZoom = 1
-                        pinchLastValue = 1
-                    }
-                    session.scaleSelected(value / max(pinchLastValue, 0.01))
-                    pinchLastValue = value
-                }
-            }.onEnded { _ in
-                pinchBaseZoom = nil
-                pinchLastValue = 1
-                if !session.isDrawingTool { session.endGesture() }
-            })
-            .simultaneously(with: RotationGesture().onChanged { angle in
-                guard !session.isDrawingTool, session.selected != nil, session.selected?.isLocked != true else { return }
-                if rotationBase == nil {
-                    session.beginGesture()
-                    rotationBase = session.selected?.transform.rotation ?? 0
-                }
-                session.setSelectedRotation((rotationBase ?? 0) + angle.degrees)
-            }.onEnded { _ in
-                rotationBase = nil
-                if !session.isDrawingTool { session.endGesture() }
-            })
+            .onEnded { _ in if session.isDrawingTool { session.endDraw(canvasSize: canvasSize) } }
     }
 
     @ViewBuilder
@@ -472,19 +373,10 @@ struct CanvasInteractView: View {
 
     private var previewRequest: PreviewRequest {
         PreviewRequest(project: session.previewProject, displaySize: canvasSize,
-                       displayScale: displayScale, zoom: canvasZoom, assetRevision: session.assets.revision)
+                       displayScale: displayScale, zoom: canvasZoom, assetRevision: session.assets.revision, interactive: session.isGestureActive)
     }
 
-    private func refreshPreview() async {
-        guard canvasSize.width >= 24, canvasSize.height >= 24 else { return }
-        let request = previewRequest
-        let assets = session.assets.snapshot
-        await Task.yield()
-        guard !Task.isCancelled else { return }
-        let rendered = await PreviewRendering.shared.render(request, assets: assets)
-        guard !Task.isCancelled else { return }
-        preview = rendered
-    }
+
 }
 
 struct ToolRail: View {

@@ -5,11 +5,17 @@ import UIKit
 public protocol AssetProviding {
     func imageData(for id: UUID) -> Data?
     func decodedImage(for id: UUID, maxLongSide: CGFloat) -> CGImage?
+    func processedPhoto(_ payload: PhotoPayload, maxLongSide: CGFloat, targetSize: CGSize) -> CGImage?
 }
 
 public extension AssetProviding {
     func decodedImage(for id: UUID, maxLongSide: CGFloat) -> CGImage? {
         imageData(for: id).flatMap { ImageIOHelpers.thumbnail(from: $0, maxLongSide: maxLongSide) }
+    }
+    func processedPhoto(_ payload: PhotoPayload, maxLongSide: CGFloat, targetSize: CGSize) -> CGImage? {
+        decodedImage(for: payload.assetID, maxLongSide: maxLongSide).map {
+            PhotoEffects.shared.apply(to: $0, payload: payload, targetSize: targetSize)
+        }
     }
 }
 
@@ -25,7 +31,6 @@ public struct DataAssetLibrary: AssetProviding, Sendable {
 
 public final class CollageRenderer {
     public static let shared = CollageRenderer()
-    private let effects = PhotoEffects.shared
 
     public func render(
         project: CollageProject,
@@ -320,8 +325,7 @@ public final class CollageRenderer {
                                                  crop: payload.crop, rotation: rotation, fixedFrame: layoutDriven)
             let ratio = max(desired.width / max(cropped.width, 1), desired.height / max(cropped.height, 1))
             let decodeSide = max(max(original.width, original.height) * min(ratio, 1), 1)
-            guard let source = assets.decodedImage(for: payload.assetID, maxLongSide: decodeSide) else { cg.restoreGState(); return }
-            let processed = effects.apply(to: source, payload: payload, targetSize: drawFrame.size)
+            guard let processed = assets.processedPhoto(payload, maxLongSide: decodeSide, targetSize: drawFrame.size) else { cg.restoreGState(); return }
             let fitted = LayoutEngine.fittedRect(
                 imageSize: CGSize(width: processed.width, height: processed.height),
                 in: drawFrame,

@@ -86,7 +86,7 @@ struct LayoutTools: View {
                     .accessibilityHint("间距和边距设为零")
                 }
                 .font(.caption)
-                Text("点选照片后调整内容，拖到另一格可以交换照片。")
+                Text("拖动调整画面，双指缩放旋转；长按后拖到另一格交换。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } else if session.project.mode == .poster {
@@ -348,7 +348,7 @@ struct AdjustTools: View {
                     value: Binding(
                         get: { session.selected?.transform.rotation ?? 0 },
                         set: { value in
-                            session.updateSelected { $0.transform.rotation = value }
+                            session.setSelectedRotation(value)
                         }
                     ),
                     in: -180...180
@@ -362,6 +362,23 @@ struct AdjustTools: View {
             .font(.caption)
             .accessibilityLabel("精细旋转")
             .accessibilityIdentifier("adjust-rotation-slider")
+            HStack(spacing: 8) {
+                Button("−1°") { session.rotateSelected(degrees: -1) }.accessibilityIdentifier("adjust-rotate-minus")
+                Button("+1°") { session.rotateSelected(degrees: 1) }.accessibilityIdentifier("adjust-rotate-plus")
+                if session.pansPhotoContent {
+                    Button("−5%") { session.checkpoint(); session.zoomPhotoContent(1 / 1.05) }
+                    Text("\(Int(((session.selected?.photo?.crop.zoom ?? 1) * 100).rounded()))%")
+                        .font(.caption.monospacedDigit())
+                    Button("+5%") { session.checkpoint(); session.zoomPhotoContent(1.05) }
+                }
+                Button("复位") {
+                    session.checkpoint()
+                    session.updateSelected {
+                        $0.transform.rotation = 0
+                        $0.photo?.crop.offsetX = 0; $0.photo?.crop.offsetY = 0; $0.photo?.crop.zoom = 1
+                    }
+                }.accessibilityIdentifier("adjust-reset-position")
+            }.buttonStyle(.bordered).font(.caption)
             HStack {
                 Button(session.selected?.isLocked == true ? "解锁" : "锁定") { session.toggleLock() }
                 Button(session.selected?.isVisible == false ? "显示" : "隐藏") { session.toggleVisible() }
@@ -393,7 +410,7 @@ struct AdjustTools: View {
                     Button("照片后移") { session.movePhoto(forward: true) }
                 }
                 .buttonStyle(.bordered)
-                Text("拖到另一张照片上可交换，也可以使用前移、后移按钮。")
+                Text("长按照片再拖动可交换，也可以使用前移、后移按钮。")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 PhotosPicker(selection: $picker, maxSelectionCount: 1, matching: PhotoImporter.stillImages) {

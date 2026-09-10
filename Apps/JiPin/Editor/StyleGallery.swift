@@ -152,12 +152,12 @@ struct LayoutRecommendationsView: View {
     @EnvironmentObject private var appState: AppState
 
     private var ranked: [LayoutRecommendation] {
-        let sizes = session.project.photoLayers.map { layer -> CGSize in
+        let sizes = session.recommendationProject.photoLayers.map { layer -> CGSize in
             guard let photo = layer.photo else { return .zero }
             return LayoutEngine.croppedSize(session.assets.pixelSizes[photo.assetID] ?? .zero, crop: photo.crop)
         }
-        return LayoutRecommender.ranked(photoSizes: sizes, canvas: session.project.canvas,
-                                        spacing: session.project.spacing, margin: session.project.outerMargin)
+        return LayoutRecommender.ranked(photoSizes: sizes, canvas: session.recommendationProject.canvas,
+                                        spacing: session.recommendationProject.spacing, margin: session.recommendationProject.outerMargin)
     }
     private var layouts: [CollageGridLayout] {
         recommended ? ranked.prefix(3).map(\.layout) : CollageGridLayoutCatalog.layouts(forPhotoCount: session.project.photoOrder.count)
@@ -199,7 +199,7 @@ struct LayoutRecommendationsView: View {
         .sheet(isPresented: $showDividers) { DividerEditor(session: session) }
     }
     private func candidate(_ layout: CollageGridLayout) -> CollageProject {
-        var project = session.project
+        var project = session.recommendationProject
         project.layoutID = layout.id; project.customLayoutCells = nil
         return project
     }

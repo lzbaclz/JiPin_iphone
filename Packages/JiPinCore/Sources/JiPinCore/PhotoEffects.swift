@@ -19,7 +19,7 @@ public final class PhotoEffects {
     }
 
     public func crop(_ image: CGImage, crop: PhotoCrop) -> CGImage {
-        if crop == .identity { return image }
+        if crop.top == 0 && crop.bottom == 0 && crop.left == 0 && crop.right == 0 { return image }
         let size = CGSize(width: image.width, height: image.height)
         let cropped = LayoutEngine.croppedSize(size, crop: crop)
         let origin = CGPoint(x: size.width * crop.left, y: size.height * crop.top)
@@ -82,6 +82,7 @@ public final class PhotoEffects {
     }
 
     private func adjustAndFilter(_ image: CGImage, payload: PhotoPayload) -> CGImage {
+        if payload.filterID == nil && payload.colorAdjust.isIdentity { return image }
         var ciImage = CIImage(cgImage: image)
         let controls = CIFilter.colorControls()
         controls.inputImage = ciImage

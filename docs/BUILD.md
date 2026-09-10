@@ -125,7 +125,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
 
 运行 `./scripts/export-original-art.sh` 导出 18 张 768×768 透明 PNG 贴图、6 张 768×1024 镂空边框和两张素材总览，输出到 `docs/design-source/originals/`。脚本直接编译 App 使用的 CoreGraphics 绘制定义；App 本身使用矢量源渲染，不会加载交付 PNG 放大。
 
-V2/V3 的界面截图见 `docs/version-screenshots/`。版本号由 `project.yml` 统一生成主 App 与扩展的 Info.plist；当前 V4.0.0 / build 4。
+V2/V3 的界面截图见 `docs/version-screenshots/`。版本号由 `project.yml` 统一生成主 App 与扩展的 Info.plist；当前 V4.0.1 / build 5。
 
 
 ## V4 Live Photo 开发与验证
@@ -144,3 +144,10 @@ xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
 真机建议使用自己拍摄的横竖 Live、长短片段、带原声、来自 iCloud 和经过系统编辑的素材验证；同时检查苹果相册中的长按播放及 AirDrop 分享。测试通过前，不把模拟器速度当作旧款 iPhone 的性能承诺。
 
 最终 V4 本机构建产物：`build/TestFlight/JiPin-4.0.0-4/JiPin.xcarchive` 和 `build/TestFlight/JiPin-4.0.0-4/Export/JiPin.ipa`。上传前使用这一份包含系统选图修复的归档；V3 归档仍保留。
+
+
+## V4.0.1 手势修复包
+
+最新归档：`build/TestFlight/JiPin-4.0.1-5/JiPin.xcarchive`；分发包：`build/TestFlight/JiPin-4.0.1-5/Export/JiPin.ipa`。主 App 和扩展同时升级为 4.0.1 / build 5，草稿仍使用 schema 4。旧版归档保留；本次没有上传 TestFlight。
+
+手势验收使用 `-sampleEditor -sampleMode template -sampleLayout g4-grid`，与反馈中的四分格场景一致。`CanvasGestureUITests` 验证真实多指缩放/旋转、撤销、连续预览、跨格拖动、长按交换和画笔兼容；`CanvasInteractionTests` 验证焦点坐标、镜像、边界、缓存和自动保存。

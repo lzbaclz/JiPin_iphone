@@ -6,10 +6,10 @@ public struct PreviewRequest: Hashable, Sendable {
     public var pixelSize: CGSize
     public var assetRevision: UInt64
 
-    public init(project: CollageProject, displaySize: CGSize, displayScale: CGFloat, zoom: CGFloat = 1, assetRevision: UInt64 = 0) {
+    public init(project: CollageProject, displaySize: CGSize, displayScale: CGFloat, zoom: CGFloat = 1, assetRevision: UInt64 = 0, interactive: Bool = false) {
         self.project = project
         self.assetRevision = assetRevision
-        let scale = max(displayScale, 1) * min(max(zoom, 1), 2)
+        let scale = (interactive ? min(max(displayScale, 1), 1.5) : max(displayScale, 1)) * min(max(zoom, 1), 2)
         let requested = CGSize(width: displaySize.width * scale, height: displaySize.height * scale)
         let longest = max(requested.width, requested.height, 1)
         let reduction = min(1, 16384 / longest, sqrt(8_388_608 / max(requested.width * requested.height, 1)))
@@ -20,11 +20,20 @@ public struct PreviewRequest: Hashable, Sendable {
 /// Serial preview work avoids a backlog of concurrent full-canvas image decodes.
 public actor PreviewRendering {
     public static let shared = PreviewRendering()
+    private var cached: PreviewAssets?
+    private var projectID: UUID?
+    private var revision: UInt64?
+    public init() {}
 
     public func render(_ request: PreviewRequest, assets: DataAssetLibrary) -> UIImage? {
         guard !Task.isCancelled, request.pixelSize.width >= 2, request.pixelSize.height >= 2 else { return nil }
+        if cached == nil || projectID != request.project.id || revision != request.assetRevision {
+            cached = PreviewAssets(assets); projectID = request.project.id; revision = request.assetRevision
+        }
+        cached?.attachImages(assets.images)
+        defer { cached?.releaseInput() }
         return autoreleasepool {
-            CollageRenderer.shared.render(project: request.project, assets: assets, canvasSize: request.pixelSize, preview: true)
+            CollageRenderer.shared.render(project: request.project, assets: cached!, canvasSize: request.pixelSize, preview: true)
         }
     }
 }

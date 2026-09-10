@@ -102,6 +102,8 @@ public final class EditorSession: ObservableObject {
     @Published public var compareOriginal = false
     @Published public var wantsTextFocus = false
     @Published public var wantsLivePreview = false
+    @Published public private(set) var isGestureActive = false
+    public var recommendationProject: CollageProject { gestureSnapshot ?? project }
 
     public let assets: AssetLibrary
     public let undo = UndoStack()
@@ -172,16 +174,28 @@ public final class EditorSession: ObservableObject {
     public func beginGesture() {
         if gestureSnapshot == nil {
             checkpointPending = false
-            checkpoint()
             gestureSnapshot = project
+            saveTask?.cancel()
+            isGestureActive = true
         }
     }
 
     public func endGesture() {
-        let hadGesture = gestureSnapshot != nil
+        guard let before = gestureSnapshot else { return }
         gestureSnapshot = nil
+        isGestureActive = false
         guides = []
-        if hadGesture { scheduleSave() }
+        var comparable = project; comparable.updatedAt = before.updatedAt
+        let changed = comparable != before
+        if changed { undo.checkpoint(before) }
+        // A no-op hold or canvas zoom must resume a save that was pending before the touch.
+        if changed || isSaving { scheduleSave() }
+    }
+
+    public func cancelGesture() {
+        guard let before = gestureSnapshot else { return }
+        project = before; gestureSnapshot = nil; isGestureActive = false; guides = []
+        scheduleSave()
     }
 
     public func selectTool(_ tool: EditorTool) {
@@ -199,6 +213,7 @@ public final class EditorSession: ObservableObject {
     public func undoLast() {
         checkpointPending = false
         gestureSnapshot = nil
+        isGestureActive = false
         if let previous = undo.undo(current: project) {
             project = previous
             scheduleSave()
@@ -208,6 +223,7 @@ public final class EditorSession: ObservableObject {
     public func redoLast() {
         checkpointPending = false
         gestureSnapshot = nil
+        isGestureActive = false
         if let next = undo.redo(current: project) {
             project = next
             scheduleSave()
@@ -215,6 +231,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func select(_ id: UUID?) {
+        if selectedID != id && isGestureActive { endGesture() }
         selectedID = id
         guard let object = selected else { return }
         switch object.kind {
@@ -304,6 +321,21 @@ public final class EditorSession: ObservableObject {
             if let offsetY { crop.offsetY = min(max(offsetY, -0.45), 0.45) }
             if let zoom { crop.zoom = min(max(zoom, 1), 4) }
             object.photo?.crop = crop
+            if zoom != nil { self.normalizePhotoPlacement(&object) }
+        }
+    }
+
+    private func normalizePhotoPlacement(_ object: inout LayerObject) {
+        guard usesLayoutPhotoFrame(object), let photo = object.photo, let imageSize = assets.pixelSizes[photo.assetID] else { return }
+        let canvas = project.mode == .longStrip ? normalizedStripCanvas() : project.canvas.size(maxLongSide: 1000)
+        guard let cell = photoFrames(canvasSize: canvas)[object.id] else { return }
+        object.photo?.crop = CanvasManipulation.clampedCrop(photo, imageSize: imageSize,
+            frame: LayoutEngine.photoDrawFrame(photo, cell: cell), rotation: object.transform.rotation)
+    }
+
+    private func normalizedStripCanvas() -> CGSize {
+        switch ExportGeometry.outputSize(for: project, assets: assets.snapshot) {
+        case .ok(let size), .needsChoice(_, let size): return size
         }
     }
 
@@ -342,17 +374,24 @@ public final class EditorSession: ObservableObject {
             guard var crop = object.photo?.crop else { return }
             crop.zoom = min(max(crop.zoom * Double(factor), 1), 4)
             object.photo?.crop = crop
+            self.normalizePhotoPlacement(&object)
         }
     }
 
     public func rotateSelected(degrees: Double) {
         guard selected != nil, selected?.isLocked != true else { return }
         checkpoint()
-        updateSelected { $0.transform.rotation += degrees }
+        updateSelected {
+            $0.transform.rotation = CanvasManipulation.normalizedAngle($0.transform.rotation + degrees)
+            self.normalizePhotoPlacement(&$0)
+        }
     }
 
     public func setSelectedRotation(_ degrees: Double) {
-        updateSelected { $0.transform.rotation = degrees }
+        updateSelected {
+            $0.transform.rotation = CanvasManipulation.normalizedAngle(degrees)
+            self.normalizePhotoPlacement(&$0)
+        }
     }
 
     public func flipSelected(horizontal: Bool) {
@@ -730,7 +769,7 @@ public final class EditorSession: ObservableObject {
         )
     }
 
-    private func photoFrames(canvasSize: CGSize) -> [UUID: CGRect] {
+    public func photoFrames(canvasSize: CGSize) -> [UUID: CGRect] {
         CollageRenderer.shared.resolvedFrames(project: project, canvasSize: canvasSize, assets: assets.snapshot)
     }
 
@@ -912,6 +951,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func scheduleSave() {
+        guard !isGestureActive else { return }
         if gestureSnapshot == nil { checkpointPending = false }
         syncLiveSources()
         project.touch()
