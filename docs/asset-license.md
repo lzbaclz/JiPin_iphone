@@ -53,3 +53,8 @@ Constraints: exactly one square 1024 x 1024 icon artwork; fully opaque RGB visua
 - 素材采用通用动物、食物、植物与几何主题，没有下载或复刻竞品贴纸、字体或授权角色。设计参考仅为成套配色、分类和复用的方法。
 - 交付 PNG 为本项目矢量代码生成；单件透明背景，白色描边是贴图自身的一部分。总览文字使用系统字体；App 素材本身不依赖字体。
 - 可重新生成文件和实际使用 ID 见 `scripts/export-original-art.sh`、`docs/design-source/catalog.json`。
+
+
+## V4 动态示例
+
+`LivePhotoSamples.swift` 使用已有原创兔子、奶油熊、云朵、雏菊和彩虹矢量定义绘制短动画，在本机生成原生 Live Photo。示例不依赖外部照片、视频或音频授权，不读取用户图库，也不联网下载。

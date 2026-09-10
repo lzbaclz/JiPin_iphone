@@ -52,7 +52,7 @@ public actor DraftWriting {
             }
             let thumbnail = CollageRenderer.shared.render(project: project, assets: assets, canvasSize: size, preview: true)
                 .jpegData(compressionQuality: 0.8)
-            try store.save(project: project, assets: assets.images, thumbnailJPEG: thumbnail)
+            try store.save(project: project, assets: assets.images, thumbnailJPEG: thumbnail, motions: assets.motions)
         }
         versions[key] = project.updatedAt
         if versions.count > 1024, let oldest = versions.min(by: { $0.value < $1.value })?.key { versions[oldest] = nil }

@@ -90,7 +90,7 @@ final class VersionThreeTests: XCTestCase {
         let session = EditorSession(project: transparentProject(), assets: AssetLibrary(), store: store, autosaves: false)
         session.addSticker("cool-orbit")
         session.setDecorationFrame(DecorationFrameCatalog.all[4])
-        XCTAssertEqual(session.project.schemaVersion, 3)
+        XCTAssertEqual(session.project.schemaVersion, JiPin.schemaVersion)
         session.undoLast(); XCTAssertNil(session.project.decorationFrame)
         session.redoLast(); XCTAssertNotNil(session.project.decorationFrame)
         try store.save(project: session.project, assets: [:], thumbnailJPEG: nil)

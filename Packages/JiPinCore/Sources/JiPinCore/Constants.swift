@@ -1,7 +1,7 @@
 import Foundation
 
 public enum JiPin {
-    public static let schemaVersion = 3
+    public static let schemaVersion = 4
     public static let appGroupID = "group.com.jipin.JiPin"
     public static let displayName = "极拼"
     public static let maxUndo = 50

@@ -90,3 +90,22 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - 版本/构建号均为 3.0.0 (3)。产物：`build/TestFlight/JiPin-3.0.0-3.xcarchive`、`build/TestFlight/Export/JiPin.ipa`（4,907,144 字节）。这些文件被 Git 忽略。
 - `project.yml` 持久化团队，新增本地归档/导出脚本与 ExportOptions。脚本通过 `zsh -n`，plist 通过 `plutil -lint`；对应归档与导出命令已实际执行。
 - 没有安装/运行真机 App，也没有上传 TestFlight、提交 Beta 审核或发送邀请；本节不替代真实相册宿主和 TestFlight 验收。
+
+
+## V4.0 本机验证（2026-09-10）
+
+- 核心覆盖共 135 项：原有 120 项回归和 15 项 Live 专项。分轮常规测试覆盖 134 项通过；需要额外测试图库权限的 1 项原生相册回读在独立运行中通过。没有把该项常规跳过当作验收成功。
+- 原生 Live 验证：JPEG/MOV 配对标识和 still-image-time 一致；苹果 PhotoKit 可加载；保存后 PHAsset 含 `.photoLive`，拥有 `.photo` / `.pairedVideo` 资源，并可重新请求 PHLivePhoto。
+- 动态内容：四种模式、两个同时运动的来源、普通照片静止、裁切/旋转/滤镜/贴图/装饰边框、9 路 1080 合成、超出 9 路拒绝、时长设置与封面时刻对齐、首尾保持、原声音轨保留与静音清除。
+- 图像验证：静态封面从编码后的中间帧生成，与视频帧的方向和颜色一致；覆盖相机视频的 preferredTransform 旋转；大尺寸来源先逐张准备较小的工作视频。
+- 数据验证：动态草稿重开、跨模式复制、删除最后一个磁盘引用后的撤销恢复、视频内容冲突、缺失资源、ENOSPC 写入失败、V3 缺省字段兼容、生成中取消并清理半成品。丢失动态时明确阻止 Live 导出，但允许用户选择导出完好的静态封面。
+- iPhone 17 / iOS 26.3：原有 25 条 UI 回归通过；5 条 Live 流程均完成通过，包括首页动态示例、原生预览/时长/保存/静态导出、草稿重开、扩展界面交接，以及系统 PhotosPicker 选择真实图库 Live 后再次动态导出。UI 测试修正了 iOS 26 的虚拟照片节点和可见范围定位；扩展用例在无同时手动操作模拟器的环境复跑通过。
+- iPhone 16e / iOS 26.3：4 条 Live 重点流程通过，包含小屏固定底部生成/保存按钮、权限提示、动态保存和静态导出。界面证据见 `docs/version-screenshots/v4-*-iphone16e.png`，已查看。
+- 手动系统选图验证：一张已保存的原生 Live 加一张普通 JPG 从系统选择器导入，编辑器显示 `LIVE · 1`，可进行混合 Live 导出。此验证发现并修复了 `supportedContentTypes` 只列出静态格式时丢失 Live 的问题：现在优先请求 PHLivePhoto 表示，错误按失败处理，仅无该表示时走静态读取。
+- 主 App 与扩展均为 4.0.0 / build 4，Apple Distribution 签名、App Group 一致，`get-task-allow=false`、`beta-reports-active=true`；IPA 不含整图库读取权限用途说明，临时测试键未进入发布包。
+- 最终分发包：`build/TestFlight/JiPin-4.0.0-4/Export/JiPin.ipa`，5,481,345 字节；SHA-256 `ee1db4c1e51e0fba43074063bf2d8fee4ecec44a0eb197f7deb3e62f8535b988`。归档：同目录上一层 `JiPin.xcarchive`。未上传 V4 TestFlight。
+- 设计资源脚本均执行成功，原有 46 布局、20 海报、78 贴图、20 背景、10 滤镜与可爱边框保持可重新生成。
+
+本轮结果路径（临时诊断文件，不作为分发包）：`/private/tmp/jipin-v4/full-tests.xcresult`（原有核心与 25 条 UI）、`live-core-final.xcresult`（最终 15 条 Live 核心）、`photokit-roundtrip2.xcresult`（真实 PhotoKit 保存回读）、`live-ui-final.xcresult` 与 `live-handoff-final.xcresult`（大屏 Live 流程及交接复跑）、`small-live-ui.xcresult` 与 `small-live-final.xcresult`（小屏流程及生成保存复跑）、`picker-roundtrip-final.xcresult`（系统选图回归）。签名日志 `picker-fixed-release.log`。
+
+模拟器验收不替代真实相机/iCloud/相册宿主与旧款 iPhone 内存、耗时测试；剩余边界列在 `KNOWN-ISSUES.md`。

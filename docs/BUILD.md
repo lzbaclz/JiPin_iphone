@@ -125,4 +125,22 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
 
 运行 `./scripts/export-original-art.sh` 导出 18 张 768×768 透明 PNG 贴图、6 张 768×1024 镂空边框和两张素材总览，输出到 `docs/design-source/originals/`。脚本直接编译 App 使用的 CoreGraphics 绘制定义；App 本身使用矢量源渲染，不会加载交付 PNG 放大。
 
-V2/V3 的界面截图见 `docs/version-screenshots/`。版本号由 `project.yml` 统一生成主 App 与扩展的 Info.plist；当前 V3.0.0 / build 3。
+V2/V3 的界面截图见 `docs/version-screenshots/`。版本号由 `project.yml` 统一生成主 App 与扩展的 Info.plist；当前 V4.0.0 / build 4。
+
+
+## V4 Live Photo 开发与验证
+
+从首页选择「试试动态示例」可直接编辑两个原创 Live；无须用户照片或全相册读取权限。开发启动参数 `-sampleLiveEditor` 和 `-quickLiveCollage` 分别打开动态编辑器和扩展交接演示。用例 `LivePhotoTests` 覆盖配对元数据、帧变化、静态混拼、音轨、草稿、取消和大图准备；`LivePhotoUITests` 覆盖原生预览、设置、保存、静态导出与草稿重开。
+
+```sh
+xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO \
+  -only-testing:JiPinTests/LivePhotoTests -only-testing:JiPinUITests/LivePhotoUITests
+```
+
+正式 App 的 Info.plist 仅声明添加照片权限。`testNativePhotoLibraryStoresAndReloadsLiveSubtype` 是额外的模拟器回读测试：没有图库读取授权时会跳过，常规测试仍验证原生 Live 解析和保存界面。若运行此专项，先完成 build-for-testing，仅在**临时测试产物**的主 App Info.plist 添加 `NSPhotoLibraryUsageDescription = Simulator PhotoKit round-trip test only.`，使用 test-without-building 启动，并在模拟器允许读取测试图库。结束后移除此临时键、重置模拟器权限并重新构建；不要将它加进 project.yml 或分发包。测试通过 PhotoKit 检查 `.photoLive`、`.photo` 与 `.pairedVideo`，再请求原生播放对象。
+
+真机建议使用自己拍摄的横竖 Live、长短片段、带原声、来自 iCloud 和经过系统编辑的素材验证；同时检查苹果相册中的长按播放及 AirDrop 分享。测试通过前，不把模拟器速度当作旧款 iPhone 的性能承诺。
+
+最终 V4 本机构建产物：`build/TestFlight/JiPin-4.0.0-4/JiPin.xcarchive` 和 `build/TestFlight/JiPin-4.0.0-4/Export/JiPin.ipa`。上传前使用这一份包含系统选图修复的归档；V3 归档仍保留。

@@ -24,6 +24,7 @@ struct ToolDetailPanel: View {
                 case .mosaic: MosaicTools(session: session)
                 case .doodle: DoodleTools(session: session)
                 case .style: StyleTools(session: session)
+                case .livePhoto: LivePhotoTools(session: session)
                 }
             }
             .padding()
@@ -278,7 +279,7 @@ struct PhotoRosterBar: View {
                     .task(id: picker) {
                         let items = picker
                         guard !items.isEmpty else { return }
-                        let loaded = await PhotoImporter.load(items)
+                        let loaded = await PhotoImporter.load(items, maxLiveCount: max(0, LivePhotoPolicy.maxSources - session.project.resolvedLiveSources.count))
                         guard !Task.isCancelled else { return }
                         if !loaded.failed.isEmpty {
                             pendingPhotos = loaded.ok
@@ -802,7 +803,7 @@ struct StickerTools: View {
                 .task(id: picker) {
                     let items = picker
                     guard !items.isEmpty else { return }
-                    let loaded = await PhotoImporter.load(items)
+                    let loaded = await PhotoImporter.load(items, preserveLive: false)
                     guard !Task.isCancelled else { return }
                     if let photo = loaded.ok.first { session.addImageDecoration(photo) }
                     else if let error = loaded.failed.first?.failureReason { session.lastError = error }
@@ -920,7 +921,7 @@ struct BackgroundTools: View {
             .task(id: picker) {
                 let items = picker
                 guard !items.isEmpty else { return }
-                let loaded = await PhotoImporter.load(items)
+                let loaded = await PhotoImporter.load(items, preserveLive: false)
                 guard !Task.isCancelled else { return }
                 if let photo = loaded.ok.first {
                     session.assets.ingest([photo])

@@ -515,6 +515,8 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
     public var layoutID: String?
     public var customLayoutCells: [NormalizedRect]?
     public var decorationFrame: CanvasDecoration?
+    public var liveSources: [LivePhotoSource]?
+    public var livePhotoSettings: LivePhotoSettings?
     public var posterID: String?
     public var longStrip: LongStripSpec?
     public var objects: [LayerObject]
@@ -556,6 +558,8 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
         self.layoutID = layoutID
         self.customLayoutCells = nil
         self.decorationFrame = nil
+        self.liveSources = nil
+        self.livePhotoSettings = nil
         self.posterID = posterID
         self.longStrip = longStrip
         self.objects = objects
@@ -646,6 +650,7 @@ public struct ImportedPhoto: Identifiable, Hashable, Sendable {
     public var utType: String
     public var loadFailed: Bool
     public var failureReason: String?
+    public var liveClip: LivePhotoClip?
 
     public init(
         id: UUID = UUID(),
@@ -654,7 +659,8 @@ public struct ImportedPhoto: Identifiable, Hashable, Sendable {
         pixelSize: CGSize,
         utType: String,
         loadFailed: Bool = false,
-        failureReason: String? = nil
+        failureReason: String? = nil,
+        liveClip: LivePhotoClip? = nil
     ) {
         self.id = id
         self.filename = filename
@@ -663,6 +669,7 @@ public struct ImportedPhoto: Identifiable, Hashable, Sendable {
         self.utType = utType
         self.loadFailed = loadFailed
         self.failureReason = failureReason
+        self.liveClip = liveClip
     }
 }
 

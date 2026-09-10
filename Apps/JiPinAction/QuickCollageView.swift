@@ -35,7 +35,7 @@ struct QuickCollageView: View {
         )
         _session = StateObject(wrappedValue: EditorSession(
             project: project,
-            assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) })),
+            assets: AssetLibrary(photos: photos),
             autosaves: false
         ))
     }
@@ -55,6 +55,17 @@ struct QuickCollageView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
+                    if session.project.hasLivePhotos {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("已保留 \(session.project.resolvedLiveSources.count) 张 Live 的动态", systemImage: "livephoto")
+                                .font(.subheadline.weight(.semibold))
+                            Text("保存 Live 草稿后，打开极拼的草稿页继续编辑和导出动态。这里的保存图片和分享仅输出静态封面。")
+                                .font(.caption).foregroundStyle(.secondary)
+                            Button("保存 Live 草稿") { Task { await saveDraft() } }
+                                .buttonStyle(.borderedProminent).disabled(!canProcess || isWorking)
+                                .accessibilityIdentifier("quick-save-live-draft")
+                        }.padding().background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 14)).padding(.horizontal)
+                    }
                     if let preview {
                         Image(uiImage: preview)
                             .resizable()
@@ -263,11 +274,11 @@ struct QuickCollageView: View {
                     .accessibilityLabel("更多")
                     .accessibilityIdentifier("quick-more")
                     .disabled(!canProcess || isWorking)
-                    Button("保存") { Task { await saveImage() } }
+                    Button(session.project.hasLivePhotos ? "存图片" : "保存") { Task { await saveImage() } }
                         .disabled(!canProcess || isWorking)
-                        .accessibilityLabel("保存到相册")
+                        .accessibilityLabel(session.project.hasLivePhotos ? "保存静态图片到相册" : "保存到相册")
                         .accessibilityIdentifier("quick-save-album")
-                    Button("分享") { Task { await shareImage() } }
+                    Button(session.project.hasLivePhotos ? "分享图片" : "分享") { Task { await shareImage() } }
                         .disabled(!canProcess || isWorking)
                         .accessibilityLabel("系统分享")
                         .accessibilityIdentifier("quick-share")

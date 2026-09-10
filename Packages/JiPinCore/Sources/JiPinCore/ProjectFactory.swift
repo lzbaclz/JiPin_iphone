@@ -16,6 +16,11 @@ public enum ProjectFactory {
             photoOrder: ids,
             originatedFromExtension: originatedFromExtension
         )
+        let live = photos.compactMap { photo -> LivePhotoSource? in
+            guard var source = photo.liveClip?.source else { return nil }; source.id = photo.id; return source
+        }
+        project.liveSources = live.isEmpty ? nil : live
+        if !live.isEmpty { project.livePhotoSettings = LivePhotoSettings() }
         switch mode {
         case .template:
             let layout = layoutID.flatMap(CollageGridLayoutCatalog.layout(id:))
@@ -202,6 +207,8 @@ public enum ProjectFactory {
         copy.name = project.name + " · \(mode.title)"
         copy.background = project.background
         copy.decorationFrame = project.decorationFrame
+        copy.liveSources = project.resolvedLiveSources.filter { copy.photoOrder.contains($0.id) }
+        copy.livePhotoSettings = project.livePhotoSettings
         var sourcePhotos = project.photoLayers
         for index in copy.objects.indices where copy.objects[index].kind == .photo {
             guard let assetID = copy.objects[index].photo?.assetID,

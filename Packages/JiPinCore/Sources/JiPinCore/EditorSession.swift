@@ -9,27 +9,37 @@ public final class AssetLibrary: ObservableObject {
     }
     @Published public private(set) var revision: UInt64 = 0
     @Published public var pixelSizes: [UUID: CGSize] = [:]
+    @Published public var motions: [UUID: LivePhotoClip] = [:] {
+        didSet { revision &+= 1 }
+    }
 
-    public init(images: [UUID: Data] = [:]) {
+    public init(images: [UUID: Data] = [:], motions: [UUID: LivePhotoClip] = [:]) {
         self.images = images
+        self.motions = motions
         for (id, data) in images {
             pixelSizes[id] = ImageIOHelpers.pixelSize(of: data)
         }
+    }
+
+    public convenience init(photos: [ImportedPhoto]) {
+        self.init()
+        ingest(photos)
     }
 
     public func ingest(_ photos: [ImportedPhoto]) {
         for photo in photos where !photo.loadFailed {
             images[photo.id] = photo.data
             pixelSizes[photo.id] = photo.pixelSize == .zero ? ImageIOHelpers.pixelSize(of: photo.data) : photo.pixelSize
+            if var clip = photo.liveClip { clip.source.id = photo.id; motions[photo.id] = clip }
         }
     }
 
     public func data(for id: UUID) -> Data? { images[id] }
-    public var snapshot: DataAssetLibrary { DataAssetLibrary(images: images) }
+    public var snapshot: DataAssetLibrary { DataAssetLibrary(images: images, motions: motions) }
 }
 
 public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
-    case adjust, filter, color, text, sticker, background, border, layer, mosaic, doodle, layout, crop, style
+    case adjust, filter, color, text, sticker, background, border, layer, mosaic, doodle, layout, crop, style, livePhoto
 
     public var id: String { rawValue }
 
@@ -48,6 +58,7 @@ public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
         case .layout: return "布局"
         case .crop: return "裁切"
         case .style: return "风格"
+        case .livePhoto: return "Live"
         }
     }
 
@@ -66,6 +77,7 @@ public enum EditorTool: String, CaseIterable, Identifiable, Sendable {
         case .layout: return "square.grid.2x2"
         case .crop: return "crop"
         case .style: return "sparkles.rectangle.stack"
+        case .livePhoto: return "livephoto"
         }
     }
 }
@@ -80,6 +92,7 @@ public final class EditorSession: ObservableObject {
     @Published public var lastError: String?
     @Published public var lowResolutionWarning = false
     @Published public var missingAssetWarning = false
+    @Published public var missingLiveAssetWarning = false
     @Published public var brushMode: BrushMode = .freehand
     @Published public var brushColorHex = "#FF5A36"
     @Published public var brushWidth = 0.012
@@ -88,6 +101,7 @@ public final class EditorSession: ObservableObject {
     @Published public var livePoints: [CGPoint] = []
     @Published public var compareOriginal = false
     @Published public var wantsTextFocus = false
+    @Published public var wantsLivePreview = false
 
     public let assets: AssetLibrary
     public let undo = UndoStack()
@@ -106,6 +120,7 @@ public final class EditorSession: ObservableObject {
         self.autosaves = autosaves
         self.activeTool = Self.defaultTool(for: project.mode)
         self.selectedID = project.photoLayers.first?.id
+        syncLiveSources()
         refreshWarnings()
     }
 
@@ -351,6 +366,12 @@ public final class EditorSession: ObservableObject {
     public func replaceSelectedPhoto(_ photo: ImportedPhoto) {
         guard let selected, !selected.isLocked, selected.kind == .photo,
               let orderIndex = project.photoLayers.firstIndex(where: { $0.id == selected.id }) else { return }
+        let remaining = Set(project.photoLayers.filter { $0.id != selected.id }.compactMap { $0.photo?.assetID })
+        let liveIDs = Set(project.resolvedLiveSources.map(\.id)).intersection(remaining)
+        if photo.liveClip != nil && !liveIDs.contains(photo.id) && liveIDs.count >= LivePhotoPolicy.maxSources {
+            lastError = LivePhotoError.tooManySources.localizedDescription
+            return
+        }
         checkpoint()
         assets.ingest([photo])
         project.photoOrder[orderIndex] = photo.id
@@ -410,6 +431,11 @@ public final class EditorSession: ObservableObject {
         }
         if accepted.count < photos.count {
             lastError = "当前模式最多 \(range.upperBound) 张，多出的 \(photos.count - accepted.count) 张未添加。"
+        }
+        let liveIDs = Set(project.resolvedLiveSources.map(\.id)).union(accepted.filter { $0.liveClip != nil }.map(\.id))
+        guard liveIDs.count <= LivePhotoPolicy.maxSources else {
+            lastError = LivePhotoError.tooManySources.localizedDescription
+            return
         }
         checkpoint()
         assets.ingest(accepted)
@@ -501,7 +527,7 @@ public final class EditorSession: ObservableObject {
     public func setDecorationFrame(_ frame: DecorationFrame?) {
         updateProject { project in
             project.decorationFrame = frame.map { CanvasDecoration(frameID: $0.id, width: project.decorationFrame?.width ?? 0.065) }
-            project.schemaVersion = JiPin.schemaVersion
+            if project.schemaVersion != JiPin.schemaVersion { project.schemaVersion = JiPin.schemaVersion }
         }
         refreshWarnings()
     }
@@ -887,6 +913,7 @@ public final class EditorSession: ObservableObject {
 
     public func scheduleSave() {
         if gestureSnapshot == nil { checkpointPending = false }
+        syncLiveSources()
         project.touch()
         guard autosaves else { return }
         isSaving = true
@@ -901,6 +928,7 @@ public final class EditorSession: ObservableObject {
     @discardableResult
     public func persistNow() async -> Bool {
         saveTask?.cancel()
+        syncLiveSources()
         while true {
             let revision = project.updatedAt
             guard await persist() else { return false }
@@ -968,6 +996,7 @@ public final class EditorSession: ObservableObject {
     }
 
     public func refreshWarnings() {
+        syncLiveSources()
         lowResolutionWarning = assets.pixelSizes.values.contains { min($0.width, $0.height) < 700 }
         func missing(_ id: UUID) -> Bool { assets.data(for: id) == nil || assets.pixelSizes[id] == .zero }
         let photoMissing = project.photoOrder.contains(where: missing)
@@ -978,7 +1007,27 @@ public final class EditorSession: ObservableObject {
         }
         let backgroundMissing = project.background.kind == .image && (project.background.imageAssetID.map(missing) ?? true)
         let frameMissing = project.decorationFrame.map { DecorationFrameCatalog.frame(id: $0.frameID) == nil } ?? false
+        let liveMissing = project.resolvedLiveSources.contains { source in
+            guard let clip = assets.motions[source.id] else { return true }
+            return !FileManager.default.fileExists(atPath: clip.url.path)
+        }
         missingAssetWarning = photoMissing || stickerMissing || backgroundMissing || frameMissing
+        missingLiveAssetWarning = liveMissing
+    }
+
+    private func syncLiveSources() {
+        var seen = Set<UUID>()
+        let ids = project.photoLayers.compactMap { $0.photo?.assetID }.filter { seen.insert($0).inserted }
+        let sources = ids.compactMap { id in assets.motions[id]?.source ?? project.liveSources?.first { $0.id == id } }
+        let next: [LivePhotoSource]? = sources.isEmpty ? nil : sources
+        if project.liveSources != next { project.liveSources = next }
+        if !sources.isEmpty {
+            if project.livePhotoSettings == nil { project.livePhotoSettings = LivePhotoSettings() }
+            if project.schemaVersion != JiPin.schemaVersion { project.schemaVersion = JiPin.schemaVersion }
+        }
+        if let audio = project.livePhotoSettings?.audioSourceID, !sources.contains(where: { $0.id == audio && $0.hasAudio }) {
+            project.livePhotoSettings?.audioSourceID = nil
+        }
     }
 
     public enum ZAction { case up, down, front, back }

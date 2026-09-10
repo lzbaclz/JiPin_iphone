@@ -27,6 +27,7 @@ public enum DraftStoreError: LocalizedError, Equatable {
 public struct LoadedDraft: Sendable {
     public var project: CollageProject
     public var assets: [UUID: Data]
+    public var motions: [UUID: LivePhotoClip] = [:]
 }
 
 /// All reads and writes use the same process lock and App Group file lock.
@@ -40,6 +41,7 @@ public final class DraftStore: @unchecked Sendable {
     private let mutex = NSRecursiveLock()
     private var lockDepth = 0
     private var assetDigests: [UUID: SHA256.Digest] = [:]
+    private var motionDigests: [UUID: SHA256.Digest] = [:]
     private let commitDirectory: @Sendable (URL, URL) throws -> Void
 
     public convenience init(
@@ -69,6 +71,7 @@ public final class DraftStore: @unchecked Sendable {
     public var isUsingAppGroup: Bool { groupAvailable }
     public var draftsRoot: URL { containerURL.appendingPathComponent("Drafts", isDirectory: true) }
     public var sharedAssetsRoot: URL { containerURL.appendingPathComponent("SharedAssets", isDirectory: true) }
+    public var motionAssetsRoot: URL { containerURL.appendingPathComponent("SharedMotionAssets", isDirectory: true) }
     public var cacheRoot: URL { containerURL.appendingPathComponent("ExportCache", isDirectory: true) }
 
     public func prepare() throws {
@@ -81,11 +84,13 @@ public final class DraftStore: @unchecked Sendable {
                     try? fileManager.removeItem(at: directory)
                 }
             }
+            for file in try fileManager.contentsOfDirectory(at: motionAssetsRoot, includingPropertiesForKeys: nil)
+                where file.lastPathComponent.hasSuffix(".tmp") { try? fileManager.removeItem(at: file) }
         }
     }
 
     private func createDirectories() throws {
-        for directory in [draftsRoot, sharedAssetsRoot, cacheRoot] {
+        for directory in [draftsRoot, sharedAssetsRoot, motionAssetsRoot, cacheRoot] {
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
             var protected = directory
             var values = URLResourceValues()
@@ -137,14 +142,16 @@ public final class DraftStore: @unchecked Sendable {
             return DraftSummary(
                 id: id, name: project.name, mode: project.mode,
                 updatedAt: project.updatedAt, createdAt: project.createdAt,
-                photoCount: project.photoOrder.count, byteSize: directorySize(url) + shared,
+                photoCount: project.photoOrder.count, byteSize: directorySize(url) + shared + project.resolvedLiveSources.reduce(0) { sum, source in
+                    sum + Int64((try? motionFile(id: source.id).resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+                },
                 thumbnailPath: fileManager.fileExists(atPath: thumb.path) ? thumb : nil,
                 isIncomplete: false, originatedFromExtension: project.originatedFromExtension
             )
         }.sorted { $0.updatedAt > $1.updatedAt }
     }
 
-    public func save(project: CollageProject, assets: [UUID: Data], thumbnailJPEG: Data?) throws {
+    public func save(project: CollageProject, assets: [UUID: Data], thumbnailJPEG: Data?, motions: [UUID: LivePhotoClip] = [:]) throws {
         try transaction {
             try createDirectories()
             let staged = draftsRoot.appendingPathComponent(".\(project.id.uuidString).\(UUID().uuidString).tmp", isDirectory: true)
@@ -162,6 +169,10 @@ public final class DraftStore: @unchecked Sendable {
                         }
                         try writeSharedAsset(id: id, data: legacy)
                     }
+                }
+                for source in project.resolvedLiveSources {
+                    if let clip = motions[source.id] { try writeSharedMotion(id: source.id, source: clip.url) }
+                    else if !fileManager.fileExists(atPath: motionFile(id: source.id).path) { throw DraftStoreError.missingAssets }
                 }
                 let encoder = JSONEncoder()
                 encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -199,7 +210,12 @@ public final class DraftStore: @unchecked Sendable {
                     assets[id] = legacyAssetData(projectURL: url, assetID: id)
                 }
             }
-            return LoadedDraft(project: project, assets: assets)
+            var motions: [UUID: LivePhotoClip] = [:]
+            for source in project.resolvedLiveSources where fileManager.fileExists(atPath: motionFile(id: source.id).path) {
+                let (lease, file) = try MediaFileLease.leasedCopy(of: motionFile(id: source.id))
+                motions[source.id] = LivePhotoClip(source: source, url: file, lease: lease)
+            }
+            return LoadedDraft(project: project, assets: assets, motions: motions)
         }
     }
 
@@ -247,7 +263,7 @@ public final class DraftStore: @unchecked Sendable {
     }
 
     public func draftsSize() -> Int64 {
-        (try? transaction { directorySize(draftsRoot) + directorySize(sharedAssetsRoot) }) ?? 0
+        (try? transaction { directorySize(draftsRoot) + directorySize(sharedAssetsRoot) + directorySize(motionAssetsRoot) }) ?? 0
     }
 
     public func cacheSize() -> Int64 { (try? transaction { directorySize(cacheRoot) }) ?? 0 }
@@ -316,6 +332,32 @@ public final class DraftStore: @unchecked Sendable {
         assetDigests[id] = digest
     }
 
+    public func motionFile(id: UUID) -> URL { motionAssetsRoot.appendingPathComponent("\(id.uuidString).mov") }
+
+    private func fileDigest(_ url: URL) throws -> SHA256.Digest {
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+        var hash = SHA256()
+        while let bytes = try handle.read(upToCount: 1_048_576), !bytes.isEmpty { hash.update(data: bytes) }
+        return hash.finalize()
+    }
+
+    private func writeSharedMotion(id: UUID, source: URL) throws {
+        let values = try source.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+        guard values.isRegularFile == true, let count = values.fileSize, count > 0,
+              count <= LivePhotoPolicy.maxMovieBytes else { throw LivePhotoError.missingResources }
+        let digest = try fileDigest(source), target = motionFile(id: id)
+        if fileManager.fileExists(atPath: target.path) {
+            if motionDigests[id] != digest, try fileDigest(target) != digest { throw DraftStoreError.conflictingAsset }
+        } else {
+            let staged = motionAssetsRoot.appendingPathComponent(".\(id.uuidString).\(UUID().uuidString).tmp")
+            defer { try? fileManager.removeItem(at: staged) }
+            try fileManager.copyItem(at: source, to: staged)
+            try fileManager.moveItem(at: staged, to: target)
+        }
+        motionDigests[id] = digest
+    }
+
     private func sharedAssetFile(id: UUID) -> URL? {
         ["jpg", "png", "dat"].map { sharedAssetsRoot.appendingPathComponent("\(id.uuidString).\($0)") }
             .first { fileManager.fileExists(atPath: $0.path) }
@@ -330,17 +372,24 @@ public final class DraftStore: @unchecked Sendable {
 
     private func garbageCollectSharedAssets() throws {
         var live = Set<UUID>()
+        var liveMotions = Set<UUID>()
         let directories = try fileManager.contentsOfDirectory(at: draftsRoot, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
         for directory in directories where UUID(uuidString: directory.lastPathComponent) != nil {
             guard fileManager.fileExists(atPath: completeMarker(in: directory).path) else { continue }
             // Be conservative: an unreadable or future-version draft may still own assets.
             guard let project = try? loadProject(from: directory) else { return }
             live.formUnion(referencedAssetIDs(in: project))
+            liveMotions.formUnion(project.resolvedLiveSources.map(\.id))
         }
         for file in try fileManager.contentsOfDirectory(at: sharedAssetsRoot, includingPropertiesForKeys: nil) {
             guard let id = UUID(uuidString: file.deletingPathExtension().lastPathComponent), !live.contains(id) else { continue }
             try fileManager.removeItem(at: file)
             assetDigests[id] = nil
+        }
+        for file in try fileManager.contentsOfDirectory(at: motionAssetsRoot, includingPropertiesForKeys: nil) {
+            guard let id = UUID(uuidString: file.deletingPathExtension().lastPathComponent), !liveMotions.contains(id) else { continue }
+            try fileManager.removeItem(at: file)
+            motionDigests[id] = nil
         }
     }
 }

@@ -65,8 +65,12 @@ struct EditorView: View {
                         .accessibilityIdentifier("editor-export")
                 }
             }
-            .sheet(isPresented: $showExport) {
-                ExportView(session: session)
+            .sheet(isPresented: Binding(get: { showExport || session.wantsLivePreview }, set: { value in
+                showExport = value
+                if !value { session.wantsLivePreview = false }
+            })) {
+                if session.project.hasLivePhotos { LivePhotoExportView(session: session) }
+                else { ExportView(session: session) }
             }
             .sheet(isPresented: $showCopyMode) {
                 CopyModeView(session: session)
@@ -138,6 +142,15 @@ struct EditorView: View {
                         .background(.ultraThinMaterial, in: Capsule())
                         .padding(10)
                         .accessibilityLabel("实际输出尺寸 \(session.outputSizeLabel)")
+                }
+            }
+            .overlay(alignment: .topLeading) {
+                if session.project.hasLivePhotos {
+                    Button { session.wantsLivePreview = true } label: {
+                        Label("LIVE · \(session.project.resolvedLiveSources.count)", systemImage: "livephoto")
+                            .font(.caption.weight(.semibold)).padding(8)
+                            .background(.ultraThinMaterial, in: Capsule())
+                    }.padding(10).accessibilityIdentifier("canvas-live-preview")
                 }
             }
             .overlay(alignment: .bottomTrailing) {
@@ -270,8 +283,8 @@ struct CanvasInteractView: View {
                         .padding(6)
                         .background(.ultraThinMaterial, in: Capsule())
                 }
-                if session.missingAssetWarning {
-                    Text("有素材缺失，请替换后再导出")
+                if session.missingAssetWarning || session.missingLiveAssetWarning {
+                    Text(session.missingLiveAssetWarning ? "有 Live 动态缺失，请重新选图；仍可导出静态图片" : "有素材缺失，请替换后再导出")
                         .font(.caption2)
                         .padding(6)
                         .background(.ultraThinMaterial, in: Capsule())
@@ -479,12 +492,14 @@ struct ToolRail: View {
     @Binding var showLayers: Bool
 
     var tools: [EditorTool] {
+        let base: [EditorTool]
         switch session.project.mode {
-        case .template: return [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
-        case .freeform: return [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
-        case .poster: return [.layout, .style, .adjust, .crop, .text, .sticker, .filter, .color, .border, .background, .layer, .mosaic, .doodle]
-        case .longStrip: return [.layout, .style, .crop, .adjust, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .template: base = [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .freeform: base = [.layout, .style, .adjust, .crop, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
+        case .poster: base = [.layout, .style, .adjust, .crop, .text, .sticker, .filter, .color, .border, .background, .layer, .mosaic, .doodle]
+        case .longStrip: base = [.layout, .style, .crop, .adjust, .filter, .color, .border, .background, .text, .sticker, .layer, .mosaic, .doodle]
         }
+        return session.project.hasLivePhotos ? [.livePhoto] + base : base
     }
 
     var body: some View {
@@ -646,7 +661,7 @@ struct CopyModeView: View {
         guard photos.count == ids.count else { copyError = "照片素材缺失，请先回到编辑器替换素材。"; return }
         guard await session.persistNow() else { copyError = session.lastError; return }
         let copy = ProjectFactory.copy(project: session.project, to: target, photos: photos, posterID: posterID)
-        let newSession = EditorSession(project: copy, assets: AssetLibrary(images: session.assets.images))
+        let newSession = EditorSession(project: copy, assets: AssetLibrary(images: session.assets.images, motions: session.assets.motions))
         guard await newSession.persistNow() else { copyError = newSession.lastError; return }
         dismiss()
         appState.openEditor(newSession)

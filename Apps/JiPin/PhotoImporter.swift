@@ -10,15 +10,18 @@ enum PhotoImporter {
         .any(of: [.images, .livePhotos])
     }
 
-    static func load(_ items: [PhotosPickerItem], progress: (@MainActor (Int, Int) -> Void)? = nil) async -> (ok: [ImportedPhoto], failed: [ImportedPhoto]) {
+    static func load(_ items: [PhotosPickerItem], preserveLive: Bool = true, maxLiveCount: Int = LivePhotoPolicy.maxSources, progress: (@MainActor (Int, Int) -> Void)? = nil) async -> (ok: [ImportedPhoto], failed: [ImportedPhoto]) {
         var ok: [ImportedPhoto] = []
         var failed: [ImportedPhoto] = []
         for (index, item) in items.enumerated() {
             if Task.isCancelled { break }
             await progress?(index, items.count)
-            switch await loadOne(item, index: index) {
+            switch await loadOne(item, index: index, preserveLive: preserveLive) {
             case .ok(let photo):
-                ok.append(photo)
+                if photo.liveClip != nil && ok.filter({ $0.liveClip != nil }).count >= maxLiveCount {
+                    failed.append(ImportedPhoto(filename: photo.filename, data: Data(), pixelSize: .zero, utType: "public.image",
+                                                loadFailed: true, failureReason: LivePhotoError.tooManySources.localizedDescription))
+                } else { ok.append(photo) }
             case .failed(let photo):
                 failed.append(photo)
             case .cancelled:
@@ -35,10 +38,18 @@ enum PhotoImporter {
         case cancelled
     }
 
-    private static func loadOne(_ item: PhotosPickerItem, index: Int) async -> LoadOutcome {
+    private static func loadOne(_ item: PhotosPickerItem, index: Int, preserveLive: Bool) async -> LoadOutcome {
         var lastError: Error?
         for attempt in 0..<3 {
             do {
+                if preserveLive {
+                    // The system picker can list only the still UTType for a Live Photo. Ask for the
+                    // native representation first; supportedContentTypes alone is not a Live detector.
+                    let knownLive = item.supportedContentTypes.contains { $0.conforms(to: .livePhoto) }
+                    let live = try await item.loadTransferable(type: PHLivePhoto.self)
+                    if let live { return .ok(try await LivePhotoMedia.importPhoto(live, name: "Live 照片 \(index + 1)")) }
+                    if knownLive { throw LivePhotoError.missingResources }
+                }
                 guard let data = try await item.loadTransferable(type: Data.self), !data.isEmpty else {
                     if attempt < 2 {
                         try await Task.sleep(nanoseconds: 1_200_000_000)

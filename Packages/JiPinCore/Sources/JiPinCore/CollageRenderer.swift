@@ -4,12 +4,21 @@ import UIKit
 
 public protocol AssetProviding {
     func imageData(for id: UUID) -> Data?
+    func decodedImage(for id: UUID, maxLongSide: CGFloat) -> CGImage?
+}
+
+public extension AssetProviding {
+    func decodedImage(for id: UUID, maxLongSide: CGFloat) -> CGImage? {
+        imageData(for: id).flatMap { ImageIOHelpers.thumbnail(from: $0, maxLongSide: maxLongSide) }
+    }
 }
 
 public struct DataAssetLibrary: AssetProviding, Sendable {
     public var images: [UUID: Data]
-    public init(images: [UUID: Data] = [:]) {
+    public var motions: [UUID: LivePhotoClip]
+    public init(images: [UUID: Data] = [:], motions: [UUID: LivePhotoClip] = [:]) {
         self.images = images
+        self.motions = motions
     }
     public func imageData(for id: UUID) -> Data? { images[id] }
 }
@@ -311,7 +320,7 @@ public final class CollageRenderer {
                                                  crop: payload.crop, rotation: rotation, fixedFrame: layoutDriven)
             let ratio = max(desired.width / max(cropped.width, 1), desired.height / max(cropped.height, 1))
             let decodeSide = max(max(original.width, original.height) * min(ratio, 1), 1)
-            guard let source = ImageIOHelpers.thumbnail(from: data, maxLongSide: decodeSide) else { cg.restoreGState(); return }
+            guard let source = assets.decodedImage(for: payload.assetID, maxLongSide: decodeSide) else { cg.restoreGState(); return }
             let processed = effects.apply(to: source, payload: payload, targetSize: drawFrame.size)
             let fitted = LayoutEngine.fittedRect(
                 imageSize: CGSize(width: processed.width, height: processed.height),

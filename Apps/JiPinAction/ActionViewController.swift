@@ -1,3 +1,4 @@
+import Photos
 import SwiftUI
 import UniformTypeIdentifiers
 import UIKit
@@ -35,21 +36,30 @@ final class ActionViewController: UIViewController {
         let imageProviders = providers.filter { ExtensionIngest.isLikelyImageProvider($0) }
         loadTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            var items: [(filename: String, data: Data?)] = []
+            var photos: [ImportedPhoto] = []
+            var failed: [ImportedPhoto] = []
             let accepted = Array(imageProviders.prefix(PhotoLimits.extensionRange.upperBound))
             for (index, provider) in accepted.enumerated() {
                 guard !Task.isCancelled else { return }
                 let name = provider.suggestedName ?? "照片 \(index + 1)"
                 do {
-                    items.append((name, try await loadData(provider)))
+                    if provider.canLoadObject(ofClass: PHLivePhoto.self) {
+                        let live = try await LivePhotoMedia.load(from: provider)
+                        photos.append(try await LivePhotoMedia.importPhoto(live, name: name, maxStillPixels: 4_194_304))
+                    } else {
+                        let data = try await loadData(provider)
+                        let ingested = await Task.detached(priority: .userInitiated) { ExtensionIngest.process([(name, data)]) }.value
+                        photos.append(contentsOf: ingested.photos)
+                        failed.append(contentsOf: ingested.failed)
+                    }
                 } catch {
-                    items.append((name, nil))
+                    guard !Task.isCancelled else { return }
+                    failed.append(ImportedPhoto(filename: name, data: Data(), pixelSize: .zero, utType: UTType.image.identifier,
+                                                loadFailed: true, failureReason: error.localizedDescription))
                 }
             }
-            let loaded = items
-            let ingested = await Task.detached(priority: .userInitiated) { ExtensionIngest.process(loaded) }.value
             guard !Task.isCancelled else { return }
-            embed(photos: ingested.photos, failed: ingested.failed, overflowCount: max(imageProviders.count - accepted.count, 0))
+            embed(photos: photos, failed: failed, overflowCount: max(imageProviders.count - accepted.count, 0))
         }
     }
 

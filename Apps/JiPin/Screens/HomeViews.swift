@@ -5,6 +5,7 @@ import JiPinCore
 struct RootView: View {
     @EnvironmentObject private var appState: AppState
     @State private var didInitialize = false
+    @State private var launchError: String?
 
     var body: some View {
         Group {
@@ -34,20 +35,42 @@ struct RootView: View {
                 appState.modePickerLaunch = nil
                 let session = EditorSession(
                     project: ProjectFactory.make(mode: mode, photos: photos, layoutID: layoutID, posterID: posterID),
-                    assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+                    assets: AssetLibrary(photos: photos)
                 )
                 appState.openEditor(session)
                 Task { await session.persistNow() }
             }
         }
+        .alert("示例未能打开", isPresented: Binding(get: { launchError != nil }, set: { if !$0 { launchError = nil } })) {
+            Button("好") { launchError = nil }
+        } message: { Text(launchError ?? "") }
         .onAppear {
             guard !didInitialize else { return }
             didInitialize = true
             try? appState.drafts.prepare()
+            openLiveSampleIfNeeded()
             openSampleEditorIfNeeded()
             openQuickCollageIfNeeded()
             openSampleModePickerIfNeeded()
             openSettingsIfNeeded()
+        }
+    }
+
+    private func openLiveSampleIfNeeded() {
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-sampleLiveEditor") || args.contains("-quickLiveCollage") else { return }
+        Task {
+            do {
+                let photos = try await LivePhotoSamples.make()
+                if args.contains("-quickLiveCollage") {
+                    appState.quickCollage = QuickCollageLaunch(photos: photos, failed: [], overflowCount: 0)
+                } else {
+                    let session = EditorSession(project: ProjectFactory.make(mode: .template, photos: photos), assets: AssetLibrary(photos: photos))
+                    session.project.name = "会动的小日常"
+                    session.activeTool = .livePhoto
+                    appState.openEditor(session)
+                }
+            } catch { launchError = error.localizedDescription }
         }
     }
 
@@ -71,7 +94,7 @@ struct RootView: View {
         appState.openEditor(
             EditorSession(
                 project: ProjectFactory.make(mode: mode, photos: photos, layoutID: sampleLayout),
-                assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+                assets: AssetLibrary(photos: photos)
             )
         )
     }
@@ -181,6 +204,27 @@ struct CreateHomeView: View {
                     }
                     .accessibilityHint("使用内置原创插画，无需打开相册即可试用四种模式")
 
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top) {
+                            Image(systemName: "livephoto").font(.system(size: 38, weight: .light))
+                                .foregroundStyle(JiPinTheme.accent)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("回忆，可以一起动").font(.title3.weight(.semibold))
+                                Text("Live 照片拼图 · 保存后在相册长按播放")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        HStack {
+                            Button("选择 Live 照片") { beginPick(mode: nil) }
+                                .buttonStyle(.borderedProminent).accessibilityIdentifier("home-pick-live")
+                            Button("试试动态示例") { openLiveSample() }
+                                .buttonStyle(.bordered).accessibilityIdentifier("home-try-live")
+                        }
+                        Text("最多 9 张 Live，可与普通照片混拼")
+                            .font(.caption2).foregroundStyle(.secondary)
+                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+
                     Text("拼图模式")
                         .font(.title3.weight(.semibold))
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -197,7 +241,7 @@ struct CreateHomeView: View {
                     Button {
                         let photos = SamplePhotos.make(4)
                         let session = EditorSession(project: StyleRecipeCatalog.all[0].applying(to: ProjectFactory.make(mode: .freeform, photos: photos)),
-                                                    assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) })))
+                                                    assets: AssetLibrary(photos: photos))
                         session.project.name = "我的贴纸日记"
                         session.addSticker("cute-bunny")
                         session.setDecorationFrame(DecorationFrameCatalog.all[0])
@@ -417,6 +461,29 @@ struct CreateHomeView: View {
         showPhotoPicker = true
     }
 
+    private func openLiveSample() {
+        guard !isLoading else { return }
+        isLoading = true
+        importedCount = 0; importingCount = 2
+        let request = UUID(); importID = request
+        importTask = Task {
+            do {
+                let photos = try await LivePhotoSamples.make()
+                guard !Task.isCancelled, importID == request else { return }
+                isLoading = false
+                let session = EditorSession(project: ProjectFactory.make(mode: .template, photos: photos), assets: AssetLibrary(photos: photos))
+                session.project.name = "会动的小日常"
+                session.activeTool = .livePhoto
+                appState.openEditor(session)
+                Task { await session.persistNow() }
+            } catch {
+                guard importID == request else { return }
+                isLoading = false
+                if !(error is CancellationError) { loadError = error.localizedDescription }
+            }
+        }
+    }
+
     private func cancelImport() {
         importTask?.cancel()
         importID = UUID()
@@ -452,7 +519,7 @@ struct CreateHomeView: View {
     private func startEditor(mode: CollageMode, layoutID: String?, posterID: String?, photos: [ImportedPhoto]) {
         let session = EditorSession(
             project: ProjectFactory.make(mode: mode, photos: photos, layoutID: layoutID, posterID: posterID),
-            assets: AssetLibrary(images: Dictionary(photos.map { ($0.id, $0.data) }, uniquingKeysWith: { first, _ in first }))
+            assets: AssetLibrary(photos: photos)
         )
         showModePicker = false
         imported = []
@@ -468,7 +535,7 @@ struct CreateHomeView: View {
             let loaded = try appState.drafts.load(id: id)
             let session = EditorSession(
                 project: loaded.project,
-                assets: AssetLibrary(images: loaded.assets)
+                assets: AssetLibrary(images: loaded.assets, motions: loaded.motions)
             )
             appState.openEditor(session)
         } catch {
@@ -756,7 +823,7 @@ struct DraftsView: View {
     private func open(_ id: UUID) {
         do {
             let loaded = try appState.drafts.load(id: id)
-            appState.openEditor(EditorSession(project: loaded.project, assets: AssetLibrary(images: loaded.assets)))
+            appState.openEditor(EditorSession(project: loaded.project, assets: AssetLibrary(images: loaded.assets, motions: loaded.motions)))
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -910,8 +977,8 @@ struct PrivacyPolicyView: View {
                 Text("极拼只在你的设备上处理照片、文字、贴纸和草稿。首版不注册账号、不上传照片、不接入广告或行为分析。")
                 Text("从系统相册导入时使用系统选择器，不要求读取整个图库。只有你选择保存到相册时才会申请「添加照片」权限。权限被拒绝后，项目仍保留，可用系统分享或存储到文件。")
                 Text("主 App 与相册操作扩展只在你保存图片时申请相应权限。相册扩展可通过本机共享存储交接草稿；安装包不支持交接时会明确提示，并可改用保存图片或系统分享。")
-                Text("导出成品为 sRGB 静态图，不加默认品牌水印，也不会复制原图中的 GPS 等位置元数据。")
-                Text("草稿和工作副本保存在本机并排除云备份，导入时去除位置元数据并限制大图解码尺寸，系统相册原图保持不变。可在草稿页删除单个项目；共享素材只有在没有其他草稿引用时才会回收。清理导出缓存不会删除草稿，也不会删除已经保存到系统相册的成品。卸载应用会删除本机草稿。")
+                Text("支持静态图片与原生 Live Photo 导出，不加默认品牌水印。新生成的图片和视频不复制原图的 GPS 等位置元数据。")
+                Text("草稿和工作副本保存在本机并排除云备份。静态工作图去除元数据并限制解码尺寸；Live 草稿还会保存所选动态视频的本机副本，其中可能包含原始元数据和声音，仅供编辑使用。系统相册原图保持不变。删除最后一份引用素材的草稿后会回收共享文件；清理导出缓存不会删除草稿或相册成品。卸载应用会删除本机草稿。")
                 Text("极拼面向一般用户，不专为儿童设计，也不收集年龄或联系方式。如需了解相册入口，请查看设置中的支持与帮助。")
             }
             .padding()
@@ -927,6 +994,11 @@ struct SupportView: View {
             Section("从相册进入") {
                 Text("在系统「照片」中多选 2 到 9 张，点分享，在操作区选择「极拼」。不必先打开主 App。")
                 Text("扩展内可做模板拼图、横竖长图、排序、裁切、背景和间距。文字、贴纸和海报请保存草稿后到主 App 继续。")
+            }
+            Section("Live 照片拼图") {
+                Text("选择 Live 照片后会保留动态，最多 9 张，可与普通照片混拼。选择 1.5、2 或 3 秒，默认静音，也可保留其中一张的原声。布局、裁切、滤镜和装饰会应用到动态。")
+                Text("导出时先生成预览，再点「保存 Live 到相册」。在系统相册长按播放。分享视频会发送 MOV 文件；需要分享 Live 时，请保存后从系统相册分享。")
+                Text("从相册扩展进入时先保存 Live 草稿，再回极拼的草稿页导出动态。若分享方只提供了静态图片，极拼无法恢复原本的动态。")
             }
             Section("保存与权限") {
                 Text("保存到相册才会申请添加照片权限。拒绝后仍可保存草稿，或用系统分享、存储到文件。")

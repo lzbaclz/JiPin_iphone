@@ -1,4 +1,5 @@
 import Foundation
+import Photos
 import UniformTypeIdentifiers
 
 public struct ExtensionIngestResult: Sendable {
@@ -20,6 +21,7 @@ public enum ExtensionIngest {
     public static func isLikelyImage(typeIdentifiers: [String]) -> Bool {
         let imageHints: Set<String> = [
             UTType.image.identifier,
+            UTType.livePhoto.identifier,
             UTType.jpeg.identifier,
             UTType.png.identifier,
             UTType.heic.identifier,
@@ -42,7 +44,8 @@ public enum ExtensionIngest {
     }
 
     public static func isLikelyImageProvider(_ provider: NSItemProvider) -> Bool {
-        isLikelyImage(typeIdentifiers: provider.registeredTypeIdentifiers)
+        provider.canLoadObject(ofClass: PHLivePhoto.self)
+            || isLikelyImage(typeIdentifiers: provider.registeredTypeIdentifiers)
             || provider.hasItemConformingToTypeIdentifier(UTType.image.identifier)
             || provider.hasItemConformingToTypeIdentifier(UTType.jpeg.identifier)
             || provider.hasItemConformingToTypeIdentifier(UTType.png.identifier)
