@@ -71,6 +71,14 @@
 
 对用户任务进行分层后，极拼当前适合的是“手机上整理照片和做轻量拼贴”。专业营销团队需要协作、字体授权管理、批量品牌交付；它们可能更适合 Canva 或 Adobe Express。宣称无需账号和离线处理天然胜过云服务，是忽视另一类用户需求。本地版本的优势是少前置条件、独立工作，代价是暂无跨设备协作和在线资源规模。
 
+### 最强的替代方案：iPhone 已经有的工具
+
+只给一张图加字、画箭头或贴已有贴纸，系统“照片”的标记工具已经能完成；系统还能从照片主体制作贴纸。Apple 的快捷指令也有 Combine Images 动作，可覆盖简单的图片合并。不能把“能加贴纸”或“能合并两张图”本身包装成第三方 App 独有价值。[Apple 标记工具](https://support.apple.com/en-ie/guide/iphone/iphcdb1d0bc7/ios)、[从照片制作贴纸](https://support.apple.com/en-ie/guide/iphone/iph9b4106303/ios)、[快捷指令变换动作](https://support.apple.com/en-gb/guide/shortcuts/apd1d9413cfb/ios)。
+
+系统照片还支持复制、粘贴编辑设置；因此整组色调同步是一项应有的效率能力，而非单独的竞争优势。极拼需要让**多照片版面、原创成套装饰、可复用风格、可继续编辑的草稿和清楚的交付方式**组合起来更省事，才有安装和持续使用的理由。这个组合是否足够有吸引力，仍应通过同素材任务对照验证。[Apple 照片编辑说明](https://support.apple.com/en-ie/guide/iphone/iphb08064d57/ios)。
+
+对于已熟练使用现有工具、只偶尔横拼两张图的人，不应假设一定会转用极拼。对于专业设计者，也不应以免费和素材可爱作为能够替代完整设计工具的证据。目标是把轻量多图创作做完整，而不是宣称消灭所有替代品。
+
 ### 商业模式的公平反驳
 
 广告、订阅与付费素材并不自动意味着设计差。长期更新模板、购买字体与 IP 授权、运行模型和服务都需要资金；专业创作者可能愿意为省时付费。用户评论中对收费的不满，也可能来自试用理解偏差或找错账号，不宜把退款相关说法当成已核实事实。
@@ -184,7 +192,6 @@ V1 已有四种模式、基本图层、收藏、滤镜批量应用和草稿。�
 | Yojio, Ltd. / Picsew | 3.18.1 / 2026-09-08 | 50 条，2025-05-18–2026-09-07 | [产品事实](https://itunes.apple.com/lookup?id=1208145167&country=us&entity=software) · [评论来源](https://itunes.apple.com/us/rss/customerreviews/page=1/id=1208145167/sortby=mostrecent/json) |
 | Foundry 63 / Tailor（对照） | 2.1.1 / 2023-02-20 | 50 条，2026-04-12–2026-09-01 | [产品事实](https://itunes.apple.com/lookup?id=926653095&country=us&entity=software) · [评论来源](https://itunes.apple.com/us/rss/customerreviews/page=1/id=926653095/sortby=mostrecent/json) |
 | 未确认 / Layout from Instagram（身份核对） | — / — | 本次未返回条目 | [产品事实](https://itunes.apple.com/lookup?id=967351793&country=us&entity=software) · [评论来源](https://itunes.apple.com/us/rss/customerreviews/page=1/id=967351793/sortby=mostrecent/json) |
-
 | VIDEO EDITOR PTE. LTD. / LiveCollage | 16.6.10 / 2026-07-15 | 补充核对，未取 RSS 样本 | [产品事实](https://itunes.apple.com/lookup?id=530957474&country=us&entity=software) |
 | Active Development Limited / PicFrame | 15.17 / 2026-09-04 | 补充核对，未取 RSS 样本 | [产品事实](https://itunes.apple.com/lookup?id=433398108&country=us&entity=software) |
 | Pinterest, Inc. / Shuffles | 3.7 / 2026-08-04 | 补充核对，未取 RSS 样本 | [产品事实](https://itunes.apple.com/lookup?id=1573869498&country=us&entity=software) |

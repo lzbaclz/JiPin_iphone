@@ -422,7 +422,7 @@ public struct LayerObject: Codable, Hashable, Sendable, Identifiable {
         switch kind {
         case .photo: return "照片"
         case .text: return text.map { String($0.text.prefix(12)) } ?? "文字"
-        case .sticker: return "贴纸"
+        case .sticker: return sticker.flatMap { StickerCatalog.sticker(id: $0.stickerID)?.name } ?? "装饰图"
         case .shape: return "形状"
         case .doodle: return "涂鸦"
         }
@@ -514,6 +514,7 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
     public var background: BackgroundSpec
     public var layoutID: String?
     public var customLayoutCells: [NormalizedRect]?
+    public var decorationFrame: CanvasDecoration?
     public var posterID: String?
     public var longStrip: LongStripSpec?
     public var objects: [LayerObject]
@@ -554,6 +555,7 @@ public struct CollageProject: Codable, Hashable, Sendable, Identifiable {
         self.background = background
         self.layoutID = layoutID
         self.customLayoutCells = nil
+        self.decorationFrame = nil
         self.posterID = posterID
         self.longStrip = longStrip
         self.objects = objects

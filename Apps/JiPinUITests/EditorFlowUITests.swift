@@ -1,6 +1,72 @@
 import XCTest
 
 final class EditorFlowUITests: XCTestCase {
+    func testV3HomeOpensDecoratedSample() {
+        let app = XCUIApplication()
+        app.launch()
+        let start = app.buttons["home-try-stickers"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        for _ in 0..<4 where !start.isHittable { app.swipeUp() }
+        start.tap()
+        XCTAssertTrue(app.buttons["editor-export"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["sticker-library-open"].exists)
+        keepVersionScreenshot(app, name: "v3-sticker-diary")
+    }
+
+    func testV3StickerLibrarySearchFavoriteAndExport() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "freeform"]
+        app.launch()
+        tapTool(app, id: "tool-sticker", label: "贴纸")
+        app.buttons["sticker-library-open"].tap()
+        XCTAssertTrue(app.navigationBars["贴纸册"].waitForExistence(timeout: 5))
+        keepVersionScreenshot(app, name: "v3-cute-stickers")
+        let favorite = app.buttons["收藏软软兔"]
+        if favorite.value as? String != "已收藏" { favorite.tap() }
+        app.switches["sticker-favorites-only"].tap()
+        XCTAssertTrue(app.buttons["sticker-add-cute-bunny"].exists)
+        app.switches["sticker-favorites-only"].tap()
+        let search = app.textFields["sticker-library-search"]
+        search.tap(); search.typeText("bunny\n")
+        XCTAssertTrue(app.buttons["sticker-add-cute-bunny"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["sticker-add-cute-bear"].exists)
+        app.buttons["sticker-add-cute-bunny"].tap()
+        let canvas = app.descendants(matching: .any)["editor-canvas"]
+        XCTAssertTrue((canvas.value as? String ?? "").contains("软软兔"))
+        canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.5,dy: 0.5)).press(forDuration: 0.15,
+            thenDragTo: canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.7,dy: 0.3)))
+        keepVersionScreenshot(app, name: "v3-sticker-on-canvas")
+        app.buttons["editor-export"].tap()
+        let generate = app.buttons["export-generate"]
+        for _ in 0..<4 where !generate.isHittable { app.swipeUp() }
+        XCTAssertTrue(generate.isHittable)
+        generate.tap()
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS '已生成'")).firstMatch.waitForExistence(timeout: 25))
+    }
+
+    func testV3CoolStickersAndDecorativeFrameCanBeAppliedAndRemoved() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
+        app.launch()
+        tapTool(app, id: "tool-sticker", label: "贴纸")
+        app.buttons["sticker-library-open"].tap()
+        app.buttons["sticker-category-cool"].tap()
+        XCTAssertTrue(app.buttons["sticker-add-cool-bolt"].exists)
+        XCTAssertTrue(app.buttons["sticker-add-cool-orbit"].exists)
+        keepVersionScreenshot(app, name: "v3-cool-stickers")
+        app.buttons["sticker-add-cool-bolt"].tap()
+        tapTool(app, id: "tool-border", label: "边框")
+        app.buttons["frame-gallery-open"].tap()
+        XCTAssertTrue(app.navigationBars["可爱边框"].waitForExistence(timeout: 5))
+        keepVersionScreenshot(app, name: "v3-frame-gallery")
+        app.buttons["frame-apply-cream-lace"].tap()
+        XCTAssertTrue(app.buttons["frame-remove-inline"].waitForExistence(timeout: 5))
+        app.buttons["frame-remove-inline"].tap()
+        XCTAssertFalse(app.buttons["frame-remove-inline"].exists)
+        app.buttons["撤销"].tap()
+        XCTAssertTrue(app.buttons["frame-remove-inline"].exists)
+    }
+
     func testV2StyleApplySaveAndReload() {
         let app = XCUIApplication()
         app.launchArguments = ["-sampleEditor", "-sampleMode", "template"]
@@ -445,28 +511,20 @@ final class EditorFlowUITests: XCTestCase {
 
     private func tapTool(_ app: XCUIApplication, id: String, label: String) {
         let target = app.buttons[id]
-        if target.waitForExistence(timeout: 2), isOnScreen(target, in: app) {
-            target.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-            return
-        }
-        let handle = app.buttons["tool-adjust"].exists ? app.buttons["tool-adjust"] : app.buttons["调整"]
-        for _ in 0..<8 {
-            if handle.exists {
-                handle.swipeLeft()
+        XCTAssertTrue(target.waitForExistence(timeout: 8), "missing tool " + id)
+        let rail = app.descendants(matching: .any)["editor-tool-rail"]
+        for attempt in 0..<16 {
+            if isOnScreen(target, in: app), target.isHittable {
+                target.tap()
+                return
+            }
+            if target.frame.minX < rail.frame.minX || (target.frame.width == 0 && attempt > 3) {
+                rail.coordinate(withNormalizedOffset: CGVector(dx: 0.4,dy: 0.5)).press(forDuration: 0.1, thenDragTo: rail.coordinate(withNormalizedOffset: CGVector(dx: 0.6,dy: 0.5)))
             } else {
-                app.swipeLeft()
-            }
-            let button = app.buttons[id]
-            if button.exists, isOnScreen(button, in: app) {
-                button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-                return
-            }
-            if app.buttons[label].exists, isOnScreen(app.buttons[label], in: app) {
-                app.buttons[label].coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-                return
+                rail.coordinate(withNormalizedOffset: CGVector(dx: 0.6,dy: 0.5)).press(forDuration: 0.1, thenDragTo: rail.coordinate(withNormalizedOffset: CGVector(dx: 0.4,dy: 0.5)))
             }
         }
-        XCTFail("could not tap tool \(id)")
+        XCTFail("could not tap tool " + id)
     }
 
     private func isOnScreen(_ element: XCUIElement, in app: XCUIApplication) -> Bool {

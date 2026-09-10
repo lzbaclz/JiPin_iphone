@@ -81,6 +81,9 @@ public final class CollageRenderer {
             autoreleasepool {
             cg.saveGState()
             cg.setAlpha(object.opacity)
+            // Composite a multi-path illustration as one layer, so overlapping strokes do not accumulate opacity.
+            let groupedOpacity = object.opacity < 1
+            if groupedOpacity { cg.beginTransparencyLayer(auxiliaryInfo: nil) }
             switch object.kind {
             case .photo:
                 if let payload = object.photo, let frame = frames[object.id] ?? optionalFrame(object, canvasSize) {
@@ -114,8 +117,12 @@ public final class CollageRenderer {
                     drawDoodle(doodle, canvasSize: canvasSize, in: cg)
                 }
             }
+            if groupedOpacity { cg.endTransparencyLayer() }
             cg.restoreGState()
             }
+        }
+        if let decoration = project.decorationFrame {
+            DecorationFrameRenderer.draw(decoration, in: CGRect(origin: .zero, size: canvasSize), context: cg)
         }
         cg.restoreGState()
     }
@@ -454,6 +461,8 @@ public final class CollageRenderer {
         let sticker = StickerCatalog.sticker(id: payload.stickerID)
         let tint = HexColor.uiColor(payload.tintHex ?? sticker?.defaultTint ?? "#1C1A17")
         switch sticker?.render {
+        case .illustration(let name):
+            OriginalStickerArt.draw(name, in: local, context: cg)
         case .symbol(let name):
             let config = UIImage.SymbolConfiguration(pointSize: min(local.width, local.height) * 0.7, weight: .medium)
             if let image = UIImage(systemName: name, withConfiguration: config)?.withTintColor(tint, renderingMode: .alwaysOriginal) {

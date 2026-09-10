@@ -11,8 +11,8 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: NO
-    MARKETING_VERSION: "2.0.0"
-    CURRENT_PROJECT_VERSION: "2"
+    MARKETING_VERSION: "3.0.0"
+    CURRENT_PROJECT_VERSION: "3"
 packages:
   JiPinCore:
     path: Packages/JiPinCore
@@ -31,8 +31,8 @@ targets:
       path: Apps/JiPin/Info.plist
       properties:
         CFBundleDisplayName: 极拼
-        CFBundleShortVersionString: "2.0.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "3.0.0"
+        CFBundleVersion: "3"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -68,8 +68,8 @@ targets:
       path: Apps/JiPinAction/Info.plist
       properties:
         CFBundleDisplayName: 极拼
-        CFBundleShortVersionString: "2.0.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "3.0.0"
+        CFBundleVersion: "3"
         NSPhotoLibraryAddUsageDescription: 极拼需要将拼图保存到你的相册。只有在你选择保存时才会申请此权限。
         NSExtension:
           NSExtensionPointIdentifier: com.apple.ui-services

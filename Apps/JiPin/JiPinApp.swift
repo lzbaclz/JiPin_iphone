@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import UIKit
 import JiPinCore
 
@@ -27,6 +28,11 @@ final class AppState: ObservableObject {
     @Published var modePickerLaunch: ModePickerLaunch?
     let drafts = DraftStore.shared
     let favorites = FavoriteStore()
+    private var favoriteChanges: AnyCancellable?
+
+    init() {
+        favoriteChanges = favorites.objectWillChange.sink { [weak self] in self?.objectWillChange.send() }
+    }
 
     enum AppTab: Hashable {
         case create, drafts

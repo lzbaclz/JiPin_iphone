@@ -213,6 +213,44 @@
       "texture" : "paper"
     }
   ],
+  "decorativeFrames" : [
+    {
+      "colorHex" : "#FFF0D4",
+      "id" : "cream-lace",
+      "name" : "奶油花边",
+      "subtitle" : "像一块甜甜的曲奇"
+    },
+    {
+      "colorHex" : "#FCE1E8",
+      "id" : "berry-wrap",
+      "name" : "草莓糖纸",
+      "subtitle" : "粉色格纹与小草莓"
+    },
+    {
+      "colorHex" : "#F7E1EB",
+      "id" : "sakura-letter",
+      "name" : "樱花信笺",
+      "subtitle" : "把春天寄给你"
+    },
+    {
+      "colorHex" : "#DDEFE3",
+      "id" : "mint-check",
+      "name" : "薄荷格纹",
+      "subtitle" : "清新的野餐日记"
+    },
+    {
+      "colorHex" : "#E9E2F6",
+      "id" : "star-dream",
+      "name" : "星星梦境",
+      "subtitle" : "晚安，做个好梦"
+    },
+    {
+      "colorHex" : "#FBE5EB",
+      "id" : "ribbon-gift",
+      "name" : "蝴蝶结礼物",
+      "subtitle" : "每个瞬间都值得珍藏"
+    }
+  ],
   "filters" : [
     {
       "contrast" : 1.05,
@@ -4921,7 +4959,7 @@
       "theme" : "social"
     }
   ],
-  "schemaVersion" : 2,
+  "schemaVersion" : 3,
   "stickers" : [
     {
       "category" : "label",
@@ -5402,6 +5440,150 @@
       "id" : "life-drop",
       "kind" : "systemSymbol",
       "name" : "水滴"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "bunny",
+      "id" : "cute-bunny",
+      "kind" : "originalVector",
+      "name" : "软软兔"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "bear",
+      "id" : "cute-bear",
+      "kind" : "originalVector",
+      "name" : "奶油熊"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "cat",
+      "id" : "cute-cat",
+      "kind" : "originalVector",
+      "name" : "橘子喵"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "strawberry",
+      "id" : "cute-strawberry",
+      "kind" : "originalVector",
+      "name" : "甜心草莓"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "cherries",
+      "id" : "cute-cherries",
+      "kind" : "originalVector",
+      "name" : "樱桃双双"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "bow",
+      "id" : "cute-bow",
+      "kind" : "originalVector",
+      "name" : "奶糖蝴蝶结"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "daisy",
+      "id" : "cute-daisy",
+      "kind" : "originalVector",
+      "name" : "微笑雏菊"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "cloud",
+      "id" : "cute-cloud",
+      "kind" : "originalVector",
+      "name" : "棉花云"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "moon",
+      "id" : "cute-moon",
+      "kind" : "originalVector",
+      "name" : "晚安星月"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "letter",
+      "id" : "cute-letter",
+      "kind" : "originalVector",
+      "name" : "心动来信"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "pudding",
+      "id" : "cute-pudding",
+      "kind" : "originalVector",
+      "name" : "焦糖布丁"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "boba",
+      "id" : "cute-boba",
+      "kind" : "originalVector",
+      "name" : "珍珠奶茶"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "peach",
+      "id" : "cute-peach",
+      "kind" : "originalVector",
+      "name" : "水蜜桃桃"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "rainbow",
+      "id" : "cute-rainbow",
+      "kind" : "originalVector",
+      "name" : "雨后彩虹"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "candy",
+      "id" : "cute-candy",
+      "kind" : "originalVector",
+      "name" : "薄荷糖果"
+    },
+    {
+      "category" : "cute",
+      "color" : "#F2A8B8",
+      "drawing" : "cake",
+      "id" : "cute-cake",
+      "kind" : "originalVector",
+      "name" : "生日小蛋糕"
+    },
+    {
+      "category" : "cool",
+      "color" : "#C4EF78",
+      "drawing" : "bolt",
+      "id" : "cool-bolt",
+      "kind" : "originalVector",
+      "name" : "闪电徽章"
+    },
+    {
+      "category" : "cool",
+      "color" : "#8ACCE3",
+      "drawing" : "orbit",
+      "id" : "cool-orbit",
+      "kind" : "originalVector",
+      "name" : "星际飞行"
     }
   ],
   "styles" : [

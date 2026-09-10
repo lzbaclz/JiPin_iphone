@@ -34,10 +34,10 @@ final class CatalogTests: XCTestCase {
     }
 
     func testAssetCatalogCounts() {
-        XCTAssertEqual(StickerCatalog.all.count, 60)
+        XCTAssertEqual(StickerCatalog.all.count, 78)
         XCTAssertEqual(BackgroundCatalog.all.count, 20)
         XCTAssertEqual(FilterCatalog.all.count, 10)
-        XCTAssertEqual(Set(StickerCatalog.all.map(\.id)).count, 60)
+        XCTAssertEqual(Set(StickerCatalog.all.map(\.id)).count, 78)
         XCTAssertEqual(GeometryShapeCatalog.all.count, 10)
         XCTAssertTrue(GeometryShapeCatalog.all.contains(where: { $0.id == "arrow" }))
     }

@@ -514,6 +514,7 @@ struct ToolRail: View {
             .padding(.vertical, 8)
         }
         .background(JiPinTheme.surface)
+        .accessibilityIdentifier("editor-tool-rail")
     }
 }
 

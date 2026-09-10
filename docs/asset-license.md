@@ -43,3 +43,13 @@ Constraints: exactly one square 1024 x 1024 icon artwork; fully opaque RGB visua
 ## V2 风格与研究资料
 
 六套风格参数为本项目原创搭配，使用原有自绘示例插画预览。竞品研究只引用公开功能事实、评分与转述评价，没有将竞品贴图、字体或品牌 IP 放入 App。研究事实快照不包含整批评论正文。
+
+## V3 原创可爱与酷感素材
+
+- 绘制定义：`Packages/JiPinCore/Sources/JiPinCore/OriginalStickerArt.swift` 与 `DecorationFrames.swift`，属于本项目原创代码素材。
+- 16 个可爱贴图：软软兔、奶油熊、橘子喵、甜心草莓、樱桃双双、奶糖蝴蝶结、微笑雏菊、棉花云、晚安星月、心动来信、焦糖布丁、珍珠奶茶、水蜜桃桃、雨后彩虹、薄荷糖果、生日小蛋糕。
+- 2 个酷感贴图：闪电徽章、星际飞行。
+- 6 款画布边框：奶油花边、草莓糖纸、樱花信笺、薄荷格纹、星星梦境、蝴蝶结礼物。
+- 素材采用通用动物、食物、植物与几何主题，没有下载或复刻竞品贴纸、字体或授权角色。设计参考仅为成套配色、分类和复用的方法。
+- 交付 PNG 为本项目矢量代码生成；单件透明背景，白色描边是贴图自身的一部分。总览文字使用系统字体；App 素材本身不依赖字体。
+- 可重新生成文件和实际使用 ID 见 `scripts/export-original-art.sh`、`docs/design-source/catalog.json`。

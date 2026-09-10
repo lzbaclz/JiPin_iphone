@@ -194,6 +194,31 @@ struct CreateHomeView: View {
                         }
                     }
 
+                    Button {
+                        let photos = SamplePhotos.make(4)
+                        let session = EditorSession(project: StyleRecipeCatalog.all[0].applying(to: ProjectFactory.make(mode: .freeform, photos: photos)),
+                                                    assets: AssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) })))
+                        session.project.name = "我的贴纸日记"
+                        session.addSticker("cute-bunny")
+                        session.setDecorationFrame(DecorationFrameCatalog.all[0])
+                        session.activeTool = .sticker
+                        appState.openEditor(session)
+                    } label: {
+                        HStack(spacing: 16) {
+                            Image(uiImage: StudioPreviewCache.sticker(StickerCatalog.sticker(id: "cute-bunny")!))
+                                .resizable().scaledToFit().frame(width: 74, height: 74)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("把小可爱，贴进日常").font(.headline)
+                                Text("18 个原创贴图 · 6 款可爱边框").font(.caption).foregroundStyle(.secondary)
+                                Text("试贴一下 →").font(.subheadline.weight(.semibold)).foregroundStyle(JiPinTheme.accent)
+                            }
+                            Spacer(minLength: 0)
+                        }.padding(16).foregroundStyle(JiPinTheme.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+                    }.buttonStyle(.plain).accessibilityIdentifier("home-try-stickers")
+                        .accessibilityHint("打开可编辑的示例插画拼图，可替换为自己的照片")
+
                     favoritesSection
                     recentDrafts
                 }

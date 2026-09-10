@@ -34,7 +34,7 @@ ExportCache/
 
 JSON，ISO-8601 日期。关键字段：
 
-- `schemaVersion`：当前为 `2`
+- `schemaVersion`：当前为 `3`
 - `id`、`name`、`mode`（`template` / `freeform` / `poster` / `longStrip`）
 - `canvas`：宽高比
 - `background`、`layoutID` / `posterID`、`longStrip`
@@ -60,3 +60,9 @@ JSON，ISO-8601 日期。关键字段：
 V2 写入的新项目 schemaVersion 为 2，支持可选 `customLayoutCells`。不存在该字段的 V1 草稿仍可读取；移动分隔线后标记为 V2，旧版会拒绝读取更高版本。自定义格子必须数量匹配且完整覆盖单位画布，否则回退到基础布局。换模板或改变照片数量时重建布局；同数量换图/排序保留自定义分隔线。
 
 `StyleRecipes/styles.json` 与草稿分开，原子保存最多 30 套个人风格（界面限制）。风格不含照片 UUID、图片数据、文字、图层或布局；图片背景转为对应底色。目录不参与系统云备份。分页文件保存在独立临时批次目录，失败/取消会清除未完成批次，关闭导出页后清理已经生成的临时文件。
+
+## V3 兼容性补充
+
+V3 新项目 schemaVersion 为 3；V1/V2 草稿仍可读取。可选 `decorationFrame` 保存画布装饰边框的 `frameID` 和相对短边的 `width`，缺字段时无边框。插入新贴图或应用边框后更新 schema，避免旧版忽略新素材后错误导出。
+
+原创贴图使用稳定 ID `cute-*` / `cool-*`，渲染定义随 App 打包，不依赖相册、网络、emoji 字体或临时 PNG。画布装饰在图层之后绘制，跨模式复制保留，分页使用整幅画布坐标；未知边框会阻止不完整导出。装饰边框不进入“我的风格”，与文字、布局一样保存在作品草稿内。

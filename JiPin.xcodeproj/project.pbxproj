@@ -16,8 +16,10 @@
 		587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11035725EF867AA91468F9DE /* CatalogTests.swift */; };
 		5A0FF504B2B292F1642DD119 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BA5BABD2DD1FA06EE354E14 /* JiPinCore */; };
 		5C322FE0C5C5EB10ECF18C22 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = D82E14D4502D17449C4B33DB /* JiPinCore */; };
+		72748E82FA59F7E48D44F474 /* VersionThreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDFFDCE874A2009D2A1B4E8 /* VersionThreeTests.swift */; };
 		741EE7D29CCE793E77454E1F /* CompletionRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */; };
 		7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF869917688CD6BFEE85880 /* HomeViews.swift */; };
+		778943A4E5356DBB8B587A72 /* DecorationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF31E3BDD328DAD28C3DA340 /* DecorationLibrary.swift */; };
 		7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */; };
 		925AE2A064FE0C221B3842D7 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
 		947B83C765999E2D96736E82 /* JiPinAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3173826CCE37D292036A632F /* JiPinAction.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -87,6 +89,7 @@
 		55EE519104C6085EEDFDA005 /* StudioPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPreviews.swift; sourceTree = "<group>"; };
 		6A61135979489D5ADAF5D926 /* ToolPanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolPanels.swift; sourceTree = "<group>"; };
 		6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderExportTests.swift; sourceTree = "<group>"; };
+		6DDFFDCE874A2009D2A1B4E8 /* VersionThreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionThreeTests.swift; sourceTree = "<group>"; };
 		72D79685F0DDC106D8A6A938 /* PagedExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagedExportView.swift; sourceTree = "<group>"; };
 		77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionRegressionTests.swift; sourceTree = "<group>"; };
 		7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,6 +99,7 @@
 		AC62B3DEE63E88B6856801BC /* StyleGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGallery.swift; sourceTree = "<group>"; };
 		ACAACE628D3992ABE8D81EE6 /* JiPin.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JiPin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCF869917688CD6BFEE85880 /* HomeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViews.swift; sourceTree = "<group>"; };
+		BF31E3BDD328DAD28C3DA340 /* DecorationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecorationLibrary.swift; sourceTree = "<group>"; };
 		D0F1002712FDAD88465F1E91 /* JiPinAction.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPinAction.entitlements; sourceTree = "<group>"; };
 		D32FF5851582749B8DC4C29C /* JiPin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JiPin.entitlements; sourceTree = "<group>"; };
 		F48D6B5AE45BEBAF22B1A2CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -181,6 +185,7 @@
 				11035725EF867AA91468F9DE /* CatalogTests.swift */,
 				77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */,
 				6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */,
+				6DDFFDCE874A2009D2A1B4E8 /* VersionThreeTests.swift */,
 				A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */,
 			);
 			path = JiPinCoreTests;
@@ -189,6 +194,7 @@
 		89A8D3F9005E5730DA3720A2 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				BF31E3BDD328DAD28C3DA340 /* DecorationLibrary.swift */,
 				06FF6E1CBA50B875AD32282A /* EditorView.swift */,
 				2C3CDA137ED7A1F098F5D08E /* ExportView.swift */,
 				72D79685F0DDC106D8A6A938 /* PagedExportView.swift */,
@@ -421,6 +427,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				778943A4E5356DBB8B587A72 /* DecorationLibrary.swift in Sources */,
 				CDA21BF0975765E8D1A304ED /* EditorView.swift in Sources */,
 				BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */,
 				7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */,
@@ -441,6 +448,7 @@
 				587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */,
 				741EE7D29CCE793E77454E1F /* CompletionRegressionTests.swift in Sources */,
 				7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */,
+				72748E82FA59F7E48D44F474 /* VersionThreeTests.swift in Sources */,
 				492FB70AADFE81C81DA2936E /* VersionTwoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -509,7 +517,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -528,7 +536,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 3.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -672,7 +680,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -685,7 +693,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 3.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

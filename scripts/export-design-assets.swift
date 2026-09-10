@@ -25,13 +25,14 @@ struct ExportDesignAssets {
         let temperature: Double
     }
     struct Catalog: Encodable {
-        let schemaVersion = 2
+        let schemaVersion = 3
         let layouts = CollageGridLayoutCatalog.all
         let posters = PosterTemplateCatalog.all
         let stickers: [Sticker]
         let backgrounds: [Background]
         let filters: [Filter]
         let styles = StyleRecipeCatalog.all
+        let decorativeFrames = DecorationFrameCatalog.all
         let illustrationSource = "Apps/JiPin/StudioPreviews.swift"
     }
 
@@ -47,6 +48,7 @@ struct ExportDesignAssets {
                 case .symbol(let name): kind = "systemSymbol"; drawing = name
                 case .shape(let name): kind = "shape"; drawing = name
                 case .badge: kind = "badge"; drawing = item.name
+                case .illustration(let name): kind = "originalVector"; drawing = name
                 }
                 return Sticker(id: item.id, name: item.name, category: item.category.rawValue,
                                kind: kind, drawing: drawing, color: item.defaultTint)

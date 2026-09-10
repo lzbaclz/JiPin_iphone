@@ -1,12 +1,14 @@
 import Foundation
 
 public enum StickerCategory: String, CaseIterable, Sendable, Identifiable {
-    case label, date, arrow, geometry, life
+    case cute, cool, label, date, arrow, geometry, life
 
     public var id: String { rawValue }
 
     public var title: String {
         switch self {
+        case .cute: return "可爱"
+        case .cool: return "酷感"
         case .label: return "标签"
         case .date: return "日期"
         case .arrow: return "箭头"
@@ -37,6 +39,7 @@ public enum GeometryShapeCatalog {
 }
 
 public enum StickerRender: Hashable, Sendable {
+    case illustration(String)
     case symbol(String)
     case badge
     case shape(String)
@@ -126,6 +129,13 @@ public enum StickerCatalog {
         add("life-flame", "火焰", .life, .symbol("flame"))
         add("life-snow", "雪花", .life, .symbol("snowflake"))
         add("life-drop", "水滴", .life, .symbol("drop"))
+        let originals = [("bunny", "软软兔"), ("bear", "奶油熊"), ("cat", "橘子喵"), ("strawberry", "甜心草莓"),
+                         ("cherries", "樱桃双双"), ("bow", "奶糖蝴蝶结"), ("daisy", "微笑雏菊"), ("cloud", "棉花云"),
+                         ("moon", "晚安星月"), ("letter", "心动来信"), ("pudding", "焦糖布丁"), ("boba", "珍珠奶茶"),
+                         ("peach", "水蜜桃桃"), ("rainbow", "雨后彩虹"), ("candy", "薄荷糖果"), ("cake", "生日小蛋糕")]
+        for (key, name) in originals { add("cute-\(key)", name, .cute, .illustration(key), tint: "#F2A8B8") }
+        add("cool-bolt", "闪电徽章", .cool, .illustration("bolt"), tint: "#C4EF78")
+        add("cool-orbit", "星际飞行", .cool, .illustration("orbit"), tint: "#8ACCE3")
         return items
     }
 }

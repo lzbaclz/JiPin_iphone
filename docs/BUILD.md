@@ -83,3 +83,9 @@ xcodebuild build -project JiPin.xcodeproj -scheme JiPin -destination 'generic/pl
 - `Packages/JiPinCore`：项目模型、布局、海报模板、素材目录、草稿存储、渲染与导出
 - `Apps/JiPin`：主 App（创作、草稿、设置、完整编辑器）
 - `Apps/JiPinAction`：系统相册操作扩展（2–9 张快拼与草稿交接）
+
+## V3 原创素材交付
+
+运行 `./scripts/export-original-art.sh` 导出 18 张 768×768 透明 PNG 贴图、6 张 768×1024 镂空边框和两张素材总览，输出到 `docs/design-source/originals/`。脚本直接编译 App 使用的 CoreGraphics 绘制定义；App 本身使用矢量源渲染，不会加载交付 PNG 放大。
+
+V2/V3 的界面截图见 `docs/version-screenshots/`。版本号由 `project.yml` 统一生成主 App 与扩展的 Info.plist；当前 V3.0.0 / build 3。

@@ -730,20 +730,44 @@ struct TextTools: View {
 
 struct StickerTools: View {
     @ObservedObject var session: EditorSession
-    @State private var category: StickerCategory = .label
+    @State private var category: StickerCategory = .cute
+    @State private var showLibrary = false
     @State private var picker: [PhotosPickerItem] = []
     @State private var query = ""
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            Button { showLibrary = true } label: {
+                Label("打开贴纸册 · 可爱 / 酷感", systemImage: "heart.square")
+                    .frame(maxWidth: .infinity)
+            }.buttonStyle(.borderedProminent).accessibilityIdentifier("sticker-library-open")
+            if session.selected?.kind == .sticker {
+                VStack(spacing: 8) {
+                    HStack {
+                        Text(session.selected?.displayName ?? "贴纸").font(.caption)
+                        Spacer()
+                        Button("翻转") { session.updateSelected { $0.transform.scaleX *= -1 } }
+                        Button("复制") { session.duplicateSelected() }
+                        Button("删除", role: .destructive) { session.deleteSelected() }
+                    }.font(.caption)
+                    HStack {
+                        Text("透明度").font(.caption)
+                        Slider(value: Binding(get: { session.selected?.opacity ?? 1 }, set: { value in
+                            session.updateSelected { $0.opacity = value }
+                        }), in: 0...1) { editing in
+                            if editing { session.beginGesture() } else { session.endGesture() }
+                        }.accessibilityLabel("贴纸透明度")
+                    }
+                }.disabled(session.selected?.isLocked == true)
+            }
             TextField("搜索贴纸", text: $query)
                 .textFieldStyle(.roundedBorder)
                 .accessibilityLabel("搜索贴纸")
             Picker("分类", selection: $category) {
                 ForEach(StickerCategory.allCases) { Text($0.title).tag($0) }
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.menu)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(visibleStickers) { sticker in
@@ -819,13 +843,15 @@ struct StickerTools: View {
                     .accessibilityLabel("形状描边宽度")
                 }
                 .font(.caption)
-            } else if session.selected?.kind == .sticker {
+            } else if session.selected?.kind == .sticker,
+                      ![StickerCategory.cute, .cool].contains(session.selected?.sticker.flatMap { StickerCatalog.sticker(id: $0.stickerID)?.category } ?? .label) {
                 ColorPicker("贴纸颜色", selection: Binding(
                     get: { Color(hex: session.selected?.sticker?.tintHex ?? "#1C1A17") },
                     set: { color in session.updateSelected { $0.sticker?.tintHex = color.hexString } }
                 ))
             }
         }
+        .sheet(isPresented: $showLibrary) { StickerLibrary(session: session) }
     }
 
     private var visibleStickers: [StickerDefinition] {
@@ -922,8 +948,25 @@ struct BackgroundTools: View {
 
 struct BorderTools: View {
     @ObservedObject var session: EditorSession
+    @State private var showFrames = false
     var body: some View {
         VStack {
+            Button { showFrames = true } label: {
+                Label("挑选可爱边框", systemImage: "gift")
+                    .frame(maxWidth: .infinity)
+            }.buttonStyle(.borderedProminent).accessibilityIdentifier("frame-gallery-open")
+            if let frame = session.project.decorationFrame {
+                HStack {
+                    Text(DecorationFrameCatalog.frame(id: frame.frameID)?.name ?? "装饰边框").font(.caption)
+                    Slider(value: Binding(get: { session.project.decorationFrame?.width ?? 0.065 }, set: { value in
+                        session.updateProject { $0.decorationFrame?.width = value }
+                    }), in: 0.025...0.12) { editing in
+                        if editing { session.beginGesture() } else { session.endGesture() }
+                    }.accessibilityLabel("装饰边框粗细")
+                    Button("移除") { session.setDecorationFrame(nil) }.accessibilityIdentifier("frame-remove-inline")
+                }
+            }
+            Group {
             labeled("圆角", Binding(
                 get: { session.selected?.photo?.cornerRadius ?? 0 },
                 set: { value in session.updateSelected { $0.photo?.cornerRadius = value } }
@@ -957,7 +1000,9 @@ struct BorderTools: View {
                     session.updateSelected { $0.photo?.polaroid = value }
                 }
             ))
+            }.disabled(session.selected?.photo == nil || session.selected?.isLocked == true)
         }
+        .sheet(isPresented: $showFrames) { FrameGallery(session: session) }
     }
 
     private func labeled(_ title: String, _ value: Binding<Double>, _ range: ClosedRange<Double>) -> some View {

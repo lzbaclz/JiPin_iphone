@@ -10,5 +10,5 @@ source_dir="$repository_dir/Packages/JiPinCore/Sources/JiPinCore"
 xcrun --sdk macosx swiftc -swift-version 5 -o "$catalog_tmp_dir/export" \
   "$source_dir/Models.swift" "$source_dir/Constants.swift" \
   "$source_dir/LayoutEngine.swift" "$source_dir/LayoutIntelligence.swift" "$source_dir/PosterTemplates.swift" \
-  "$source_dir/AssetCatalogs.swift" "$source_dir/StyleRecipes.swift" "$repository_dir/scripts/export-design-assets.swift"
+  "$source_dir/AssetCatalogs.swift" "$source_dir/StyleRecipes.swift" "$source_dir/OriginalStickerArt.swift" "$source_dir/DecorationFrames.swift" "$repository_dir/scripts/export-design-assets.swift"
 "$catalog_tmp_dir/export" "$repository_dir/docs/design-source/catalog.json"

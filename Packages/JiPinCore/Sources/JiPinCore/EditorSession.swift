@@ -477,15 +477,33 @@ public final class EditorSession: ObservableObject {
             return
         }
         checkpoint()
+        project.schemaVersion = JiPin.schemaVersion
+        let canvas = project.mode == .longStrip
+            ? Self.previewCanvasSize(project: project, assets: assets.snapshot) : project.canvas.size(maxLongSide: 1000)
+        let unit = min(canvas.width, canvas.height)
         let layer = LayerObject(
             kind: .sticker,
             zIndex: (project.objects.map(\.zIndex).max() ?? 0) + 1,
-            transform: CanvasTransform(centerX: 0.5, centerY: 0.5, width: 0.22, height: 0.22),
+            transform: CanvasTransform(centerX: 0.5, centerY: 0.5, width: 0.25 * unit / canvas.width, height: 0.25 * unit / canvas.height),
             sticker: StickerPayload(stickerID: id)
         )
         project.objects.append(layer)
         selectedID = layer.id
         scheduleSave()
+    }
+
+    private static func previewCanvasSize(project: CollageProject, assets: AssetProviding) -> CGSize {
+        switch ExportGeometry.outputSize(for: project, assets: assets) {
+        case .ok(let size), .needsChoice(_, let size): return size
+        }
+    }
+
+    public func setDecorationFrame(_ frame: DecorationFrame?) {
+        updateProject { project in
+            project.decorationFrame = frame.map { CanvasDecoration(frameID: $0.id, width: project.decorationFrame?.width ?? 0.065) }
+            project.schemaVersion = JiPin.schemaVersion
+        }
+        refreshWarnings()
     }
 
     public func addShape(_ id: String) {
@@ -959,7 +977,8 @@ public final class EditorSession: ObservableObject {
             return StickerCatalog.sticker(id: payload.stickerID) == nil
         }
         let backgroundMissing = project.background.kind == .image && (project.background.imageAssetID.map(missing) ?? true)
-        missingAssetWarning = photoMissing || stickerMissing || backgroundMissing
+        let frameMissing = project.decorationFrame.map { DecorationFrameCatalog.frame(id: $0.frameID) == nil } ?? false
+        missingAssetWarning = photoMissing || stickerMissing || backgroundMissing || frameMissing
     }
 
     public enum ZAction { case up, down, front, back }

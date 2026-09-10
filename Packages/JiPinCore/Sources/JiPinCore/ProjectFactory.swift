@@ -201,6 +201,7 @@ public enum ProjectFactory {
         var copy = make(mode: mode, photos: photos, posterID: posterID)
         copy.name = project.name + " · \(mode.title)"
         copy.background = project.background
+        copy.decorationFrame = project.decorationFrame
         var sourcePhotos = project.photoLayers
         for index in copy.objects.indices where copy.objects[index].kind == .photo {
             guard let assetID = copy.objects[index].photo?.assetID,
