@@ -13,6 +13,7 @@ settings:
     SUPPORTS_MACCATALYST: NO
     MARKETING_VERSION: "3.0.0"
     CURRENT_PROJECT_VERSION: "3"
+    DEVELOPMENT_TEAM: MFLYL78RAN
 packages:
   JiPinCore:
     path: Packages/JiPinCore

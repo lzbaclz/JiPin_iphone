@@ -65,6 +65,43 @@ xcodebuild build -project JiPin.xcodeproj -scheme JiPin -destination 'generic/pl
 
 ## 真机与扩展
 
+当前付费开发团队 `MFLYL78RAN` 已写入 `project.yml` 的公共构建设置，主 App、扩展和测试 Target 使用同一团队。XcodeGen 重新生成工程后该设置仍保留。
+
+### 首次签名：先登记开发设备
+
+会员开通不等于已存在开发描述文件。`Communication with Apple failed` 下的详细原因若为 `Your team has no devices`，是团队没有登记开发设备，不代表账号审核失败或网络断开。
+
+首次需要开发签名时，连接/配对 iPhone，选择该设备执行一次 **Build 或 Run**，让 Xcode 登记设备并生成主 App 和扩展的开发描述文件。Archive 会使用通用设备目标；只做 Archive 或在没有具体设备目标时点 Try Again，不能替代首次设备登记。
+
+命令行可用以下形式（`DEVICE_UDID` 替换为实际设备 UDID）：
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
+  -project JiPin.xcodeproj -scheme JiPin -configuration Debug \
+  -destination 'platform=iOS,id=DEVICE_UDID' \
+  -allowProvisioningUpdates -allowProvisioningDeviceRegistration build
+```
+
+若完全没有可用设备，可配置 App Store Connect 分发描述文件与分发签名；分发描述文件不包含测试设备列表。不能把“TestFlight 不需要登记测试者设备”理解为“开发描述文件也不需要设备”。
+
+### TestFlight 归档与分发包
+
+本项目已于 2026-09-10 验证：开发签名构建成功，正式归档成功，App Store Connect 分发 IPA 导出成功。主 App 与扩展的分发包均使用 Apple Distribution 签名，`get-task-allow=false`、`beta-reports-active=true`，App Group 一致。
+
+已登录 Xcode 开发者账号并完成签名准备后运行：
+
+```sh
+./scripts/archive-testflight.sh
+```
+
+脚本根据 `project.yml` 生成工程，在 `build/TestFlight/<时间>/` 下归档并导出 IPA。`ExportOptions-TestFlight.plist` 使用 `app-store-connect`、自动签名、`destination=export`，可用于后续内测或外测。此命令只导出本地文件；不会上传构建、提交 Beta 审核或发送测试邀请。
+
+打开 `.xcarchive` 后，在 Xcode Organizer 中选择 **Distribute App → TestFlight & App Store** 上传；或者用 Transporter 上传导出的 `JiPin.ipa`。App Store Connect 中需有与 `com.jipin.JiPin` 对应的 App 记录。重复上传同一版本时递增 `project.yml` 中的构建号，并保持主 App 与扩展一致。
+
+2026-09-10 的已验证产物位于 `build/TestFlight/JiPin-3.0.0-3.xcarchive` 与 `build/TestFlight/Export/JiPin.ipa`，均为本机文件，不随 Git 提交。签名完成不代表真实相册扩展流程或 TestFlight 审核已通过。
+
+### 相册扩展验收
+
 相册操作扩展必须在真机上验收（计划 A10）。模拟器与单元测试不能替代下列步骤。
 
 1. 在 Xcode 中为 `JiPin` 与 `JiPinAction` 选择**同一个 Development Team**，并启用 App Group `group.com.jipin.JiPin`。

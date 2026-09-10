@@ -14,6 +14,8 @@ V3.0 增加 16 个可爱贴图、2 个酷感贴图和 6 款可爱画布边框。
 
 [贴图总览](docs/design-source/originals/v3-sticker-board.png) · [边框总览](docs/design-source/originals/v3-frame-board.png)
 
-产品取舍和竞品证据见 [拼图产品研究](docs/research/collage-market-review.md)。开发者资格审核期间使用模拟器开发；版本完成不代表已通过真机或 TestFlight 验收。
+产品取舍和竞品证据见 [拼图产品研究](docs/research/collage-market-review.md)。开发者资格已通过，已完成开发签名构建、正式归档与 App Store Connect 分发包导出；真机完整功能和 TestFlight 验收另行进行。
 
 共享模块见 `Packages/JiPinCore`。构建步骤见 [docs/BUILD.md](docs/BUILD.md)，范围见 [docs/iphone-photo-collage-project-plan.md](docs/iphone-photo-collage-project-plan.md)，上架文案见 [docs/store-listing.md](docs/store-listing.md)。
+
+归档并导出 TestFlight 分发包：`./scripts/archive-testflight.sh`。签名与首次设备登记说明见 [构建说明](docs/BUILD.md)。

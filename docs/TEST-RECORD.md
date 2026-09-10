@@ -79,3 +79,14 @@ Xcode 在当前 Command Line Tools 默认选择环境下，测试结束后的额
 - 记录：`/private/tmp/jipin-v2-v3/v3-final.xcresult`（核心 + 全量 UI）、`v3-ui-final.xcresult`（iPhone 17 两条复跑）、`v3-small.xcresult`（8 项核心）、`v3-small-final.xcresult`（小屏三条复跑）；编译日志 `v3-release.log`。临时结果不是长期分发包。
 
 UI 测试定位修正：工具条改用容器内的短距离拖动，避免一次滑过目标按钮；导出页按实际小屏布局滚动到生成按钮。素材、编辑与成功导出的断言保留。
+
+
+## 首次签名与 TestFlight 分发包验证（2026-09-10）
+
+- 根因由 Xcode `Update Signing` 日志和实际构建确认：账号已是付费 Individual 团队，主 App/扩展团队一致，但 Apple 返回 `Your team has no devices`，没有开发描述文件。Archive 使用通用目标，未完成设备登记。
+- 已对当前配对的 iPhone 15 Pro 执行一次指定设备的 Debug 构建，允许 Xcode 登记设备/更新签名资源；构建成功，主 App 与扩展均取得开发描述文件，设备数为 1，App Group 为 `group.com.jipin.JiPin`。
+- Release `archive` 成功。对归档内主 App 与扩展执行 `codesign --verify --deep --strict`，均通过。
+- `app-store-connect` 本地分发导出成功。解包 IPA 后两端均为 Apple Distribution 签名，`get-task-allow=false`、`beta-reports-active=true`，无开发设备列表，Team 和 App Group 一致。
+- 版本/构建号均为 3.0.0 (3)。产物：`build/TestFlight/JiPin-3.0.0-3.xcarchive`、`build/TestFlight/Export/JiPin.ipa`（4,907,144 字节）。这些文件被 Git 忽略。
+- `project.yml` 持久化团队，新增本地归档/导出脚本与 ExportOptions。脚本通过 `zsh -n`，plist 通过 `plutil -lint`；对应归档与导出命令已实际执行。
+- 没有安装/运行真机 App，也没有上传 TestFlight、提交 Beta 审核或发送邀请；本节不替代真实相册宿主和 TestFlight 验收。
