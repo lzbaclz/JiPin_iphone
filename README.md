@@ -16,7 +16,7 @@
 - 用户点击播放的 3 秒 Live 拼图效果演示，明确区分网页视频与 App 内的原生 Live 导出。
 - 原创贴纸体验：点击添加、拖动、键盘移动、删除、重新开始；最多 8 张。
 - 相册入口、草稿、本地编辑介绍，V1–V4 发展历程，以及常见问题。
-- 公开下载入口可用后再启用按钮；当前显示“即将上线”。
+- 已接入极拼自己的 TestFlight 公开邀请和二维码；首次外测处于审核中，页面明确提示暂不能加入或安装。
 
 产品描述与截图依据 4.0.1，不把正在开发中的功能写成已发布能力。没有虚构用户数量、评分、评价或下载入口。
 
@@ -54,19 +54,24 @@ python3 -m http.server 8769 --bind 127.0.0.1
 ```js
 window.JIPIN_SITE = Object.freeze({
   appStoreURL: "",
-  testFlightURL: ""
+  testFlightURL: "",
+  testFlightStatus: "pending-review"
 });
 ```
 
 App Store 链接需以 `https://apps.apple.com/` 开头并指向 App 页面；TestFlight 链接需以 `https://testflight.apple.com/join/` 开头。不要使用 App Store Connect 后台链接或其他 App 的测试链接。
 
-配置真实 TestFlight 公开链接后，首页手机旁显示扫码卡片，下载区显示加入按钮、二维码、PNG 下载和复制邀请链接。手机访问者可以直接点邀请链接，不必扫描自己的屏幕。
+配置真实 TestFlight 公开链接后，首页手机旁显示扫码卡片，下载区显示邀请入口、二维码、PNG 下载和复制邀请链接。`testFlightStatus` 为 `pending-review` 时，所有入口注明外测正在审核，避免提前承诺可安装；只有显式设置为 `open` 才展示加入测试文案。手机访问者可以直接点邀请链接，不必扫描自己的屏幕。
 
 二维码在浏览器本地生成，使用随本站托管、固定版本的 MIT 开源编码器，不调用第三方二维码服务。二维码及按钮来自同一个规范化链接，保留四个模块的白边，不在码面覆盖图标。未配置有效链接时，这些入口不显示。
 
-页面只展示有效格式的配置，至少一个入口可用时隐藏“即将上线”。仍需维护者在发布前实际确认链接可用；前端格式检查不代表已通过 Apple 审核。
+页面只展示有效格式的配置。TestFlight 链接已生成但仍在审核时，会显示“TestFlight 外测审核中”；审核状态不会由网站自动查询。仍需维护者在发布前实际确认链接可用；前端格式检查不代表已通过 Apple 审核。
 
 ## 创建 TestFlight 公开邀请
+
+可直接保存 [二维码 PNG](assets/testflight-qr.png)。这是正式邀请链接对应的图片；若更换群组链接，需要一并更新该静态图片。
+
+当前群组为“官网公开内测”，已添加 4.0.2（构建 6）并提交 Beta App Review。Apple 生成的链接为 <https://testflight.apple.com/join/1NqZxpgX>。审核通过前无法通过此链接加入；通过后继续使用同一链接和二维码。确认公开邀请可正常加入后，将 `testFlightStatus` 改为 `open`，更新资源版本参数并发布。
 
 在 App Store Connect 的极拼 App 中打开 **TestFlight → 外部测试**，使用“官网公开内测”群组，将需要测试的构建版本加入群组。首次外部测试需要补充测试说明、反馈邮箱和 Apple 审核联系资料，并通过 TestFlight Beta App Review。
 

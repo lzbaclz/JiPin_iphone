@@ -285,9 +285,18 @@
   const config = window.JIPIN_SITE || {};
   const appStoreURL = publicURL(config.appStoreURL, 'apps.apple.com', /^\/(?:[a-z]{2}\/)?app\//);
   const testFlightURL = publicURL(config.testFlightURL, 'testflight.apple.com', /^\/join\/[a-zA-Z0-9]+\/?$/);
+  const pendingReview = Boolean(testFlightURL && config.testFlightStatus !== 'open');
   if (appStoreURL || testFlightURL) {
-    document.querySelector('#release-status').hidden = true;
-    document.querySelector('#download-note').textContent = testFlightURL && !appStoreURL ? '通过 TestFlight 体验内测版 · 适用于 iPhone · iOS 17 或更新版本' : '适用于 iPhone · iOS 17 或更新版本';
+    const releaseStatus = document.querySelector('#release-status');
+    releaseStatus.hidden = !pendingReview;
+    if (pendingReview) {
+      releaseStatus.replaceChildren(document.createElement('span'), document.createTextNode('TestFlight 外测审核中'));
+      releaseStatus.querySelector('span').setAttribute('aria-hidden', 'true');
+      document.querySelector('#testflight-link').firstChild.textContent = '查看 TestFlight 邀请 ';
+    }
+    document.querySelector('#download-note').textContent = pendingReview
+      ? '首次外测正在等待 Apple 审核，当前还不能加入或安装内测版。'
+      : testFlightURL && !appStoreURL ? '通过 TestFlight 体验内测版 · 适用于 iPhone · iOS 17 或更新版本' : '适用于 iPhone · iOS 17 或更新版本';
     [[appStoreURL, '#app-store-link'], [testFlightURL, '#testflight-link']].forEach(([url, selector]) => {
       if (!url) return;
       const link = document.querySelector(selector);
@@ -297,8 +306,8 @@
   }
   if (testFlightURL) {
     // An invitation still works if QR rendering cannot load.
-    import('./testflight-invite.mjs?v=135dd9b171').then(({ mountTestFlightInvitation }) => {
-      mountTestFlightInvitation(testFlightURL);
+    import('./testflight-invite.mjs?v=3b16d75c5e').then(({ mountTestFlightInvitation }) => {
+      mountTestFlightInvitation(testFlightURL, { pendingReview });
     }).catch(() => {});
   }
 })();

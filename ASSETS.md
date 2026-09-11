@@ -4,6 +4,7 @@
 
 | 素材 | 来源与用途 |
 | --- | --- |
+| `assets/testflight-qr.png` | 从官网生成并核验的极拼正式 TestFlight 邀请二维码，链接为 `https://testflight.apple.com/join/1NqZxpgX`；Apple 外测审核通过后才能加入 |
 | `assets/app-icon.png` / `brand-icon.webp` | 极拼 App 原图标；WebP 是适合网页导航的轻量版本 |
 | `assets/screens/*.webp` | 主项目 `docs/promo/xiaohongshu-4.0.1/01-home.png` 至 `06-long-strip.png`，缩小和转码后的真实 App 界面；不改动界面内容 |
 | `assets/stickers/*.webp` | 主项目 `docs/design-source/originals/stickers/` 中的原创贴纸，缩小和转码 |

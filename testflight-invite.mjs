@@ -9,7 +9,7 @@ export function publicInviteURL(value) {
   } catch { return null; }
 }
 
-export function mountTestFlightInvitation(value) {
+export function mountTestFlightInvitation(value, { pendingReview = true } = {}) {
   const url = publicInviteURL(value);
   if (!url) return false;
   const heroCard = document.querySelector('#hero-testflight');
@@ -48,13 +48,22 @@ export function mountTestFlightInvitation(value) {
   const directLink = document.querySelector('#testflight-link');
   directLink.href = url;
 
+  if (pendingReview) {
+    heroCard.setAttribute('aria-label', '扫码或点击查看极拼内测邀请，Apple 审核中');
+    heroCard.querySelector('strong').firstChild.textContent = '扫码查看内测邀请 ';
+    heroCard.querySelector(':scope > span').textContent = 'Apple 审核通过后可加入';
+    document.querySelector('#testflight-title').textContent = '邀请已备好，等待 Apple 审核。';
+    document.querySelector('[data-invite-instructions]').textContent = '极拼已提交 TestFlight 外测审核，目前还不能加入或安装。审核通过后，可以用同一个链接和二维码加入。';
+    document.querySelector('.invite-tip').textContent = '可先保存邀请链接，并在 iPhone 安装 TestFlight。开放后无需手填邀请码。';
+  }
+
   const copyButton = document.querySelector('#copy-testflight-link');
   const status = document.querySelector('#testflight-copy-status');
   copyButton.addEventListener('click', async () => {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
       await navigator.clipboard.writeText(url);
-      status.textContent = '邀请链接已复制，可以发给朋友了。';
+      status.textContent = pendingReview ? '邀请链接已复制；Apple 审核通过后才能加入。' : '邀请链接已复制，可以发给朋友了。';
     } catch {
       status.textContent = '请长按或选中上方邀请链接，手动复制。';
     }
