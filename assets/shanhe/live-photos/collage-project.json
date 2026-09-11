@@ -1,0 +1,236 @@
+{
+  "background" : {
+    "colorHex" : "#FFFFFF",
+    "isHidden" : false,
+    "kind" : "solid",
+    "presetID" : "solid-cream"
+  },
+  "canvas" : {
+    "aspectHeight" : 5,
+    "aspectWidth" : 6,
+    "isCustom" : false
+  },
+  "createdAt" : 810842235.029704,
+  "exportPreference" : {
+    "format" : "jpeg",
+    "quality" : "hd",
+    "transparentBackground" : false
+  },
+  "id" : "9C9E0075-4EB0-4BE7-908F-D6311F1ECEB2",
+  "layoutID" : "g3-left-one",
+  "livePhotoSettings" : {
+    "duration" : 3
+  },
+  "liveSources" : [
+    {
+      "duration" : 3,
+      "hasAudio" : false,
+      "id" : "E6BB4D09-E236-4EDA-8CEB-CB8EE7EB08A2",
+      "pixelSize" : [
+        720,
+        900
+      ],
+      "stillTime" : 1.5
+    },
+    {
+      "duration" : 3,
+      "hasAudio" : false,
+      "id" : "28ABDB08-3776-4431-A445-59A32F08D5D1",
+      "pixelSize" : [
+        720,
+        900
+      ],
+      "stillTime" : 1.5
+    },
+    {
+      "duration" : 3,
+      "hasAudio" : false,
+      "id" : "54FA1CC5-17A1-4F31-92C8-15E5D8BA22A8",
+      "pixelSize" : [
+        720,
+        900
+      ],
+      "stillTime" : 1.5
+    }
+  ],
+  "mode" : "template",
+  "name" : "模板拼图 9月11日 18:57",
+  "objects" : [
+    {
+      "id" : "10198218-6D99-4287-87BD-24F9D56D20EC",
+      "isLocked" : false,
+      "isVisible" : true,
+      "kind" : "photo",
+      "opacity" : 1,
+      "photo" : {
+        "assetID" : "E6BB4D09-E236-4EDA-8CEB-CB8EE7EB08A2",
+        "colorAdjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "contentMode" : "fill",
+        "cornerRadius" : 0,
+        "coverBlocks" : [
+
+        ],
+        "crop" : {
+          "bottom" : 0,
+          "left" : 0,
+          "offsetX" : 0,
+          "offsetY" : 0,
+          "right" : 0,
+          "top" : 0,
+          "zoom" : 1
+        },
+        "filterIntensity" : 1,
+        "mosaics" : [
+
+        ],
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "slotID" : "c0",
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "transform" : {
+        "centerX" : 0.29,
+        "centerY" : 0.5,
+        "height" : 1,
+        "rotation" : 0,
+        "scaleX" : 1,
+        "scaleY" : 1,
+        "width" : 0.58
+      },
+      "zIndex" : 0
+    },
+    {
+      "id" : "9810E216-6981-4E60-82E9-B5F958516C9D",
+      "isLocked" : false,
+      "isVisible" : true,
+      "kind" : "photo",
+      "opacity" : 1,
+      "photo" : {
+        "assetID" : "28ABDB08-3776-4431-A445-59A32F08D5D1",
+        "colorAdjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "contentMode" : "fill",
+        "cornerRadius" : 0,
+        "coverBlocks" : [
+
+        ],
+        "crop" : {
+          "bottom" : 0,
+          "left" : 0,
+          "offsetX" : 0,
+          "offsetY" : 0,
+          "right" : 0,
+          "top" : 0,
+          "zoom" : 1
+        },
+        "filterIntensity" : 1,
+        "mosaics" : [
+
+        ],
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "slotID" : "c1",
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "transform" : {
+        "centerX" : 0.7899999999999999,
+        "centerY" : 0.25,
+        "height" : 0.5,
+        "rotation" : 0,
+        "scaleX" : 1,
+        "scaleY" : 1,
+        "width" : 0.42
+      },
+      "zIndex" : 1
+    },
+    {
+      "id" : "DA8AD93D-EECA-4132-B99C-EFCCE1283D22",
+      "isLocked" : false,
+      "isVisible" : true,
+      "kind" : "photo",
+      "opacity" : 1,
+      "photo" : {
+        "assetID" : "54FA1CC5-17A1-4F31-92C8-15E5D8BA22A8",
+        "colorAdjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "contentMode" : "fill",
+        "cornerRadius" : 0,
+        "coverBlocks" : [
+
+        ],
+        "crop" : {
+          "bottom" : 0,
+          "left" : 0,
+          "offsetX" : 0,
+          "offsetY" : 0,
+          "right" : 0,
+          "top" : 0,
+          "zoom" : 1
+        },
+        "filterIntensity" : 1,
+        "mosaics" : [
+
+        ],
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "slotID" : "c2",
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "transform" : {
+        "centerX" : 0.7899999999999999,
+        "centerY" : 0.75,
+        "height" : 0.5,
+        "rotation" : 0,
+        "scaleX" : 1,
+        "scaleY" : 1,
+        "width" : 0.42
+      },
+      "zIndex" : 2
+    }
+  ],
+  "originatedFromExtension" : false,
+  "outerMargin" : 0,
+  "photoOrder" : [
+    "E6BB4D09-E236-4EDA-8CEB-CB8EE7EB08A2",
+    "28ABDB08-3776-4431-A445-59A32F08D5D1",
+    "54FA1CC5-17A1-4F31-92C8-15E5D8BA22A8"
+  ],
+  "schemaVersion" : 4,
+  "snapEnabled" : true,
+  "spacing" : 0.008,
+  "updatedAt" : 810842235.029704
+}

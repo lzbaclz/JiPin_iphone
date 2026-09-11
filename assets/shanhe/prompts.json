@@ -1,0 +1,29 @@
+[
+  {
+    "id": "lijiang-karst",
+    "width": 1122,
+    "height": 1402,
+    "sha256": "b92b36f5c1863dcca93a3cbcf6119ad1bf932777e1ec2e0e0f6a5f45cedf373a",
+    "generation_mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural\nAsset type: clean source photograph for an iPhone photo collage marketing website\nPrimary request: A photographic Chinese river-and-mountain landscape inspired by the Li River in Guangxi, China. Eye-level view from a quiet natural shoreline across a broad calm river, with staggered limestone karst hills receding into the distance.\nStyle/medium: convincing real-camera landscape photography with natural micro-detail, believable scale and credible geology.\nComposition/framing: one standalone portrait photograph, 4:5 aspect ratio preferred, largest available portrait output. The broad calm water occupies the lower approximately 45 percent. Karst hills stagger across the middle distance and background; leave the surface readable and uncluttered.\nLighting/mood: soft sunrise haze, subtle warm sunlight grazing the rocky hills, peaceful natural atmosphere.\nColor palette: restrained muted green-blue water and vegetation, pale warm morning light, no dramatic color grading.\nMaterials/textures: realistic weathered limestone cliffs, irregular vegetation, faint natural ripples and softly broken reflections.\nConstraints: AI-generated inspired landscape, not an exact geolocation or documentary record. Clean full-bleed photo only; no people, text, labels, logos, watermark, border, frame, UI, collage, boats, buildings, or roads.\nAvoid: fantasy peaks, improbable needle mountains, magical floating mountains, CGI, 3D rendering, illustration, painterly textures, excessive haze, oversaturated HDR, artificial sharpness.",
+    "file": "originals/lijiang-karst.png"
+  },
+  {
+    "id": "huangshan-clouds",
+    "width": 1122,
+    "height": 1402,
+    "sha256": "452ef1a34628e46fd744aed2744aed4b5b7458bf8c92188b2d30ecbbb8c60eff",
+    "generation_mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural\nAsset type: clean source photograph for an iPhone photo collage marketing website\nPrimary request: A photographic Chinese granite mountain ridgeline inspired by Huangshan in Anhui, China, with weathered pale granite, a few distinctive bent mountain pines rooted naturally on the near ridges, and an atmospheric sea of clouds filling the middle and lower valleys.\nStyle/medium: convincing real-camera mountain landscape photography with natural micro-detail, believable scale and credible geology.\nComposition/framing: one standalone portrait photograph, 4:5 aspect ratio preferred, largest available portrait output. Naturally layered granite ridges, with a few near pines giving depth; distant peaks recede above soft valley clouds. Allow the cloud-filled valleys to occupy a substantial middle/lower area.\nLighting/mood: early morning soft gold sky and restrained warm edge light on granite, tranquil and fresh, natural atmospheric perspective.\nColor palette: pale gray granite, muted pine green, cool white cloud banks, softly warm morning sky, no dramatic color grading.\nMaterials/textures: realistic fractured and rounded weathered granite, fine irregular pine needles and branches, subtle layers within a real sea of clouds.\nConstraints: AI-generated inspired landscape, not an exact geolocation or documentary record. Clean full-bleed photo only; no people, text, labels, logos, watermark, border, frame, UI, collage, buildings, railings, trails, or cable cars.\nAvoid: magical floating mountains, improbable narrow spires, fantasy geology, CGI, 3D rendering, illustration, painterly textures, oversaturated HDR, artificial sharpness.",
+    "file": "originals/huangshan-clouds.png"
+  },
+  {
+    "id": "three-gorges-river",
+    "width": 1122,
+    "height": 1402,
+    "sha256": "6717aae91a2946441daa0ac3a8b70992fd7544ce09cbc2b77859b4b0ef04c909",
+    "generation_mode": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural\nAsset type: clean source photograph for an iPhone photo collage marketing website\nPrimary request: A photographic Chinese gorge-and-river landscape inspired by the Three Gorges of the Yangtze River. View from a high natural overlook into immense lush cliffs surrounding a gently curving blue-green river.\nStyle/medium: convincing real-camera landscape photography with natural micro-detail, believable immense scale and credible geology.\nComposition/framing: one standalone portrait photograph, 4:5 aspect ratio preferred, largest available portrait output. The river opens broadly through the lower approximately 45 percent and curves gently into the distance between large vegetated cliffs. Layered distant cliffs fade into mist, with clear natural depth.\nLighting/mood: soft clear morning light, slight layered mist only in the distance, calm realistic atmosphere.\nColor palette: restrained green vegetation and blue-green river water, pale blue-gray distance, natural neutral rock, no dramatic color grading.\nMaterials/textures: realistic sedimentary cliff faces partially covered by lush irregular vegetation, subtle natural river ripples and light reflections.\nConstraints: AI-generated inspired landscape, not an exact geolocation or documentary record. Clean full-bleed photo only; no people, text, labels, logos, watermark, border, frame, UI, collage, dams, buildings, boats, roads, or bridges.\nAvoid: fantasy peaks, magical floating mountains, impossible cliff shapes, CGI, 3D rendering, illustration, painterly textures, oversaturated HDR, artificial sharpness.",
+    "file": "originals/three-gorges-river.png"
+  }
+]

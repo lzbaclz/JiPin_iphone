@@ -1,0 +1,38 @@
+[
+  {
+    "coverTime" : 1.5,
+    "duration" : 3,
+    "height" : 900,
+    "identifier" : "557C2557-6DE8-4D81-9002-AA3ED16E7A69",
+    "name" : "lijiang-karst",
+    "nativePhotoKitValidated" : true,
+    "width" : 720
+  },
+  {
+    "coverTime" : 1.5,
+    "duration" : 3,
+    "height" : 900,
+    "identifier" : "1493902E-5E4C-4CE6-BAAC-E144A4FBF9BF",
+    "name" : "huangshan-clouds",
+    "nativePhotoKitValidated" : true,
+    "width" : 720
+  },
+  {
+    "coverTime" : 1.5,
+    "duration" : 3,
+    "height" : 900,
+    "identifier" : "1F477D38-45A9-43D4-9946-F8131011900E",
+    "name" : "three-gorges-river",
+    "nativePhotoKitValidated" : true,
+    "width" : 720
+  },
+  {
+    "coverTime" : 1.5,
+    "duration" : 3,
+    "height" : 1200,
+    "identifier" : "763AA06D-E479-4757-B926-17661299E4F8",
+    "name" : "shanhe-collage",
+    "nativePhotoKitValidated" : true,
+    "width" : 1440
+  }
+]

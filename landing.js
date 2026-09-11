@@ -25,28 +25,28 @@
         menuButton.focus();
       }
     });
-    matchMedia('(min-width: 681px)').addEventListener('change', closeMenu);
+    matchMedia('(min-width: 760px)').addEventListener('change', closeMenu);
   }
 
   const modes = {
     template: {
       label: '模板拼图', number: '01', title: '选好照片，好看就位。',
-      description: '从简单的两张，到满满一屏的回忆。选一个模板，轻轻调整，就能拼得整整齐齐。',
+      description: '从两张照片开始，选择合适的模板，调整画面的位置与留白。',
       features: ['2–16 张照片，自由组合', '少裁切布局推荐，留下更多画面', '比例、间距与圆角，都能调整']
     },
     freeform: {
       label: '自由拼图', number: '02', title: '不按格子，按心情。',
-      description: '把照片错落地叠在一起，像在桌上摊开一叠刚洗好的相片。旋转一点，再添一行心里话。',
+      description: '照片的位置、大小和方向由你决定，叠放出自己的旅行手帐。',
       features: ['自由摆放、缩放、旋转照片', '调整图层，叠出手帐的感觉', '搭配文字、贴纸和喜欢的背景']
     },
     poster: {
       label: '海报拼图', number: '03', title: '普通一天，也值得有封面。',
-      description: '给旅行做一张纪念海报，给周末留一页生活封面。把喜欢的画面放大，再为它起个名字。',
+      description: '让一张照片成为主角，配上标题与留白，为一段旅程做个封面。',
       features: ['一键套用海报版式', '编辑标题，写下此刻的心情', '照片与装饰一起排出仪式感']
     },
     'long-strip': {
       label: '长图拼接', number: '04', title: '把一段故事，慢慢展开。',
-      description: '从出发时的车窗，到最后一杯咖啡。让照片按顺序连起来，往下看，就又走过了一天。',
+      description: '把照片按顺序横向或纵向连接，保留沿途的完整画面。',
       features: ['2–20 张照片，按顺序拼接', '横向或纵向，跟着故事走', '支持静态长图分页导出']
     }
   };
@@ -66,7 +66,11 @@
     });
     modePanel.setAttribute('aria-labelledby', `tab-${key}`);
     document.querySelector('.collage-stage').dataset.layout = key;
-    document.querySelector('.demo-collage').setAttribute('aria-label', `四张原创插画的${mode.label}示意`);
+    const result = document.querySelector('#mode-result');
+    result.src = `assets/shanhe/mode-${key}.webp`;
+    result.alt = `极拼用山水素材生成的${mode.label}成品`;
+    result.width = key === 'long-strip' ? 720 : 1080;
+    result.height = ({ template: 900, freeform: 1080, poster: 1440, 'long-strip': 2700 })[key];
     document.querySelector('.mode-number').textContent = mode.number;
     document.querySelector('#mode-title').textContent = mode.title;
     document.querySelector('#mode-description').textContent = mode.description;
@@ -113,34 +117,49 @@
     screenshotTrigger.focus({ preventScroll: true });
   });
 
-  const video = document.querySelector('#live-video');
-  const liveToggle = document.querySelector('.live-toggle');
-  if (video && liveToggle) {
-    liveToggle.hidden = false;
-    const refreshVideoButton = () => {
-      liveToggle.querySelector('.toggle-icon').textContent = video.paused ? '▶' : 'Ⅱ';
-      liveToggle.querySelector('.toggle-text').textContent = video.paused ? '播放 Live 演示' : '暂停 Live 演示';
+  const videos = [...document.querySelectorAll('video')];
+  for (const button of document.querySelectorAll('[data-play]')) {
+    const video = document.getElementById(button.dataset.play);
+    if (!video) continue;
+    video.controls = false;
+    button.hidden = false;
+    const label = button.dataset.label;
+    const refresh = () => {
+      const active = !video.paused;
+      button.setAttribute('aria-pressed', String(active));
+      button.setAttribute('aria-label', active ? label.replace('播放', '暂停') : label);
+      const icon = button.querySelector('.play-symbol') || button.querySelector('span');
+      if (icon) icon.textContent = active ? 'Ⅱ' : '▶';
+      const text = button.querySelector('.play-label');
+      if (text) text.textContent = active ? label.replace('播放', '暂停') : label;
     };
-    video.addEventListener('play', refreshVideoButton);
-    video.addEventListener('pause', refreshVideoButton);
-    video.addEventListener('error', () => {
-      liveToggle.querySelector('.toggle-text').textContent = '演示暂不可用，请稍后重试';
-      liveToggle.disabled = true;
-    });
-    liveToggle.addEventListener('click', async () => {
+    video.addEventListener('play', refresh);
+    video.addEventListener('pause', refresh);
+    video.addEventListener('ended', refresh);
+    button.addEventListener('click', async () => {
       if (!video.paused) { video.pause(); return; }
-      try { await video.play(); }
-      catch { liveToggle.querySelector('.toggle-text').textContent = '请点击视频内的播放按钮'; }
-    });
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver((entries) => {
-        if (!entries[0].isIntersecting) video.pause();
-      }, { rootMargin: '120px' }).observe(document.querySelector('#live'));
-    }
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) video.pause();
+      videos.forEach(other => { if (other !== video) other.pause(); });
+      try {
+        if (video.error) video.load();
+        await video.play();
+        if (document.hidden) video.pause();
+        button.removeAttribute('title');
+      } catch {
+        video.controls = true;
+        button.setAttribute('aria-label', '播放失败，点击重试');
+        button.title = '播放失败，请重试或使用视频控件';
+      }
     });
   }
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (!entry.isIntersecting) entry.target.pause(); });
+    }, { threshold: 0.1 });
+    videos.forEach(video => observer.observe(video));
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) videos.forEach(video => video.pause());
+  });
 
   const workspace = document.querySelector('#sticker-workspace');
   const placed = document.querySelector('.placed-stickers');
@@ -264,8 +283,7 @@
     placed.replaceChildren();
     sequence = 0;
     setSelection(null);
-    addSticker('cute-bunny', 22, 69, false);
-    addSticker('cute-daisy', 80, 25, false);
+    addSticker('cute-daisy', 82, 73, false);
     refreshStickerState();
   };
   trayButtons.forEach((button) => button.addEventListener('click', () => addSticker(button.dataset.sticker)));
@@ -274,7 +292,14 @@
   document.querySelector('#reset-stickers').addEventListener('click', resetStickers);
   resetStickers();
 
-  // Format checks do not replace verifying that a public release actually exists.
+  const filters = [...document.querySelectorAll('[data-sticker-filter]')];
+  const selectStickerCategory = (category) => {
+    filters.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.stickerFilter === category)));
+    trayButtons.forEach(button => { button.hidden = button.dataset.category !== category; });
+  };
+  filters.forEach(button => button.addEventListener('click', () => selectStickerCategory(button.dataset.stickerFilter)));
+  selectStickerCategory('cute');
+
   const publicURL = (value, host, pathPattern) => {
     if (typeof value !== 'string' || !value.trim()) return null;
     try {
@@ -286,28 +311,34 @@
   const appStoreURL = publicURL(config.appStoreURL, 'apps.apple.com', /^\/(?:[a-z]{2}\/)?app\//);
   const testFlightURL = publicURL(config.testFlightURL, 'testflight.apple.com', /^\/join\/[a-zA-Z0-9]+\/?$/);
   const pendingReview = Boolean(testFlightURL && config.testFlightStatus !== 'open');
-  if (appStoreURL || testFlightURL) {
-    const releaseStatus = document.querySelector('#release-status');
-    releaseStatus.hidden = !pendingReview;
-    if (pendingReview) {
-      releaseStatus.replaceChildren(document.createElement('span'), document.createTextNode('TestFlight 外测审核中'));
-      releaseStatus.querySelector('span').setAttribute('aria-hidden', 'true');
-      document.querySelector('#testflight-link').firstChild.textContent = '查看 TestFlight 邀请 ';
-    }
-    document.querySelector('#download-note').textContent = pendingReview
-      ? '首次外测正在等待 Apple 审核，当前还不能加入或安装内测版。'
-      : testFlightURL && !appStoreURL ? '通过 TestFlight 体验内测版 · 适用于 iPhone · iOS 17 或更新版本' : '适用于 iPhone · iOS 17 或更新版本';
-    [[appStoreURL, '#app-store-link'], [testFlightURL, '#testflight-link']].forEach(([url, selector]) => {
-      if (!url) return;
-      const link = document.querySelector(selector);
-      link.href = url;
-      link.hidden = false;
-    });
+  const invitation = document.querySelector('#testflight-invitation');
+  const status = document.querySelector('#release-status');
+  invitation.hidden = !testFlightURL;
+  status.hidden = Boolean((appStoreURL || testFlightURL) && !pendingReview);
+  if (pendingReview) {
+    status.textContent = 'TestFlight 外测审核中';
+    document.querySelector('#testflight-link').textContent = '查看 TestFlight 邀请';
+    document.querySelector('.install-steps').hidden = true;
   }
+  document.querySelector('#download-note').textContent = pendingReview
+    ? 'Apple 审核通过后，可通过同一个邀请链接加入。'
+    : testFlightURL ? '公开内测 · 无需邀请码' : '下载入口准备中，开放后在这里更新。';
+  [[appStoreURL, '#app-store-link'], [testFlightURL, '#testflight-link']].forEach(([url, selector]) => {
+    if (!url) return;
+    const link = document.querySelector(selector);
+    link.href = url;
+    link.hidden = false;
+  });
+  const phoneWidth = matchMedia('(max-width: 759px)');
+  const adaptInvitation = () => { invitation.open = !phoneWidth.matches; };
+  adaptInvitation();
+  phoneWidth.addEventListener('change', adaptInvitation);
+  invitation.addEventListener('toggle', () => {
+    if (!phoneWidth.matches && !invitation.open) invitation.open = true;
+  });
   if (testFlightURL) {
-    // An invitation still works if QR rendering cannot load.
-    import('./testflight-invite.mjs?v=3b16d75c5e').then(({ mountTestFlightInvitation }) => {
+    import('./testflight-invite.mjs?v=6d560a0f76').then(({ mountTestFlightInvitation }) => {
       mountTestFlightInvitation(testFlightURL, { pendingReview });
-    }).catch(() => {});
+    }).catch(() => { invitation.hidden = true; });
   }
 })();

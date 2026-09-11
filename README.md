@@ -1,100 +1,67 @@
 # 极拼 JiPin 官网
 
-**照片在一起，回忆会动。**
-
-极拼的产品介绍、使用帮助与隐私政策网站。继续使用现有 GitHub Pages，不改变 iOS 主工程或 App 发版流程。
+照片在一起，回忆会动。
 
 - 官网：<https://lzbaclz.github.io/JiPin_iphone/>
-- 支持与帮助：<https://lzbaclz.github.io/JiPin_iphone/support.html>
-- 隐私政策：<https://lzbaclz.github.io/JiPin_iphone/privacy.html>
-- 公开客服邮箱：`chestnutlee23@163.com`
+- 支持：<https://lzbaclz.github.io/JiPin_iphone/support.html>
+- 隐私：<https://lzbaclz.github.io/JiPin_iphone/privacy.html>
+- 旧版归档：<https://lzbaclz.github.io/JiPin_iphone/archive/2026-09-11-v1/>
+- 客服：`chestnutlee23@163.com`
 
-## 页面内容
+## Web V2 · 中国山水
 
-- 珊瑚橙与奶油色的产品首页，展示极拼实际界面。
-- 模板、自由、海报、长图四种可切换排版示意，以及对应 App 截图预览。
-- 用户点击播放的 3 秒 Live 拼图效果演示，明确区分网页视频与 App 内的原生 Live 导出。
-- 原创贴纸体验：点击添加、拖动、键盘移动、删除、重新开始；最多 8 张。
-- 相册入口、草稿、本地编辑介绍，V1–V4 发展历程，以及常见问题。
-- 极拼 4.0.2（构建 6）已通过 TestFlight 外测审核，官网提供公开邀请、扫码加入、PNG 下载和复制链接。
+以写实山水与 Live 成品为主视觉，保持极拼橘红品牌色。三张 AI 山水原图分别取意漓江喀斯特、黄山松石云海和三峡江湾；三张原生 Live 素材和一张合成成品由极拼现有 `JiPinCore` 生成并经过 Apple PhotoKit 识别。
 
-产品截图依据 4.0.1；支持页另外标注 4.0.3 的长图手势与 4.0.4 的高清默认、保存收尾变化，不把不同版本的操作混在一起。没有虚构用户数量、评分、评价或下载入口。
+- 首页展示真正经极拼渲染的 Live 拼图，提供主动播放、暂停和静态封面。
+- 原图、配对 JPEG/MOV、网页 MP4、静态成品、提示词和生成源码完整保留，来源明确标为 AI 生成。
+- 模板、自由、海报、长图切换真实渲染成品，操作界面单独预览。
+- 保留原创贴纸添加、拖动、键盘移动、删除和重置，分成可爱与酷风两组。
+- 正文以 16px 起，常用标签以 14px 起，辅助信息不低于 12px；减少英文装饰和重复文案。
+- 品牌故事保留，版本历程收进可展开内容。
+- 手机下载区优先显示加入按钮和两步安装说明，二维码在“分享给朋友”中展开；桌面直接显示扫码入口。
+- 无自动播放，页面离开或切到后台暂停视频；无照片上传、广告、账号或统计脚本。
 
-## 文件
+## 旧版保留
 
-| 文件 | 作用 |
+归档对应提交 `1670e750b1c75db71b8c9fa41d900e42b3180a33`，Git 标签 `web/v1-2026-09-11`。`archive/2026-09-11-v1/` 保留该提交的全部 42 个原始文件，字节不变，支持独立浏览。改版不会修改此快照。
+
+旧版页面的相对资源、帮助和隐私链接仍可使用。新页面页脚提供“旧版官网归档”入口。
+
+## 项目结构
+
+纯静态 HTML / CSS / JavaScript，无框架构建依赖，继续使用现有 GitHub Pages，不改变 App 发版流程。
+
+| 路径 | 内容 |
 | --- | --- |
-| `index.html` | 宣传首页 |
-| `landing.css` / `landing.js` | 首页响应式样式及原生 JavaScript 互动 |
-| `site-config.js` | 已验证的 App Store / TestFlight 公开链接 |
-| `testflight-invite.mjs` | TestFlight 二维码生成、PNG 下载与复制邀请链接 |
-| `support.html` | 原来的操作帮助内容 |
-| `privacy.html` / `styles.css` | 原隐私政策及帮助页面样式 |
-| `assets/` | 本地托管的图标、截图、原创插画、贴纸和短视频 |
-| `sitemap.xml` | 当前公开页面地址 |
-| `ASSETS.md` | 素材来源与示意范围 |
-| `DOMAIN_SETUP.md` | 取得域名所有权后的绑定步骤 |
+| `index.html`、`landing.css`、`landing.js` | 主站布局、样式、交互 |
+| `site-config.js` | App Store / TestFlight 真实公开链接及开放状态 |
+| `testflight-invite.mjs` | 本地二维码编码、下载、复制邀请 |
+| `assets/shanhe/` | 新山水原图、视频、成品、提示词及原生配对 |
+| `tools/native-live/` | 基于极拼核心的素材生成源码与说明 |
+| `support.html`、`privacy.html`、`styles.css` | 帮助和隐私页面 |
+| `archive/` | 旧版完整快照 |
 
-纯静态 HTML / CSS / JavaScript，无构建依赖、账号、广告、统计脚本或外部字体。互动体验不上传或保存访问者数据。关闭 JavaScript 时，产品介绍、视频原生控件、FAQ、支持页和隐私政策仍可阅读。
+素材来源与动态制作范围见 [ASSETS.md](ASSETS.md)。既有 App 截图仍注明 4.0.1，支持页保留 4.0.3、4.0.4 的操作更新，不把旧截图说成新版本界面。
 
-## 本地预览
-
-在本目录执行：
+## 预览与验证
 
 ```sh
 python3 -m http.server 8769 --bind 127.0.0.1
 ```
 
-打开 <http://127.0.0.1:8769/>。发布前检查桌面及手机显示、四种模式切换、截图弹窗、视频、贴纸拖动与键盘操作、导航和隐私链接。
+检查桌面和手机布局、四种模式、视频播放/暂停/离屏停止、贴纸的触控和键盘操作、截图弹窗、邀请复制、二维码、FAQ 和归档入口。JavaScript 关闭时，原生视频控件、静态内容、帮助、隐私和 TestFlight 链接仍可使用。
 
-## 启用下载入口
+## 邀请配置
 
-在 `site-config.js` 中填入真实可访问的链接，空字符串表示尚未开放：
+`site-config.js` 当前保留公开群组的真实链接：`https://testflight.apple.com/join/1NqZxpgX`。`testFlightStatus: "open"` 表示公开邀请已开放；该状态不会自动向 Apple 查询。新构建外测审核、名额与构建有效期仍由 App Store Connect 管理，TestFlight 开放不代表 App Store 正式版审核通过。
 
-```js
-window.JIPIN_SITE = Object.freeze({
-  appStoreURL: "",
-  testFlightURL: "",
-  testFlightStatus: "pending-review"
-});
-```
+空链接隐藏对应入口；只有规范 HTTPS 官方链接会启用。`pending-review` 显示待审核说明。二维码与按钮使用同一个规范化链接，不在码面覆盖 Logo。
 
-App Store 链接需以 `https://apps.apple.com/` 开头并指向 App 页面；TestFlight 链接需以 `https://testflight.apple.com/join/` 开头。不要使用 App Store Connect 后台链接或其他 App 的测试链接。
-
-配置真实 TestFlight 公开链接后，首页手机旁显示扫码卡片，下载区显示邀请入口、二维码、PNG 下载和复制邀请链接。`testFlightStatus` 为 `pending-review` 时，所有入口注明外测正在审核，避免提前承诺可安装；只有显式设置为 `open` 才展示加入测试文案。手机访问者可以直接点邀请链接，不必扫描自己的屏幕。
-
-二维码在浏览器本地生成，使用随本站托管、固定版本的 MIT 开源编码器，不调用第三方二维码服务。二维码及按钮来自同一个规范化链接，保留四个模块的白边，不在码面覆盖图标。未配置有效链接时，这些入口不显示。
-
-页面只展示有效格式的配置。TestFlight 链接已生成但仍在审核时，会显示“TestFlight 外测审核中”；审核状态不会由网站自动查询。仍需维护者在发布前实际确认链接可用；前端格式检查不代表已通过 Apple 审核。
-
-## 创建 TestFlight 公开邀请
-
-可直接保存 [二维码 PNG](assets/testflight-qr.png)。这是正式邀请链接对应的图片；若更换群组链接，需要一并更新该静态图片。
-
-当前群组为“官网公开内测”，4.0.2（构建 6）已通过 Beta App Review，公开页面已显示极拼 Beta 版入口。邀请链接为 <https://testflight.apple.com/join/1NqZxpgX>，`testFlightStatus` 已设为 `open`。原链接及二维码无需更换。此状态仅代表 TestFlight 外测开放，不代表 App Store 正式上架审核通过。
-
-在 App Store Connect 的极拼 App 中打开 **TestFlight → 外部测试**，使用“官网公开内测”群组，将需要测试的构建版本加入群组。首次外部测试需要补充测试说明、反馈邮箱和 Apple 审核联系资料，并通过 TestFlight Beta App Review。
-
-有可供外部测试的构建后，在群组的“测试员”页创建公开链接。可设置人数上限和设备条件。把生成的 `https://testflight.apple.com/join/…` 链接填到配置中，先在未加入测试的设备上验证可用，再发布。
-
-- 公共招募使用公开链接或其二维码，无需手填邀请码。
-- 指定邀请某个人，在群组中按电子邮件邀请。兑换码来自 Apple 的邀请流程，不是网站自行生成的通用安装码。
-- Xcode 中以 **TestFlight Internal Only** 上传的构建只能用于内部测试；外测应使用 **App Store Connect** 分发路径。
-- 官网二维码是否显示由配置决定，不会自动查询审核状态。构建过期、关闭招募或群组名额用完时，应及时维护邀请入口。
-
-参考：[Apple 外部测试流程](https://developer.apple.com/help/app-store-connect/test-a-beta-version/invite-external-testers/)、[TestFlight 安装说明](https://testflight.apple.com/)。
+安装说明参照 [Apple TestFlight](https://testflight.apple.com/)，安装链接使用 [Apple 官方 TestFlight 页面](https://apps.apple.com/us/app/testflight/id899247664)。公开邀请无需手填邀请码。
 
 ## 发布
 
-仓库 **Settings → Pages → Deploy from a branch**：
-
-- 分支：`codex/app-store-pages`
-- 目录：`/ (root)`
-- HTTPS：已启用
-
-CSS 和 JavaScript 链接带有内容版本参数。修改这些文件时，同步更新 HTML 中相应的 `?v=` 参数，避免旧浏览器缓存混用新页面。
-
-提交并正常推送到该分支后，GitHub Pages 自动部署。若从独立网站工作分支开发，先确认远端发布分支没有别人更新，再使用普通快进推送：
+GitHub Pages：分支 `codex/app-store-pages`，根目录 `/`，HTTPS。正常快进推送后由 GitHub Pages 发布；不强制覆盖发布分支，不把 iOS 主工程改动带入网站提交。CSS / JS 采用内容版本参数避免缓存混用。
 
 ```sh
 git fetch origin codex/app-store-pages
@@ -102,8 +69,4 @@ git merge-base --is-ancestor origin/codex/app-store-pages HEAD
 git push origin HEAD:codex/app-store-pages
 ```
 
-不要强制覆盖发布分支，也不要把 iOS 主工程的未提交改动带入网站提交。iOS 源码保留在 `main`，网站单独发布。
-
-当前不持有 `jipin.com`，因此没有设置自定义域名或 `CNAME`。取得域名后参照 [域名配置说明](DOMAIN_SETUP.md) 处理。
-
-App 功能或数据处理方式变化时，需要同时维护产品文案、操作帮助和隐私政策。仅改外观不会改变隐私政策的生效日期。
+当前未持有 `jipin.com`，不设置自定义域名或 CNAME；取得域名后参照 [DOMAIN_SETUP.md](DOMAIN_SETUP.md)。仅视觉改版不改变隐私政策生效日期。
