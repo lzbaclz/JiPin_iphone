@@ -185,3 +185,14 @@ JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.4-8" ./scripts/archive-testfl
 ```
 
 4.0.4（构建 8）已完成签名核验、TestFlight 上传与群组关联。内部测试已可使用，公开外测提交完成时等待 Apple Beta 审核。具体 IPA 大小、校验值与验证证据见 4.0.4 发布说明。
+
+
+## V4.0.5 Live 预览刷新修复
+
+主 App 与扩展统一为 **4.0.5 / build 9**，草稿 schema 仍为 4。修复设置变化后的自动预览、连续请求取消与导出锁交接。发布记录见 [4.0.5 发布说明](v4.0.5-release.md)。
+
+```sh
+JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.5-9" ./scripts/archive-testflight.sh
+```
+
+签名归档和分发 IPA 位于 `build/TestFlight/JiPin-4.0.5-9/`，验证记录位于 `build/Validation-4.0.5/`。

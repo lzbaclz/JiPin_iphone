@@ -157,3 +157,13 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - `DeniedPermission.xcresult`：在新建 iPhone 16e 模拟器真实拒绝添加照片权限，1 项通过；窗口没有关闭，错误与重试按钮保留。
 - 汇总 71 个不同用例全部取得通过结果；包含核心导出/分页、Live 保存与系统选图、静态/Live/分页保存自动关闭、手动标准选择保留及旧草稿编解码。
 - 证据与按用例汇总记录位于 `build/Validation-4.0.4/`，最终截图位于 `docs/version-screenshots/v4.0.4/`。
+
+
+## V4.0.5 Live 预览刷新修复（2026-09-11）
+
+- 旧版对照复现：预览成功后选择 2 秒，30 秒内仍只有占位图。`BeforeFix.xcresult` 中原用例按预期失败。
+- 修改设置后自动生成新预览，250 毫秒合并连续变化。旧任务取消后先完成清理，再释放其持有的导出锁；失效请求不能写入新的预览、提示或状态。
+- 四条新增 UI 回归在 iPhone 17、iPhone 16e / iOS 26.3 上分别全部通过：全部时长播放、连续变化与三 Live 两静态混拼保存、关闭重开与撤销、清晰度与手动重新生成。预览断言读取实际生成结果的时长。
+- 回归 16 条 Live 核心、5 条既有 Live UI、5 条长图手势、2 条清晰度/嵌套保存流程。共 32 个不同用例，31 通过、1 个需专门图库读取权限的 PhotoKit 回读用例跳过，0 失败。
+- 证据：`build/Validation-4.0.5/PreviewRegression.xcresult`、`Compatibility.xcresult`、`SmallPhone.xcresult`、`validation-summary.json`；截图为原创模拟器素材，位于 `docs/version-screenshots/v4.0.5/`。
+- 主 App 和扩展为 4.0.5 / 9，正式签名归档和 IPA 导出完成，签名、版本、App Group 和分发权限校验通过。真机上的原始照片场景仍以用户安装更新后的体验为准。

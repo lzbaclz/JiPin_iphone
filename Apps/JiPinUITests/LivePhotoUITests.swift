@@ -47,9 +47,11 @@ final class LivePhotoUITests: XCTestCase {
         let duration = app.segmentedControls["live-export-duration"]
         reveal(duration, in: app)
         duration.buttons["1.5 秒"].tap()
-        let generate = app.buttons["live-generate-primary"]
-        reveal(generate, in: app); generate.tap()
-        XCTAssertTrue(app.staticTexts["live-message"].waitForExistence(timeout: 60))
+        let refreshed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == true AND value == %@", "1.5 秒"),
+            object: app.buttons["live-play"])
+        XCTAssertEqual(XCTWaiter.wait(for: [refreshed], timeout: 60), .completed,
+                       "切换时长后应自动生成对应时长的预览。")
         let save = app.buttons["live-save-album"]
         reveal(save, in: app)
         XCTAssertTrue(save.isEnabled)

@@ -61,7 +61,8 @@ struct RootView: View {
         guard args.contains("-sampleLiveEditor") || args.contains("-quickLiveCollage") else { return }
         Task {
             do {
-                let photos = try await LivePhotoSamples.make()
+                var photos = try await LivePhotoSamples.make(count: args.contains("-mixedLiveSample") ? 3 : 2)
+                if args.contains("-mixedLiveSample") { photos += SamplePhotos.make(2) }
                 if args.contains("-quickLiveCollage") {
                     appState.quickCollage = QuickCollageLaunch(photos: photos, failed: [], overflowCount: 0)
                 } else {

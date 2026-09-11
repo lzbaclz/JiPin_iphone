@@ -52,8 +52,9 @@ struct LivePhotoOptions: View {
         .accessibilityIdentifier("\(prefix)-audio")
     }
     private func change(_ update: (inout LivePhotoSettings) -> Void) {
-        session.checkpoint()
         var value = settings; update(&value)
+        guard value != settings else { return }
+        session.checkpoint()
         session.project.livePhotoSettings = value
         session.scheduleSave()
     }
@@ -61,6 +62,7 @@ struct LivePhotoOptions: View {
 
 struct LivePhotoPreview: UIViewRepresentable {
     let photo: PHLivePhoto
+    var duration: Double
     var playback: Int
     var muted: Bool
     final class Coordinator { var photo: PHLivePhoto?; var playback = -1 }
@@ -75,9 +77,12 @@ struct LivePhotoPreview: UIViewRepresentable {
     }
     func updateUIView(_ view: PHLivePhotoView, context: Context) {
         view.isMuted = muted
+        view.accessibilityValue = String(format: "%g 秒", duration)
         if context.coordinator.photo !== photo {
+            view.stopPlayback()
             view.livePhoto = photo
             context.coordinator.photo = photo
+            context.coordinator.playback = -1
         }
         if context.coordinator.playback != playback {
             context.coordinator.playback = playback
@@ -106,8 +111,18 @@ struct LivePhotoExportView: View {
     @State private var playback = 0
     @State private var showStatic = false
     @State private var showShare = false
+    @State private var isVisible = false
+    @State private var preparedConfiguration: RenderConfiguration?
     private var busy: Bool { isRendering || isSaving }
     private var maxSide: Int { session.project.exportPreference.quality == .hd ? 1440 : 1080 }
+    private struct RenderConfiguration: Equatable {
+        var settings: LivePhotoSettings
+        var quality: ExportQuality
+    }
+    private var configuration: RenderConfiguration {
+        RenderConfiguration(settings: session.project.livePhotoSettings ?? LivePhotoSettings(),
+                            quality: session.project.exportPreference.quality)
+    }
 
     var body: some View {
         NavigationStack {
@@ -116,7 +131,8 @@ struct LivePhotoExportView: View {
                     ZStack {
                         RoundedRectangle(cornerRadius: 16).fill(Color(uiColor: .secondarySystemBackground))
                         if let live {
-                            LivePhotoPreview(photo: live, playback: playback, muted: session.project.livePhotoSettings?.audioSourceID == nil)
+                            LivePhotoPreview(photo: live, duration: result?.duration ?? 0, playback: playback,
+                                             muted: session.project.livePhotoSettings?.audioSourceID == nil)
                         } else if isRendering {
                             VStack(spacing: 12) {
                                 ProgressView(value: progress)
@@ -135,6 +151,8 @@ struct LivePhotoExportView: View {
                     if live != nil {
                         Button { playback += 1 } label: { Label("播放动态 · 也可以长按预览", systemImage: "play.fill") }
                             .accessibilityIdentifier("live-play")
+                            .accessibilityValue(Text("\(result?.duration ?? 0, specifier: "%g") 秒"))
+                            .disabled(busy)
                     }
                 } header: { Text("LIVE PHOTO") } footer: {
                     Text("保存后在苹果相册中长按播放。较短的 Live 会在首尾停留，普通照片保持静止。")
@@ -150,10 +168,11 @@ struct LivePhotoExportView: View {
                     if let result, preparedSide == maxSide {
                         LabeledContent("文件大小", value: ByteCountFormatter.string(fromByteCount: result.byteCount, countStyle: .file))
                     }
-                }.disabled(busy)
+                }.disabled(isSaving || (isRendering && renderingFullSize))
                 Section {
                     if isRendering {
-                        Button("取消生成", role: .cancel) { renderTask?.cancel() }
+                        Button("取消生成", role: .cancel) { cancelRender(showMessage: true) }
+                            .disabled(isSaving)
                             .accessibilityIdentifier("live-cancel-render")
                     } else {
                         Button(result == nil ? "生成动态预览" : "重新生成") { startRender() }
@@ -161,7 +180,7 @@ struct LivePhotoExportView: View {
                             .accessibilityIdentifier("live-generate")
                     }
                     Button("分享视频") {
-                        if preparedSide == maxSide { showShare = true }
+                        if preparedSide == maxSide && preparedConfiguration == configuration { showShare = true }
                         else { startRender(.share) }
                     }
                         .disabled(result == nil || busy)
@@ -197,50 +216,87 @@ struct LivePhotoExportView: View {
             .navigationTitle("导出 Live")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) {
-                Button("关闭") { renderTask?.cancel(); dismiss() }.disabled(isSaving)
+                Button("关闭") { isVisible = false; cancelRender(); dismiss() }.disabled(isSaving)
             } }
             .interactiveDismissDisabled(isSaving)
-            .onAppear { if result == nil { startRender() } }
-            .onDisappear { renderTask?.cancel() }
-            .onChange(of: maxSide) { _, _ in invalidate() }
-            .onChange(of: session.project.livePhotoSettings) { _, _ in invalidate() }
+            .onAppear { isVisible = true; refreshIfNeeded() }
+            .onDisappear { isVisible = false; cancelRender() }
+            .onChange(of: configuration) { _, _ in invalidate() }
+            .onChange(of: showStatic) { _, presented in if !presented { refreshIfNeeded() } }
+            .onChange(of: showShare) { _, presented in if !presented { refreshIfNeeded() } }
             .sheet(isPresented: $showStatic) { ExportView(session: session, onSaved: finishSaving) }
             .sheet(isPresented: $showShare) { if let result { ShareSheet(items: [result.videoURL]) } }
         }
     }
 
     private func invalidate() {
-        renderTask?.cancel(); result = nil; live = nil; message = nil; preparedSide = 0
+        guard !isSaving else { return }
+        cancelRender()
+        result = nil; live = nil; message = nil; preparedSide = 0; preparedConfiguration = nil
+        if isVisible && !showStatic && !showShare { startRender(debounce: true) }
+    }
+
+    private func refreshIfNeeded() {
+        guard isVisible, !showStatic, !showShare, !busy else { return }
+        if result == nil || preparedConfiguration != configuration { startRender() }
+    }
+
+    private func cancelRender(showMessage: Bool = false) {
+        // Retire the request before cancelling it: callbacks from an older job must not
+        // erase a newer preview, reset its busy state or publish an obsolete error.
+        jobID = UUID()
+        renderTask?.cancel()
+        isRendering = false
+        renderingFullSize = false
+        if showMessage { message = "已取消生成，照片和草稿保留。" }
     }
 
     private enum RenderPurpose { case preview, save, share }
 
-    private func startRender(_ purpose: RenderPurpose = .preview) {
-        guard !busy else { return }
+    private func startRender(_ purpose: RenderPurpose = .preview, debounce: Bool = false) {
+        guard isVisible, !isSaving, !showStatic, !showShare else { return }
+        let previous = renderTask
+        previous?.cancel()
+        let id = UUID(); jobID = id
+        isRendering = false; renderingFullSize = false
         session.refreshWarnings()
         guard !session.missingAssetWarning, !session.missingLiveAssetWarning else { message = "有照片或 Live 动态资源缺失，请重新选择相关照片后再生成。"; return }
-        guard ExportJobLock.tryBegin() else { message = "还有一份作品正在导出，请稍后重试。"; return }
         isRendering = true; progress = 0; message = nil
         renderingFullSize = purpose != .preview
-        if purpose == .preview { result = nil; live = nil; preparedSide = 0 }
-        let id = UUID(); jobID = id
+        if purpose == .preview { result = nil; live = nil; preparedSide = 0; preparedConfiguration = nil }
         let project = session.project, assets = session.assets.snapshot
+        let requestedConfiguration = configuration
         // A preview never becomes a saved/shared result: those actions always prepare the chosen output size.
         let side = purpose == .preview ? 640 : maxSide
         renderTask = Task {
-            defer { isRendering = false; ExportJobLock.end() }
-            let worker = Task.detached(priority: .userInitiated) {
-                try await LivePhotoExporter.render(project: project, assets: assets, maxSide: CGFloat(side)) { value in
-                    await MainActor.run { if jobID == id { progress = value } }
-                }
+            defer {
+                if jobID == id { isRendering = false; renderTask = nil }
             }
             do {
+                // Drain the cancelled worker before starting a replacement. Its defer owns
+                // its export lock; cancelling the UI request must never unlock it early.
+                await previous?.value
+                try Task.checkCancellation()
+                if debounce { try await Task.sleep(nanoseconds: 250_000_000) }
+                try Task.checkCancellation()
+                while !ExportJobLock.tryBegin() {
+                    try await Task.sleep(nanoseconds: 80_000_000)
+                }
+                defer { ExportJobLock.end() }
+                try Task.checkCancellation()
+                let worker = Task.detached(priority: .userInitiated) {
+                    try await LivePhotoExporter.render(project: project, assets: assets, maxSide: CGFloat(side)) { value in
+                        await MainActor.run { if jobID == id { progress = value } }
+                    }
+                }
                 let rendered = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
                 try Task.checkCancellation()
                 let native = try await LivePhotoMedia.request(imageURL: rendered.imageURL, videoURL: rendered.videoURL)
                 try Task.checkCancellation()
-                guard jobID == id, session.project.id == project.id else { return }
-                result = rendered; live = native; preparedSide = side; playback += 1
+                guard jobID == id, isVisible, session.project.id == project.id,
+                      configuration == requestedConfiguration else { return }
+                result = rendered; live = native; preparedSide = side
+                preparedConfiguration = requestedConfiguration; playback += 1
                 switch purpose {
                 case .preview:
                     message = "预览已就绪。保存时将生成 \(maxSide) 清晰度的成品。"
@@ -251,16 +307,16 @@ struct LivePhotoExportView: View {
                     showShare = true
                 }
             } catch is CancellationError {
-                message = "已取消生成，照片和草稿保留。"
+                if jobID == id { message = "已取消生成，照片和草稿保留。" }
             } catch {
-                message = error.localizedDescription
+                if jobID == id { message = error.localizedDescription }
             }
         }
     }
 
     private func save() async {
         guard let result, !busy else { return }
-        guard preparedSide == maxSide else { startRender(.save); return }
+        guard preparedSide == maxSide && preparedConfiguration == configuration else { startRender(.save); return }
         await savePair(result)
     }
 

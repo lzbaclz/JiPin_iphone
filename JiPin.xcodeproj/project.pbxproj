@@ -19,6 +19,7 @@
 		57B28D33B0965D4DB2B85745 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */; };
 		587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11035725EF867AA91468F9DE /* CatalogTests.swift */; };
 		5A0FF504B2B292F1642DD119 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BA5BABD2DD1FA06EE354E14 /* JiPinCore */; };
+		5AB0A1FAC504A36228430DF7 /* LivePreviewRefreshUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */; };
 		5C322FE0C5C5EB10ECF18C22 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = D82E14D4502D17449C4B33DB /* JiPinCore */; };
 		5C5F3CDAC5EF79CE4CF66DE1 /* CanvasGestureUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E92CD5CC3B931FD46DE7F39 /* CanvasGestureUITests.swift */; };
 		72748E82FA59F7E48D44F474 /* VersionThreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDFFDCE874A2009D2A1B4E8 /* VersionThreeTests.swift */; };
@@ -91,6 +92,7 @@
 		06FF6E1CBA50B875AD32282A /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		11035725EF867AA91468F9DE /* CatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogTests.swift; sourceTree = "<group>"; };
 		13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoImporter.swift; sourceTree = "<group>"; };
+		158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePreviewRefreshUITests.swift; sourceTree = "<group>"; };
 		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
 		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
 		2846E0A67CB441F686E1758C /* Version402UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version402UITests.swift; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 				51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */,
 				7EC5704349022FB402ACF49E /* ExportTestSupport.swift */,
 				C941A28287669E882473912B /* LivePhotoUITests.swift */,
+				158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */,
 				8F483BE155155A488F909829 /* LongStripGestureUITests.swift */,
 				2846E0A67CB441F686E1758C /* Version402UITests.swift */,
 				02421F764BD2238EDCC09767 /* Version404UITests.swift */,
@@ -465,6 +468,7 @@
 				226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */,
 				90575CD1D4CAA69329DD5444 /* ExportTestSupport.swift in Sources */,
 				28F0E2472BB73A28AB4D6644 /* LivePhotoUITests.swift in Sources */,
+				5AB0A1FAC504A36228430DF7 /* LivePreviewRefreshUITests.swift in Sources */,
 				F76D8223DA88E47212F06197 /* LongStripGestureUITests.swift in Sources */,
 				F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */,
 				29284C04CFD290690FB1F402 /* Version404UITests.swift in Sources */,
@@ -571,7 +575,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -591,7 +595,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.4;
+				MARKETING_VERSION = 4.0.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -735,7 +739,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -749,7 +753,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.4;
+				MARKETING_VERSION = 4.0.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
