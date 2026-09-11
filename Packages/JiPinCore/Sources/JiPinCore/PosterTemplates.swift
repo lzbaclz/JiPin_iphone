@@ -74,6 +74,9 @@ public enum PosterTemplateCatalog {
 
     private static func makeAll() -> [PosterTemplate] {
         [
+            weekendFour(),
+            petDiary(),
+            editorialThree(),
             travelJournal(),
             travelMap(),
             travelSunset(),
@@ -146,6 +149,46 @@ public enum PosterTemplateCatalog {
             ],
             decorations: [deco("plane", sticker: "life-airplane", x: 0.8, y: 0.055, w: 0.12, h: 0.06)]
         )
+    }
+
+    private static func weekendFour() -> PosterTemplate {
+        PosterTemplate(id: "p-weekend-four", name: "周末出走", theme: .travel,
+            canvas: .portrait34, supportedCanvases: [.portrait34],
+            background: BackgroundSpec(kind: .solid, presetID: nil, colorHex: "#F2EDE2"),
+            photoSlots: [slot("hero", x: 0.055, y: 0.22, w: 0.89, h: 0.39, r: 0),
+                         slot("a", x: 0.055, y: 0.635, w: 0.28, h: 0.225, r: 0),
+                         slot("b", x: 0.36, y: 0.635, w: 0.28, h: 0.225, r: 0),
+                         slot("c", x: 0.665, y: 0.635, w: 0.28, h: 0.225, r: 0)],
+            texts: [text("eyebrow", "WEEKEND JOURNAL  /  01", x: 0.055, y: 0.045, w: 0.8, h: 0.035, size: 0.021, color: "#6F7869", font: ".AppleSystemUIFontMonospaced", align: .leading),
+                    text("title", "周末，去远一点", x: 0.055, y: 0.105, w: 0.89, h: 0.078, size: 0.057, color: "#243D32", font: ".AppleSystemUIFontSerif", align: .leading),
+                    text("caption", "把沿途的小事，收进这一页。", x: 0.055, y: 0.892, w: 0.78, h: 0.04, size: 0.025, color: "#526353", align: .leading)],
+            decorations: [deco("stamp", sticker: "cool-mountain", x: 0.84, y: 0.888, w: 0.08, h: 0.065)])
+    }
+
+    private static func petDiary() -> PosterTemplate {
+        PosterTemplate(id: "p-pet-diary", name: "毛孩子日记", theme: .daily,
+            canvas: .portrait34, supportedCanvases: [.portrait34],
+            background: BackgroundSpec(kind: .solid, presetID: nil, colorHex: "#FAF0DC"),
+            photoSlots: [slot("a", x: 0.06, y: 0.22, w: 0.88, h: 0.36, r: 0.055),
+                         slot("b", x: 0.36, y: 0.61, w: 0.58, h: 0.28, r: 0.055)],
+            texts: [text("eyebrow", "LITTLE PAWS, BIG LOVE", x: 0.06, y: 0.047, w: 0.88, h: 0.035, size: 0.022, color: "#B27A58", font: ".AppleSystemUIFontMonospaced"),
+                    text("title", "今天也被你治愈", x: 0.06, y: 0.108, w: 0.88, h: 0.065, size: 0.053, color: "#684F3C", font: ".AppleSystemUIFontRounded"),
+                    text("note", "吃好\n睡好\n被爱围绕", x: 0.065, y: 0.71, w: 0.255, h: 0.12, size: 0.029, color: "#8C674A"),
+                    text("footer", "和你在一起的每一天，都值得记住。", x: 0.06, y: 0.925, w: 0.88, h: 0.028, size: 0.021, color: "#8C674A")],
+            decorations: [deco("cat", sticker: "cute-cat", x: 0.115, y: 0.61, w: 0.14, h: 0.10)])
+    }
+
+    private static func editorialThree() -> PosterTemplate {
+        PosterTemplate(id: "p-editorial-three", name: "城市刊物", theme: .social,
+            canvas: .portrait34, supportedCanvases: [.portrait34],
+            background: BackgroundSpec(kind: .solid, presetID: nil, colorHex: "#171A1E"),
+            photoSlots: [slot("a", x: 0.055, y: 0.23, w: 0.57, h: 0.62, r: 0),
+                         slot("b", x: 0.65, y: 0.23, w: 0.295, h: 0.30, r: 0),
+                         slot("c", x: 0.65, y: 0.55, w: 0.295, h: 0.30, r: 0)],
+            texts: [text("eyebrow", "VOL. 01  /  MY PERSPECTIVE", x: 0.055, y: 0.045, w: 0.89, h: 0.032, size: 0.020, color: "#CAE682", font: ".AppleSystemUIFontMonospaced", align: .leading),
+                    text("title", "日常，自有光", x: 0.055, y: 0.112, w: 0.89, h: 0.074, size: 0.061, color: "#F5F2E9", font: ".AppleSystemUIFontSerif", align: .leading),
+                    text("caption", "THE CITY THROUGH MY EYES", x: 0.055, y: 0.90, w: 0.89, h: 0.034, size: 0.021, color: "#CAE682", font: ".AppleSystemUIFontMonospaced", align: .leading)],
+            decorations: [])
     }
 
     private static func travelMap() -> PosterTemplate {

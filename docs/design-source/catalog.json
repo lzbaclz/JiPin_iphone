@@ -2722,6 +2722,473 @@
   "posters" : [
     {
       "background" : {
+        "colorHex" : "#F2EDE2",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.065,
+            "width" : 0.08,
+            "x" : 0.84,
+            "y" : 0.888
+          },
+          "id" : "stamp",
+          "rotation" : 0,
+          "stickerID" : "cool-mountain"
+        }
+      ],
+      "id" : "p-weekend-four",
+      "name" : "周末出走",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.39,
+            "width" : 0.89,
+            "x" : 0.055,
+            "y" : 0.22
+          },
+          "id" : "hero"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.225,
+            "width" : 0.28,
+            "x" : 0.055,
+            "y" : 0.635
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.225,
+            "width" : 0.28,
+            "x" : 0.36,
+            "y" : 0.635
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.225,
+            "width" : 0.28,
+            "x" : 0.665,
+            "y" : 0.635
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "WEEKEND JOURNAL  \/  01",
+          "frame" : {
+            "height" : 0.035,
+            "width" : 0.8,
+            "x" : 0.055,
+            "y" : 0.045
+          },
+          "id" : "eyebrow",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#6F7869",
+            "fontName" : ".AppleSystemUIFontMonospaced",
+            "fontSize" : 0.021,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "WEEKEND JOURNAL  \/  01"
+          }
+        },
+        {
+          "defaultText" : "周末，去远一点",
+          "frame" : {
+            "height" : 0.078,
+            "width" : 0.89,
+            "x" : 0.055,
+            "y" : 0.105
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#243D32",
+            "fontName" : ".AppleSystemUIFontSerif",
+            "fontSize" : 0.057,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "周末，去远一点"
+          }
+        },
+        {
+          "defaultText" : "把沿途的小事，收进这一页。",
+          "frame" : {
+            "height" : 0.04,
+            "width" : 0.78,
+            "x" : 0.055,
+            "y" : 0.892
+          },
+          "id" : "caption",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#526353",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.025,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "把沿途的小事，收进这一页。"
+          }
+        }
+      ],
+      "theme" : "travel"
+    },
+    {
+      "background" : {
+        "colorHex" : "#FAF0DC",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+        {
+          "frame" : {
+            "height" : 0.1,
+            "width" : 0.14,
+            "x" : 0.115,
+            "y" : 0.61
+          },
+          "id" : "cat",
+          "rotation" : 0,
+          "stickerID" : "cute-cat"
+        }
+      ],
+      "id" : "p-pet-diary",
+      "name" : "毛孩子日记",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0.055,
+          "frame" : {
+            "height" : 0.36,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.22
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0.055,
+          "frame" : {
+            "height" : 0.28,
+            "width" : 0.58,
+            "x" : 0.36,
+            "y" : 0.61
+          },
+          "id" : "b"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "LITTLE PAWS, BIG LOVE",
+          "frame" : {
+            "height" : 0.035,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.047
+          },
+          "id" : "eyebrow",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#B27A58",
+            "fontName" : ".AppleSystemUIFontMonospaced",
+            "fontSize" : 0.022,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "LITTLE PAWS, BIG LOVE"
+          }
+        },
+        {
+          "defaultText" : "今天也被你治愈",
+          "frame" : {
+            "height" : 0.065,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.108
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#684F3C",
+            "fontName" : ".AppleSystemUIFontRounded",
+            "fontSize" : 0.053,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "今天也被你治愈"
+          }
+        },
+        {
+          "defaultText" : "吃好\n睡好\n被爱围绕",
+          "frame" : {
+            "height" : 0.12,
+            "width" : 0.255,
+            "x" : 0.065,
+            "y" : 0.71
+          },
+          "id" : "note",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#8C674A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.029,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "吃好\n睡好\n被爱围绕"
+          }
+        },
+        {
+          "defaultText" : "和你在一起的每一天，都值得记住。",
+          "frame" : {
+            "height" : 0.028,
+            "width" : 0.88,
+            "x" : 0.06,
+            "y" : 0.925
+          },
+          "id" : "footer",
+          "style" : {
+            "alignment" : "center",
+            "colorHex" : "#8C674A",
+            "fontName" : ".AppleSystemUIFont",
+            "fontSize" : 0.021,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "和你在一起的每一天，都值得记住。"
+          }
+        }
+      ],
+      "theme" : "daily"
+    },
+    {
+      "background" : {
+        "colorHex" : "#171A1E",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "canvas" : {
+        "aspectHeight" : 4,
+        "aspectWidth" : 3,
+        "isCustom" : false
+      },
+      "decorations" : [
+
+      ],
+      "id" : "p-editorial-three",
+      "name" : "城市刊物",
+      "photoSlots" : [
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.62,
+            "width" : 0.57,
+            "x" : 0.055,
+            "y" : 0.23
+          },
+          "id" : "a"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.295,
+            "x" : 0.65,
+            "y" : 0.23
+          },
+          "id" : "b"
+        },
+        {
+          "cornerRadius" : 0,
+          "frame" : {
+            "height" : 0.3,
+            "width" : 0.295,
+            "x" : 0.65,
+            "y" : 0.55
+          },
+          "id" : "c"
+        }
+      ],
+      "supportedCanvases" : [
+        {
+          "aspectHeight" : 4,
+          "aspectWidth" : 3,
+          "isCustom" : false
+        }
+      ],
+      "texts" : [
+        {
+          "defaultText" : "VOL. 01  \/  MY PERSPECTIVE",
+          "frame" : {
+            "height" : 0.032,
+            "width" : 0.89,
+            "x" : 0.055,
+            "y" : 0.045
+          },
+          "id" : "eyebrow",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#CAE682",
+            "fontName" : ".AppleSystemUIFontMonospaced",
+            "fontSize" : 0.02,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "VOL. 01  \/  MY PERSPECTIVE"
+          }
+        },
+        {
+          "defaultText" : "日常，自有光",
+          "frame" : {
+            "height" : 0.074,
+            "width" : 0.89,
+            "x" : 0.055,
+            "y" : 0.112
+          },
+          "id" : "title",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#F5F2E9",
+            "fontName" : ".AppleSystemUIFontSerif",
+            "fontSize" : 0.061,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "日常，自有光"
+          }
+        },
+        {
+          "defaultText" : "THE CITY THROUGH MY EYES",
+          "frame" : {
+            "height" : 0.034,
+            "width" : 0.89,
+            "x" : 0.055,
+            "y" : 0.9
+          },
+          "id" : "caption",
+          "style" : {
+            "alignment" : "leading",
+            "colorHex" : "#CAE682",
+            "fontName" : ".AppleSystemUIFontMonospaced",
+            "fontSize" : 0.021,
+            "lineSpacing" : 1.15,
+            "shadow" : {
+              "colorHex" : "#00000088",
+              "offsetY" : 0,
+              "radius" : 0
+            },
+            "stroke" : {
+              "colorHex" : "#FFFFFF",
+              "width" : 0
+            },
+            "text" : "THE CITY THROUGH MY EYES"
+          }
+        }
+      ],
+      "theme" : "social"
+    },
+    {
+      "background" : {
         "colorHex" : "#EDE4D4",
         "isHidden" : false,
         "kind" : "solid",
@@ -5584,6 +6051,54 @@
       "id" : "cool-orbit",
       "kind" : "originalVector",
       "name" : "星际飞行"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "film-frame",
+      "id" : "cool-film-frame",
+      "kind" : "originalVector",
+      "name" : "胶片瞬间"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "headphones",
+      "id" : "cool-headphones",
+      "kind" : "originalVector",
+      "name" : "随身节拍"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "comet",
+      "id" : "cool-comet",
+      "kind" : "originalVector",
+      "name" : "流星信号"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "checker",
+      "id" : "cool-checker",
+      "kind" : "originalVector",
+      "name" : "棋盘浪潮"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "mountain",
+      "id" : "cool-mountain",
+      "kind" : "originalVector",
+      "name" : "山野徽章"
+    },
+    {
+      "category" : "cool",
+      "color" : "#BDE783",
+      "drawing" : "vinyl",
+      "id" : "cool-vinyl",
+      "kind" : "originalVector",
+      "name" : "黑胶时刻"
     }
   ],
   "styles" : [
@@ -5750,6 +6265,105 @@
       },
       "spacing" : 0.018,
       "subtitle" : "蜜桃暖调 · 温柔圆角"
+    },
+    {
+      "background" : {
+        "colorHex" : "#E6D5B5",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "travel-journal",
+      "margin" : 0.065,
+      "name" : "旅行手帐",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0,
+        "filterID" : "film",
+        "intensity" : 0.55,
+        "polaroid" : true,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "纸色宽边 · 胶片记忆"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F9E8B6",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "pet-diary",
+      "margin" : 0.055,
+      "name" : "宠物日记",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0.12,
+        "filterID" : "daily",
+        "intensity" : 0.25,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "奶黄底色 · 软软圆角"
+    },
+    {
+      "background" : {
+        "colorHex" : "#F3F2EC",
+        "isHidden" : false,
+        "kind" : "solid"
+      },
+      "id" : "mono-editorial",
+      "margin" : 0.075,
+      "name" : "黑白刊物",
+      "photoStyle" : {
+        "adjust" : {
+          "brightness" : 0,
+          "contrast" : 1,
+          "saturation" : 1,
+          "temperature" : 0
+        },
+        "corner" : 0,
+        "filterID" : "mono",
+        "intensity" : 1,
+        "polaroid" : false,
+        "shadow" : {
+          "colorHex" : "#00000088",
+          "offsetY" : 0,
+          "radius" : 0
+        },
+        "stroke" : {
+          "colorHex" : "#FFFFFF",
+          "width" : 0
+        }
+      },
+      "spacing" : 0.018,
+      "subtitle" : "黑白影像 · 画廊留白"
     },
     {
       "background" : {

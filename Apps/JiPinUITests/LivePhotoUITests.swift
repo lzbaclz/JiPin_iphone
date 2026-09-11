@@ -13,9 +13,22 @@ final class LivePhotoUITests: XCTestCase {
     private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
         func isVisible() -> Bool {
             guard element.exists else { return false }
-            return element.isHittable && element.frame.midY > 100 && element.frame.midY < app.frame.height - 40
+            let footerIDs = ["export-save-album", "live-save-album", "live-generate-primary"]
+            var bottom = app.frame.maxY - 40
+            if !footerIDs.contains(element.identifier) {
+                // SwiftUI can report a Form row as hittable even when the fixed action bar covers it.
+                // Scroll the row above the footer; otherwise a tap can save instead of generate.
+                for id in footerIDs {
+                    let footer = app.buttons[id]
+                    if footer.exists && footer.isHittable { bottom = min(bottom, footer.frame.minY - 36) }
+                }
+            }
+            return element.isHittable && element.frame.midY > 100 && element.frame.midY < bottom
         }
-        for _ in 0..<7 where !isVisible() { app.swipeUp() }
+        for _ in 0..<7 {
+            if isVisible() { break }
+            app.swipeUp()
+        }
         XCTAssertTrue(isVisible())
     }
 

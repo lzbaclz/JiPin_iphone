@@ -102,7 +102,7 @@ struct EditorView: View {
         Button {
             showCopyMode = true
         } label: {
-            Image(systemName: "square.on.square")
+            Label("复制到其他模式", systemImage: "square.on.square")
         }
         .accessibilityLabel("复制到其他模式")
         .accessibilityIdentifier("editor-copy-mode")
@@ -112,7 +112,7 @@ struct EditorView: View {
         Button {
             showLayers = true
         } label: {
-            Image(systemName: "square.3.layers.3d")
+            Label("图层列表", systemImage: "square.3.layers.3d")
         }
         .accessibilityLabel("图层列表")
         .accessibilityIdentifier("editor-layers")
@@ -395,6 +395,7 @@ struct ToolRail: View {
     }
 
     var body: some View {
+        HStack(spacing: 0) {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(tools) { tool in
@@ -422,6 +423,23 @@ struct ToolRail: View {
         }
         .background(JiPinTheme.surface)
         .accessibilityIdentifier("editor-tool-rail")
+            Menu {
+                ForEach(tools) { tool in
+                    Button {
+                        if tool == .layer { showLayers = true }
+                        else { session.selectTool(tool) }
+                    } label: { Label(tool.title, systemImage: tool.systemImage) }
+                        .accessibilityIdentifier("tool-menu-\(tool.rawValue)")
+                }
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "square.grid.2x2")
+                    Text("全部").font(.caption2)
+                }.frame(width: 48, height: 52)
+            }
+            .accessibilityLabel("全部工具").accessibilityIdentifier("editor-all-tools")
+            .padding(.trailing, 8)
+        }.background(JiPinTheme.surface)
     }
 }
 

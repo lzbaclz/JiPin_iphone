@@ -21,8 +21,8 @@ final class CatalogTests: XCTestCase {
     }
 
     func testPosterCountAndThemes() {
-        XCTAssertEqual(PosterTemplateCatalog.all.count, 20)
-        XCTAssertEqual(Set(PosterTemplateCatalog.all.map(\.id)).count, 20)
+        XCTAssertEqual(PosterTemplateCatalog.all.count, 23)
+        XCTAssertEqual(Set(PosterTemplateCatalog.all.map(\.id)).count, 23)
         for theme in PosterTheme.allCases {
             XCTAssertFalse(PosterTemplateCatalog.templates(theme: theme).isEmpty, theme.title)
         }
@@ -34,10 +34,10 @@ final class CatalogTests: XCTestCase {
     }
 
     func testAssetCatalogCounts() {
-        XCTAssertEqual(StickerCatalog.all.count, 78)
+        XCTAssertEqual(StickerCatalog.all.count, 84)
         XCTAssertEqual(BackgroundCatalog.all.count, 20)
         XCTAssertEqual(FilterCatalog.all.count, 10)
-        XCTAssertEqual(Set(StickerCatalog.all.map(\.id)).count, 78)
+        XCTAssertEqual(Set(StickerCatalog.all.map(\.id)).count, 84)
         XCTAssertEqual(GeometryShapeCatalog.all.count, 10)
         XCTAssertTrue(GeometryShapeCatalog.all.contains(where: { $0.id == "arrow" }))
     }

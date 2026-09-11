@@ -73,6 +73,9 @@ public enum StyleRecipeCatalog {
         make("film", "胶片时光", "拍立得边 · 复古褪色", "#EBDFC9", "film", 0.7, 0.0, 0.05, true),
         make("white", "极简留白", "纯白画廊 · 保留原色", "#FFFFFF", nil, 1, 0.0, 0.06),
         make("sunset", "落日来信", "蜜桃暖调 · 温柔圆角", "#FAE0D9", "warm", 0.45, 0.05, 0.035),
+        make("travel-journal", "旅行手帐", "纸色宽边 · 胶片记忆", "#E6D5B5", "film", 0.55, 0, 0.065, true),
+        make("pet-diary", "宠物日记", "奶黄底色 · 软软圆角", "#F9E8B6", "daily", 0.25, 0.12, 0.055),
+        make("mono-editorial", "黑白刊物", "黑白影像 · 画廊留白", "#F3F2EC", "mono", 1, 0, 0.075),
         make("night", "午夜街头", "墨色边框 · 冷调光影", "#192329", "cool", 0.5, 0.01, 0.025)
     ]
 

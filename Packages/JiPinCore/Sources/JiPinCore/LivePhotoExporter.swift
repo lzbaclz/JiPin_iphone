@@ -13,7 +13,7 @@ public enum LivePhotoTimeline {
 /// Decodes forward, keeping at most two sample buffers per source; never expands an entire movie into RAM.
 private final class LiveFrameReader {
     private let reader: AVAssetReader
-    private let output: AVAssetReaderVideoCompositionOutput
+    private let output: AVAssetReaderOutput
     private let context: CIContext
     private var current: CMSampleBuffer?
     private var next: CMSampleBuffer?
@@ -28,21 +28,27 @@ private final class LiveFrameReader {
         guard bounds.width.isFinite, bounds.height.isFinite, bounds.width >= 2, bounds.height >= 2 else { throw LivePhotoError.invalidVideo }
         let scale = min(1, maxSide / max(bounds.width, bounds.height))
         let size = CGSize(width: max(2, floor(bounds.width * scale / 2) * 2), height: max(2, floor(bounds.height * scale / 2) * 2))
-        let composition = AVMutableVideoComposition()
-        composition.renderSize = size
-        composition.frameDuration = CMTime(value: 1, timescale: LivePhotoPolicy.frameRate)
-        let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
-        layer.setTransform(transform.concatenating(CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY))
-            .concatenating(CGAffineTransform(scaleX: size.width / bounds.width, y: size.height / bounds.height)), at: .zero)
-        let instruction = AVMutableVideoCompositionInstruction()
-        instruction.timeRange = try await track.load(.timeRange)
-        instruction.layerInstructions = [layer]
-        composition.instructions = [instruction]
         reader = try AVAssetReader(asset: asset)
-        output = AVAssetReaderVideoCompositionOutput(videoTracks: [track], videoSettings: [
-            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
-        ])
-        output.videoComposition = composition
+        let pixels: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+        if transform.isIdentity && scale == 1 {
+            // Prepared clips already have their orientation and size baked in. A second video
+            // compositor adds no work we need and can exhaust compositor workers with many sources.
+            output = AVAssetReaderTrackOutput(track: track, outputSettings: pixels)
+        } else {
+            let composition = AVMutableVideoComposition()
+            composition.renderSize = size
+            composition.frameDuration = CMTime(value: 1, timescale: LivePhotoPolicy.frameRate)
+            let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+            layer.setTransform(transform.concatenating(CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY))
+                .concatenating(CGAffineTransform(scaleX: size.width / bounds.width, y: size.height / bounds.height)), at: .zero)
+            let instruction = AVMutableVideoCompositionInstruction()
+            instruction.timeRange = try await track.load(.timeRange)
+            instruction.layerInstructions = [layer]
+            composition.instructions = [instruction]
+            let composited = AVAssetReaderVideoCompositionOutput(videoTracks: [track], videoSettings: pixels)
+            composited.videoComposition = composition
+            output = composited
+        }
         output.alwaysCopiesSampleData = false
         guard reader.canAdd(output) else { throw LivePhotoError.decodeFailed }
         reader.add(output)

@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "JiPinCore", targets: ["JiPinCore"])
     ],
     targets: [
-        .target(name: "JiPinCore"),
+        .target(name: "JiPinCore", resources: [.copy("Resources/LiveSamples")]),
         .testTarget(name: "JiPinCoreTests", dependencies: ["JiPinCore"])
     ]
 )

@@ -86,6 +86,9 @@ final class EditorFlowUITests: XCTestCase {
         XCTAssertTrue(app.alerts["保存风格"].waitForExistence(timeout: 4))
         app.alerts["保存风格"].buttons["保存"].tap()
         XCTAssertTrue(app.buttons["套用我的日常风格"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["套用我的日常风格"].firstMatch.isHittable)
+        XCTAssertTrue(app.staticTexts["style-saved-notice"].exists)
+        keepVersionScreenshot(app, name: "402-saved-personal-style")
         app.navigationBars["风格工作室"].buttons["完成"].tap()
         app.buttons["style-gallery-open"].tap()
         let saved = app.buttons["套用我的日常风格"].firstMatch

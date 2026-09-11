@@ -148,6 +148,17 @@ xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
 
 ## V4.0.1 手势修复包
 
-最新归档：`build/TestFlight/JiPin-4.0.1-5/JiPin.xcarchive`；分发包：`build/TestFlight/JiPin-4.0.1-5/Export/JiPin.ipa`。主 App 和扩展同时升级为 4.0.1 / build 5，草稿仍使用 schema 4。旧版归档保留；本次没有上传 TestFlight。
+4.0.1 归档：`build/TestFlight/JiPin-4.0.1-5/JiPin.xcarchive`；分发包：`build/TestFlight/JiPin-4.0.1-5/Export/JiPin.ipa`。主 App 和扩展同时升级为 4.0.1 / build 5，草稿仍使用 schema 4。旧版归档保留；本次没有上传 TestFlight。
 
 手势验收使用 `-sampleEditor -sampleMode template -sampleLayout g4-grid`，与反馈中的四分格场景一致。`CanvasGestureUITests` 验证真实多指缩放/旋转、撤销、连续预览、跨格拖动、长按交换和画笔兼容；`CanvasInteractionTests` 验证焦点坐标、镜像、边界、缓存和自动保存。
+
+## V4.0.2 体验更新包
+
+当前主 App 和扩展均为 **4.0.2 / build 6**，草稿仍使用 schema 4。
+
+- 签名归档：`build/TestFlight/JiPin-4.0.2-6/JiPin.xcarchive`
+- App Store Connect 分发 IPA：`build/TestFlight/JiPin-4.0.2-6/Export/JiPin.ipa`
+- 验证结果：`build/Validation-4.0.2/`
+- 变更、测试与内置 Live 示例的维护方法：[4.0.2 发布说明](v4.0.2-release.md)
+
+产物已在本机导出，尚未上传 TestFlight。主 App、扩展以及内嵌框架签名已核验；安装包只声明添加照片用途，未加入测试用的全图库读取用途说明。

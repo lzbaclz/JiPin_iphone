@@ -58,3 +58,11 @@ Constraints: exactly one square 1024 x 1024 icon artwork; fully opaque RGB visua
 ## V4 动态示例
 
 `LivePhotoSamples.swift` 使用已有原创兔子、奶油熊、云朵、雏菊和彩虹矢量定义绘制短动画，在本机生成原生 Live Photo。示例不依赖外部照片、视频或音频授权，不读取用户图库，也不联网下载。
+
+
+## V4.0.2 新增原创素材
+
+- 海报：周末出走（4 图）、毛孩子日记（2 图）、城市刊物（3 图）。当前共 23 款，版式与文案均为本项目原创。
+- 风格：旅行手帐、宠物日记、黑白刊物。当前共 9 套配色与照片效果参数。
+- 酷感贴图：胶片瞬间、随身节拍、流星信号、棋盘浪潮、山野徽章、黑胶时刻，沿用 `OriginalStickerArt.swift` 的原创矢量绘制。当前 16 款可爱、8 款酷感，共 84 个贴纸条目。
+- 两份本地 Live 示例由上述已有原创矢量素材预渲染，720×960、3 秒、无声音；成对 JPG/MOV 随 Swift Package 的 `Resources/LiveSamples` 分发。没有加入用户照片或第三方素材。

@@ -43,10 +43,11 @@ struct ExportOriginalArt {
                 OriginalStickerArt.draw(key, in: CGRect(x: 0, y: 0, width: 768, height: 768), context: context)
             }, to: stickers.appendingPathComponent("\(item.id).png"))
         }
-        try write(bitmap(CGSize(width: 1440, height: 1050)) { context in
-            context.setFillColor(OriginalStickerArt.color("#FAF6F0")); context.fill(CGRect(x: 0,y: 0,width: 1440,height: 1050))
+        let boardHeight = CGFloat((originals.count + 5) / 6) * 286 + 192
+        try write(bitmap(CGSize(width: 1440, height: boardHeight)) { context in
+            context.setFillColor(OriginalStickerArt.color("#FAF6F0")); context.fill(CGRect(x: 0,y: 0,width: 1440,height: boardHeight))
             label("极拼 · 日常贴纸册", CGRect(x: 0,y: 36,width: 1440,height: 58), size: 40, bold: true)
-            label("16 个可爱贴图  /  2 个酷感点缀", CGRect(x: 0,y: 105,width: 1440,height: 34), size: 23)
+            label("\(StickerCatalog.stickers(in: .cute).count) 个可爱贴图  /  \(StickerCatalog.stickers(in: .cool).count) 个酷感点缀", CGRect(x: 0,y: 105,width: 1440,height: 34), size: 23)
             for (index, item) in originals.enumerated() {
                 guard case .illustration(let key) = item.render else { continue }
                 let x = CGFloat(index % 6) * 226 + 42, y = CGFloat(index / 6) * 286 + 168

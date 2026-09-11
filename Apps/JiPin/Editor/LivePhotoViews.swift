@@ -101,6 +101,8 @@ struct LivePhotoExportView: View {
     @State private var message: String?
     @State private var jobID = UUID()
     @State private var maxSide = 1080
+    @State private var preparedSide = 0
+    @State private var renderingFullSize = false
     @State private var playback = 0
     @State private var showStatic = false
     @State private var showShare = false
@@ -144,7 +146,9 @@ struct LivePhotoExportView: View {
                     }.accessibilityIdentifier("live-quality")
                     let size = LivePhotoExporter.outputSize(project: session.project, assets: session.assets.snapshot, maxSide: CGFloat(maxSide))
                     LabeledContent("尺寸", value: "\(Int(size.width)) × \(Int(size.height))")
-                    if let result { LabeledContent("文件大小", value: ByteCountFormatter.string(fromByteCount: result.byteCount, countStyle: .file)) }
+                    if let result, preparedSide == maxSide {
+                        LabeledContent("文件大小", value: ByteCountFormatter.string(fromByteCount: result.byteCount, countStyle: .file))
+                    }
                 }.disabled(busy)
                 Section {
                     if isRendering {
@@ -155,7 +159,10 @@ struct LivePhotoExportView: View {
                             .disabled(isSaving)
                             .accessibilityIdentifier("live-generate")
                     }
-                    Button("分享视频") { showShare = true }
+                    Button("分享视频") {
+                        if preparedSide == maxSide { showShare = true }
+                        else { startRender(.share) }
+                    }
                         .disabled(result == nil || busy)
                         .accessibilityIdentifier("live-share-video")
                     Button("导出静态图片") { showStatic = true }
@@ -167,6 +174,11 @@ struct LivePhotoExportView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 10) {
+                    if isRendering && renderingFullSize {
+                        ProgressView(value: progress)
+                        Text("正在准备 \(maxSide) 清晰度 · \(Int(progress * 100))%")
+                            .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                    }
                     if let message {
                         Text(message).font(.caption).foregroundStyle(.secondary)
                             .multilineTextAlignment(.center).accessibilityIdentifier("live-message")
@@ -174,7 +186,7 @@ struct LivePhotoExportView: View {
                     Button {
                         if result == nil { startRender() } else { Task { await save() } }
                     } label: {
-                        Label(isSaving ? "保存中…" : isRendering ? "正在生成动态…" : result == nil ? "生成动态预览" : "保存 Live 到相册", systemImage: "livephoto")
+                        Label(isSaving ? "保存中…" : isRendering ? (renderingFullSize ? "正在准备高清成品…" : "正在生成动态预览…") : result == nil ? "生成动态预览" : "保存 Live 到相册", systemImage: "livephoto")
                             .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
                     }
                     .buttonStyle(.borderedProminent).controlSize(.large)
@@ -197,21 +209,27 @@ struct LivePhotoExportView: View {
     }
 
     private func invalidate() {
-        renderTask?.cancel(); result = nil; live = nil; message = nil
+        renderTask?.cancel(); result = nil; live = nil; message = nil; preparedSide = 0
     }
 
-    private func startRender() {
+    private enum RenderPurpose { case preview, save, share }
+
+    private func startRender(_ purpose: RenderPurpose = .preview) {
         guard !busy else { return }
         session.refreshWarnings()
         guard !session.missingAssetWarning, !session.missingLiveAssetWarning else { message = "有照片或 Live 动态资源缺失，请重新选择相关照片后再生成。"; return }
         guard ExportJobLock.tryBegin() else { message = "还有一份作品正在导出，请稍后重试。"; return }
-        isRendering = true; progress = 0; result = nil; live = nil; message = nil
+        isRendering = true; progress = 0; message = nil
+        renderingFullSize = purpose != .preview
+        if purpose == .preview { result = nil; live = nil; preparedSide = 0 }
         let id = UUID(); jobID = id
-        let project = session.project, assets = session.assets.snapshot, side = CGFloat(maxSide)
+        let project = session.project, assets = session.assets.snapshot
+        // A preview never becomes a saved/shared result: those actions always prepare the chosen output size.
+        let side = purpose == .preview ? 640 : maxSide
         renderTask = Task {
             defer { isRendering = false; ExportJobLock.end() }
             let worker = Task.detached(priority: .userInitiated) {
-                try await LivePhotoExporter.render(project: project, assets: assets, maxSide: side) { value in
+                try await LivePhotoExporter.render(project: project, assets: assets, maxSide: CGFloat(side)) { value in
                     await MainActor.run { if jobID == id { progress = value } }
                 }
             }
@@ -221,8 +239,16 @@ struct LivePhotoExportView: View {
                 let native = try await LivePhotoMedia.request(imageURL: rendered.imageURL, videoURL: rendered.videoURL)
                 try Task.checkCancellation()
                 guard jobID == id, session.project.id == project.id else { return }
-                result = rendered; live = native; playback += 1
-                message = "Live 已生成，可以播放或保存到相册。"
+                result = rendered; live = native; preparedSide = side; playback += 1
+                switch purpose {
+                case .preview:
+                    message = "预览已就绪。保存时将生成 \(maxSide) 清晰度的成品。"
+                case .save:
+                    await savePair(rendered)
+                case .share:
+                    message = "视频已准备好。"
+                    showShare = true
+                }
             } catch is CancellationError {
                 message = "已取消生成，照片和草稿保留。"
             } catch {
@@ -233,6 +259,11 @@ struct LivePhotoExportView: View {
 
     private func save() async {
         guard let result, !busy else { return }
+        guard preparedSide == maxSide else { startRender(.save); return }
+        await savePair(result)
+    }
+
+    private func savePair(_ result: LivePhotoExport) async {
         isSaving = true
         defer { isSaving = false }
         do {

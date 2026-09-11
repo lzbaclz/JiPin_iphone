@@ -13,6 +13,7 @@
 		4214DE873E9F8529D62AE2AD /* StudioPreviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EE519104C6085EEDFDA005 /* StudioPreviews.swift */; };
 		492FB70AADFE81C81DA2936E /* VersionTwoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */; };
 		4DFBCE7243A03017D29DB785 /* ToolPanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A61135979489D5ADAF5D926 /* ToolPanels.swift */; };
+		53795AAD297D6886712034BD /* ModePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F38D3C0B3D50D9136EFD97 /* ModePickerSheet.swift */; };
 		53F0B337E689F7EF907D91D1 /* JiPinCore in Frameworks */ = {isa = PBXBuildFile; productRef = C2209B693ED5D29B913A458B /* JiPinCore */; };
 		57B28D33B0965D4DB2B85745 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */; };
 		587E77AD0393FCB9446E76B8 /* CatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11035725EF867AA91468F9DE /* CatalogTests.swift */; };
@@ -38,6 +39,7 @@
 		E2AA9F16687275AB8291FEA4 /* LivePhotoViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5952F1DC1205D81B8A8E14FD /* LivePhotoViews.swift */; };
 		E72B2D19710C37ABB5E4C388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99F8DDBF18E618470BEE45C7 /* Assets.xcassets */; };
 		ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */; };
+		F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2846E0A67CB441F686E1758C /* Version402UITests.swift */; };
 		F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
 		F8CA2BA986C0D472285A02D3 /* PagedExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D79685F0DDC106D8A6A938 /* PagedExportView.swift */; };
 /* End PBXBuildFile section */
@@ -87,10 +89,12 @@
 		13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoImporter.swift; sourceTree = "<group>"; };
 		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
 		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
+		2846E0A67CB441F686E1758C /* Version402UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version402UITests.swift; sourceTree = "<group>"; };
 		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2C3CDA137ED7A1F098F5D08E /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		3173826CCE37D292036A632F /* JiPinAction.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = JiPinAction.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		476F6890C326CD422DF6A934 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
+		47F38D3C0B3D50D9136EFD97 /* ModePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModePickerSheet.swift; sourceTree = "<group>"; };
 		50DA4387F5B22C8D9FFBAFB1 /* JiPinTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorFlowUITests.swift; sourceTree = "<group>"; };
 		55EE519104C6085EEDFDA005 /* StudioPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudioPreviews.swift; sourceTree = "<group>"; };
@@ -189,6 +193,7 @@
 			isa = PBXGroup;
 			children = (
 				BCF869917688CD6BFEE85880 /* HomeViews.swift */,
+				47F38D3C0B3D50D9136EFD97 /* ModePickerSheet.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -265,6 +270,7 @@
 				6E92CD5CC3B931FD46DE7F39 /* CanvasGestureUITests.swift */,
 				51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */,
 				C941A28287669E882473912B /* LivePhotoUITests.swift */,
+				2846E0A67CB441F686E1758C /* Version402UITests.swift */,
 			);
 			path = JiPinUITests;
 			sourceTree = "<group>";
@@ -449,6 +455,7 @@
 				5C5F3CDAC5EF79CE4CF66DE1 /* CanvasGestureUITests.swift in Sources */,
 				226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */,
 				28F0E2472BB73A28AB4D6644 /* LivePhotoUITests.swift in Sources */,
+				F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -464,6 +471,7 @@
 				7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */,
 				B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */,
 				E2AA9F16687275AB8291FEA4 /* LivePhotoViews.swift in Sources */,
+				53795AAD297D6886712034BD /* ModePickerSheet.swift in Sources */,
 				F8CA2BA986C0D472285A02D3 /* PagedExportView.swift in Sources */,
 				ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */,
 				F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */,
@@ -551,7 +559,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -571,7 +579,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.1;
+				MARKETING_VERSION = 4.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -715,7 +723,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -729,7 +737,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.1;
+				MARKETING_VERSION = 4.0.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

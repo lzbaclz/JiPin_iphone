@@ -136,6 +136,10 @@ public enum StickerCatalog {
         for (key, name) in originals { add("cute-\(key)", name, .cute, .illustration(key), tint: "#F2A8B8") }
         add("cool-bolt", "闪电徽章", .cool, .illustration("bolt"), tint: "#C4EF78")
         add("cool-orbit", "星际飞行", .cool, .illustration("orbit"), tint: "#8ACCE3")
+        for (key, name) in [("film-frame", "胶片瞬间"), ("headphones", "随身节拍"), ("comet", "流星信号"),
+                            ("checker", "棋盘浪潮"), ("mountain", "山野徽章"), ("vinyl", "黑胶时刻")] {
+            add("cool-\(key)", name, .cool, .illustration(key), tint: "#BDE783")
+        }
         return items
     }
 }

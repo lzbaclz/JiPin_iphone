@@ -173,11 +173,13 @@ struct CreateHomeView: View {
     @State private var importID = UUID()
     @State private var importedCount = 0
     @State private var importingCount = 0
+    @State private var sampleProgress: Double?
+    @State private var pickingLiveOnly = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 18) {
                     header
                     Button { beginPick(mode: nil) } label: {
                         Label("选择照片", systemImage: "photo.on.rectangle.angled")
@@ -195,35 +197,12 @@ struct CreateHomeView: View {
                         showModePicker = true
                     } label: {
                         Label("用示例插画体验", systemImage: "sparkles.rectangle.stack")
-                            .font(.headline)
+                            .font(.subheadline)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(JiPinTheme.surface)
+                            .padding(.vertical, 4)
                             .foregroundStyle(JiPinTheme.ink)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
                     .accessibilityHint("使用内置原创插画，无需打开相册即可试用四种模式")
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .top) {
-                            Image(systemName: "livephoto").font(.system(size: 38, weight: .light))
-                                .foregroundStyle(JiPinTheme.accent)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("回忆，可以一起动").font(.title3.weight(.semibold))
-                                Text("Live 照片拼图 · 保存后在相册长按播放")
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                        HStack {
-                            Button("选择 Live 照片") { beginPick(mode: nil) }
-                                .buttonStyle(.borderedProminent).accessibilityIdentifier("home-pick-live")
-                            Button("试试动态示例") { openLiveSample() }
-                                .buttonStyle(.bordered).accessibilityIdentifier("home-try-live")
-                        }
-                        Text("最多 9 张 Live，可与普通照片混拼")
-                            .font(.caption2).foregroundStyle(.secondary)
-                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
 
                     Text("拼图模式")
                         .font(.title3.weight(.semibold))
@@ -237,6 +216,27 @@ struct CreateHomeView: View {
                             .buttonStyle(.plain)
                         }
                     }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .top) {
+                            Image(systemName: "livephoto").font(.system(size: 38, weight: .light))
+                                .foregroundStyle(JiPinTheme.accent)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("回忆，可以一起动").font(.title3.weight(.semibold))
+                                Text("Live 照片拼图 · 保存后在相册长按播放")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        HStack {
+                            Button("选择 Live 照片") { beginPick(mode: nil, liveOnly: true) }
+                                .buttonStyle(.borderedProminent).accessibilityIdentifier("home-pick-live")
+                            Button("试试动态示例") { openLiveSample() }
+                                .buttonStyle(.bordered).accessibilityIdentifier("home-try-live")
+                        }
+                        Text("每份最多 9 张 Live；与普通照片混拼请用上方「选择照片」。")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
 
                     Button {
                         let photos = SamplePhotos.make(4)
@@ -253,7 +253,7 @@ struct CreateHomeView: View {
                                 .resizable().scaledToFit().frame(width: 74, height: 74)
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("把小可爱，贴进日常").font(.headline)
-                                Text("18 个原创贴图 · 6 款可爱边框").font(.caption).foregroundStyle(.secondary)
+                                Text("\(OriginalStickerArt.names.count) 个原创贴图 · 6 款可爱边框").font(.caption).foregroundStyle(.secondary)
                                 Text("试贴一下 →").font(.subheadline.weight(.semibold)).foregroundStyle(JiPinTheme.accent)
                             }
                             Spacer(minLength: 0)
@@ -320,10 +320,11 @@ struct CreateHomeView: View {
                     ZStack {
                         Color.black.opacity(0.12).ignoresSafeArea()
                         VStack(spacing: 16) {
-                            ProgressView(value: Double(importedCount), total: Double(max(importingCount, 1)))
-                            Text("正在导入照片 \(importedCount)/\(importingCount)")
+                            ProgressView(value: sampleProgress ?? Double(importedCount) / Double(max(importingCount, 1)))
+                            Text(sampleProgress.map { "正在准备本地示例 \(Int($0 * 100))%" }
+                                 ?? "正在导入照片 \(importedCount)/\(importingCount)")
                                 .font(.headline)
-                            Text("云端原图可能需要下载，请稍候。")
+                            Text(sampleProgress == nil ? "云端原图可能需要下载，请稍候。" : "示例已随 App 保存，无需联网。")
                                 .font(.caption).foregroundStyle(.secondary)
                             Button("取消导入", action: cancelImport)
                                 .accessibilityIdentifier("cancel-import")
@@ -335,8 +336,8 @@ struct CreateHomeView: View {
                 }
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $pickerItems,
-                          maxSelectionCount: presetMode.map { PhotoLimits.range(for: $0).upperBound } ?? PhotoLimits.pickerWithoutMode,
-                          selectionBehavior: .ordered, matching: PhotoImporter.stillImages)
+                          maxSelectionCount: pickingLiveOnly ? LivePhotoPolicy.maxSources : (presetMode.map { PhotoLimits.range(for: $0).upperBound } ?? PhotoLimits.pickerWithoutMode),
+                          selectionBehavior: .ordered, matching: pickingLiveOnly ? .livePhotos : PhotoImporter.stillImages)
             .onChange(of: pickerItems) { _, items in beginImport(items) }
             .onDisappear { importTask?.cancel() }
         }
@@ -346,7 +347,7 @@ struct CreateHomeView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("把多张照片做成一张图")
                 .font(.title2.weight(.bold))
-            Text("四种拼图方式，照片导入后即可离线编辑。无需登录。")
+            Text("选照片，挑效果，保存到相册。无需登录。")
                 .foregroundStyle(JiPinTheme.muted)
         }
     }
@@ -454,7 +455,8 @@ struct CreateHomeView: View {
         }
     }
 
-    private func beginPick(mode: CollageMode?, layoutID: String? = nil, posterID: String? = nil) {
+    private func beginPick(mode: CollageMode?, layoutID: String? = nil, posterID: String? = nil, liveOnly: Bool = false) {
+        pickingLiveOnly = liveOnly
         presetMode = mode
         pendingLayoutID = layoutID
         pendingPosterID = posterID
@@ -464,11 +466,14 @@ struct CreateHomeView: View {
     private func openLiveSample() {
         guard !isLoading else { return }
         isLoading = true
+        sampleProgress = 0
         importedCount = 0; importingCount = 2
         let request = UUID(); importID = request
         importTask = Task {
             do {
-                let photos = try await LivePhotoSamples.make()
+                let photos = try await LivePhotoSamples.make { value in
+                    await MainActor.run { if importID == request { sampleProgress = value } }
+                }
                 guard !Task.isCancelled, importID == request else { return }
                 isLoading = false
                 let session = EditorSession(project: ProjectFactory.make(mode: .template, photos: photos), assets: AssetLibrary(photos: photos))
@@ -488,6 +493,7 @@ struct CreateHomeView: View {
         importTask?.cancel()
         importID = UUID()
         isLoading = false
+        sampleProgress = nil
         pickerItems = []
         imported = []
         failedPhotos = []
@@ -495,6 +501,7 @@ struct CreateHomeView: View {
 
     private func beginImport(_ items: [PhotosPickerItem]) {
         guard !items.isEmpty else { return }
+        sampleProgress = nil
         importTask?.cancel()
         let request = UUID()
         importID = request
@@ -541,187 +548,6 @@ struct CreateHomeView: View {
         } catch {
             loadError = error.localizedDescription
         }
-    }
-}
-
-struct ModePickerSheet: View {
-    let photos: [ImportedPhoto]
-    var preset: CollageMode?
-    var preferredLayoutID: String? = nil
-    var preferredPosterID: String? = nil
-    var locksMode = false
-    var onStart: (CollageMode, String?, String?, [ImportedPhoto]) -> Void
-    @Environment(\.dismiss) private var dismiss
-    @State private var mode: CollageMode?
-    @State private var layoutID: String?
-    @State private var posterID: String?
-    @State private var selectedPhotos: Set<Int> = []
-
-    var body: some View {
-        NavigationStack {
-            List {
-                if photos.isEmpty {
-                    Text("还没有照片。请先选择至少 1 张。")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("mode-hint-empty")
-                } else if availableModes.isEmpty {
-                    Text("当前 \(photos.count) 张超出所有模式上限（最多 \(PhotoLimits.pickerWithoutMode) 张）。请减少照片后再开始。")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("mode-hint-overflow")
-                } else if photos.count == 1 {
-                    Text("1 张照片可进入自由拼图或海报拼图。模板与长图至少需要 2 张。")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("mode-hint-single")
-                } else if photos.count >= 17 {
-                    Text("\(photos.count) 张只能使用长图拼接。模板最多 16 张，海报最多 9 张，自由拼图最多 16 张。")
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("mode-hint-longstrip-only")
-                }
-                Section("模式") {
-                    ForEach(availableModes) { item in
-                        Button {
-                            chooseMode(item)
-                        } label: {
-                            HStack {
-                                Label(item.title, systemImage: item.systemImage)
-                                Spacer()
-                                if mode == item { Image(systemName: "checkmark") }
-                            }
-                        }
-                    }
-                }
-                if mode == .template {
-                    Section("布局预览") {
-                        ForEach(CollageGridLayoutCatalog.layouts(forPhotoCount: photos.count)) { layout in
-                            Button {
-                                layoutID = layout.id
-                            } label: {
-                                HStack {
-                                    LayoutThumb(layout: layout)
-                                        .frame(width: 52, height: 52)
-                                    Text(layout.name)
-                                    Spacer()
-                                    if layoutID == layout.id { Image(systemName: "checkmark") }
-                                }
-                            }
-                            .accessibilityLabel(layout.name)
-                        }
-                    }
-                }
-                if mode == .poster {
-                    ForEach(PosterTheme.allCases) { theme in
-                        let posters = PosterTemplateCatalog.templates(theme: theme).filter { $0.photoCount == photos.count }
-                        if !posters.isEmpty {
-                            Section(theme.title) {
-                                ForEach(posters) { poster in
-                                    Button {
-                                        posterID = poster.id
-                                    } label: {
-                                        HStack {
-                                            PosterThumb(poster: poster)
-                                                .frame(width: 40, height: 52)
-                                            Text(poster.name)
-                                            Spacer()
-                                            Text("\(poster.photoCount) 图")
-                                                .foregroundStyle(.secondary)
-                                            if posterID == poster.id { Image(systemName: "checkmark") }
-                                        }
-                                    }
-                                    .accessibilityLabel("海报预览 \(poster.name)，\(poster.photoCount) 图")
-                                }
-                            }
-                        }
-                    }
-                    if PosterTemplateCatalog.matching(photoCount: photos.count).isEmpty {
-                        Text("没有正好 \(photos.count) 张照片位的海报。请选择模板，并确认要使用的照片。")
-                            .foregroundStyle(.secondary)
-                        ForEach(Array(PosterTemplateCatalog.closest(photoCount: photos.count).prefix(6))) { poster in
-                            Button("\(poster.name) · \(poster.photoCount) 图") { posterID = poster.id }
-                        }
-                    }
-                }
-                if mode == .poster, let template = posterID.flatMap(PosterTemplateCatalog.template(id:)), template.photoCount != photos.count {
-                    Section("为「\(template.name)」选择 \(template.photoCount) 张照片") {
-                        if template.photoCount > photos.count {
-                            Text("照片不足，请换一个照片位更少的模板，或返回重新选图。")
-                        } else {
-                            ForEach(Array(photos.enumerated()), id: \.offset) { index, photo in
-                                Button {
-                                    if selectedPhotos.contains(index) { selectedPhotos.remove(index) }
-                                    else if selectedPhotos.count < template.photoCount { selectedPhotos.insert(index) }
-                                } label: {
-                                    HStack {
-                                        Text("照片 \(index + 1) · \(photo.filename)")
-                                        Spacer()
-                                        if selectedPhotos.contains(index) { Image(systemName: "checkmark") }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("选择模式")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("开始") { start() }
-                        .disabled(!canStart)
-                }
-            }
-            .onAppear {
-                chooseMode(preset.flatMap { availableModes.contains($0) ? $0 : nil } ?? availableModes.first)
-            }
-            .onChange(of: posterID) { _, _ in resetPosterPhotos() }
-        }
-        .presentationDetents([.medium, .large])
-    }
-
-    private var availableModes: [CollageMode] {
-        let modes = PhotoLimits.modes(forPhotoCount: photos.count)
-        if locksMode, let preset { return modes.contains(preset) ? [preset] : [] }
-        if let preset, modes.contains(preset) { return [preset] + modes.filter { $0 != preset } }
-        return modes
-    }
-
-    private func chooseMode(_ value: CollageMode?) {
-        mode = value
-        switch value {
-        case .template:
-            layoutID = preferredLayoutID ?? CollageGridLayoutCatalog.defaultLayout(forPhotoCount: photos.count)?.id
-            posterID = nil
-        case .poster:
-            posterID = preferredPosterID
-                ?? PosterTemplateCatalog.matching(photoCount: photos.count).first?.id
-                ?? PosterTemplateCatalog.closest(photoCount: photos.count).first?.id
-            layoutID = nil
-        default:
-            layoutID = nil
-            posterID = nil
-        }
-        resetPosterPhotos()
-    }
-
-    private func resetPosterPhotos() {
-        let required = posterID.flatMap(PosterTemplateCatalog.template(id:))?.photoCount ?? photos.count
-        selectedPhotos = Set(0..<min(required, photos.count))
-    }
-
-    private var canStart: Bool {
-        guard let mode, availableModes.contains(mode) else { return false }
-        if mode == .poster {
-            guard let template = posterID.flatMap(PosterTemplateCatalog.template(id:)) else { return false }
-            return selectedPhotos.count == template.photoCount
-        }
-        return true
-    }
-
-    private func start() {
-        guard canStart, let mode else { return }
-        let chosen = mode == .poster ? photos.enumerated().filter { selectedPhotos.contains($0.offset) }.map(\.element) : photos
-        onStart(mode, layoutID, posterID, chosen)
     }
 }
 

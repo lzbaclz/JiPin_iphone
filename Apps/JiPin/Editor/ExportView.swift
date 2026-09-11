@@ -31,7 +31,7 @@ struct ExportView: View {
                         Image(uiImage: preview)
                             .resizable()
                             .scaledToFit()
-                            .frame(maxHeight: 280)
+                            .frame(maxHeight: 220)
                     } else {
                         ProgressView()
                     }
@@ -62,11 +62,6 @@ struct ExportView: View {
                     }
                     LabeledContent("文件大小", value: actualSize ?? estimated)
                         .accessibilityIdentifier("export-file-size")
-                    if let message {
-                        Text(message)
-                            .foregroundStyle(.secondary)
-                            .accessibilityIdentifier("export-message")
-                    }
                     sizeFootnote
                     if session.lowResolutionWarning {
                         Text("有照片分辨率偏低，按当前尺寸放大后可能发糊。")
@@ -109,10 +104,6 @@ struct ExportView: View {
                     }
                     .disabled(isBusy)
                     .accessibilityIdentifier("export-generate")
-                    Button("保存到相册") { Task { await saveToAlbum() } }
-                        .disabled(isBusy)
-                        .accessibilityIdentifier("export-save-album")
-                        .accessibilityHidden(false)
                     Button("系统分享") { Task { await shareGenerated() } }
                         .disabled(isBusy)
                         .accessibilityIdentifier("export-share")
@@ -123,8 +114,29 @@ struct ExportView: View {
                         .accessibilityHidden(false)
                 }
             }
+            .safeAreaInset(edge: .bottom) {
+                VStack(spacing: 10) {
+                    if let message {
+                        Text(message).font(.caption).foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .accessibilityIdentifier("export-message")
+                    }
+                    Button { Task { await saveToAlbum() } } label: {
+                        HStack {
+                            if isSavingToAlbum { ProgressView().tint(.white) }
+                            Label(isSavingToAlbum ? "正在保存…" : "保存到相册", systemImage: "square.and.arrow.down")
+                        }.font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
+                    }
+                    .buttonStyle(.borderedProminent).controlSize(.large)
+                    .disabled(isBusy).accessibilityIdentifier("export-save-album")
+                    Text("直接保存，无需先生成文件")
+                        .font(.caption).foregroundStyle(.secondary)
+                }.padding().background(.regularMaterial)
+            }
             .navigationTitle("导出")
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } } }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() }.disabled(isBusy) } }
+            .interactiveDismissDisabled(isBusy)
             .onAppear { refresh() }
             .sheet(isPresented: $showPages) { PagedExportView(session: session) }
             .onChange(of: session.project.exportPreference) { _, _ in refresh() }

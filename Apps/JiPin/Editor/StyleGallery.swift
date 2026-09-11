@@ -37,17 +37,30 @@ struct StyleTools: View {
     @ObservedObject var session: EditorSession
     @State private var showGallery = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("给照片，一整套好看的搭配").font(.headline)
-            Text("背景、留白、相框与色调一起换，也可以收藏自己的风格。")
-                .font(.subheadline).foregroundStyle(.secondary)
-            Button { showGallery = true } label: {
-                Label("挑选风格 · 我的风格", systemImage: "sparkles.rectangle.stack")
-                    .frame(maxWidth: .infinity).padding(8)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("轻点换个风格").font(.headline)
+                Spacer()
+                Button("全部 · 我的风格") { showGallery = true }
+                    .font(.subheadline).accessibilityIdentifier("style-gallery-open")
             }
-            .buttonStyle(.borderedProminent)
-            .accessibilityIdentifier("style-gallery-open")
-            Text("可以撤销；文字适配背景深浅，锁定图层保持原样。")
+            ScrollView(.horizontal, showsIndicators: true) {
+                HStack(spacing: 12) {
+                    ForEach(StyleRecipeCatalog.all) { recipe in
+                        Button { session.applyStyle(recipe) } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                ProjectThumbnail(project: recipe.applying(to: session.project), assets: session.assets, side: 220)
+                                    .frame(width: 108, height: 112)
+                                    .background(Color(hex: recipe.background.colorHex), in: RoundedRectangle(cornerRadius: 10))
+                                Text(recipe.name).font(.caption.weight(.medium))
+                            }
+                        }.buttonStyle(.plain)
+                            .accessibilityLabel("套用\(recipe.name)")
+                            .accessibilityIdentifier("style-inline-\(recipe.id)")
+                    }
+                }
+            }
+            Text("用你的照片预览 · 套用后可以撤销")
                 .font(.caption).foregroundStyle(.secondary)
         }
         .sheet(isPresented: $showGallery) { StyleGallery(session: session) }
@@ -62,10 +75,12 @@ struct StyleGallery: View {
     @State private var showName = false
     @State private var name = "我的日常风格"
     @State private var error: String?
+    @State private var lastSavedID: String?
     private var store: StyleRecipeStore { StyleRecipeStore(directory: session.store.containerURL.appendingPathComponent("StyleRecipes")) }
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { scroll in
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text("今天，想拼出什么心情？").font(.title2.bold())
@@ -78,6 +93,11 @@ struct StyleGallery: View {
                         Button("保存当前搭配") { showName = true }
                             .disabled(!loaded || saved.count >= 30)
                             .accessibilityIdentifier("style-save-current")
+                    }.id("personal-styles")
+                    if lastSavedID != nil {
+                        Text("新风格已保存，点下方预览即可套用。")
+                            .font(.caption).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("style-saved-notice")
                     }
                     Text("保存配色、边距、圆角和所选照片效果，不包含照片、文字、装饰与布局。最多保存 30 套。")
                         .font(.caption).foregroundStyle(.secondary)
@@ -86,6 +106,13 @@ struct StyleGallery: View {
                 }.padding(20)
             }
             .background(JiPinTheme.canvas)
+            .onChange(of: lastSavedID) { _, id in
+                guard id != nil else { return }
+                DispatchQueue.main.async {
+                    withAnimation { scroll.scrollTo("personal-styles", anchor: .top) }
+                }
+            }
+            }
             .navigationTitle("风格工作室")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("完成") { dismiss() } } }
@@ -140,7 +167,7 @@ struct StyleGallery: View {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { error = "请给风格起个名字。"; return }
         let recipe = StyleRecipe(name: trimmed, project: session.project, photo: session.selected?.photo)
-        do { let next = [recipe] + saved; try store.save(next); saved = next }
+        do { let next = [recipe] + saved; try store.save(next); saved = next; lastSavedID = recipe.id }
         catch { self.error = "保存失败：\(error.localizedDescription)" }
     }
 }

@@ -5,7 +5,8 @@ import Foundation
 /// All geometry uses a 100 × 100 design space; no emoji, raster or external font dependency.
 public enum OriginalStickerArt {
     public static let names = ["bunny", "bear", "cat", "strawberry", "cherries", "bow", "daisy", "cloud",
-                               "moon", "letter", "pudding", "boba", "peach", "rainbow", "candy", "cake", "bolt", "orbit"]
+                               "moon", "letter", "pudding", "boba", "peach", "rainbow", "candy", "cake", "bolt", "orbit",
+                               "film-frame", "headphones", "comet", "checker", "mountain", "vinyl"]
 
     public static func color(_ hex: String) -> CGColor {
         let digits = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
@@ -20,7 +21,7 @@ public enum OriginalStickerArt {
         cg.translateBy(x: rect.midX - 50 * unit, y: rect.midY - 50 * unit)
         cg.scaleBy(x: unit, y: unit)
         cg.setLineCap(.round); cg.setLineJoin(.round)
-        let ink = (name == "bolt" || name == "orbit") ? "#112332" : "#62443C", cream = "#FFF4DF", pink = "#F2A8B8", rose = "#D97091", mint = "#A8D9BB"
+        let ink = ["bolt", "orbit", "film-frame", "headphones", "comet", "checker", "mountain", "vinyl"].contains(name) ? "#112332" : "#62443C", cream = "#FFF4DF", pink = "#F2A8B8", rose = "#D97091", mint = "#A8D9BB"
         func path(_ body: (CGMutablePath) -> Void) -> CGPath { let p = CGMutablePath(); body(p); return p }
         func paint(_ p: CGPath, _ fill: String, edge: Bool = true, cut: Bool = true) {
             if cut { cg.addPath(p); cg.setLineWidth(8); cg.setStrokeColor(color("#FFFFFF")); cg.strokePath() }
@@ -202,6 +203,53 @@ public enum OriginalStickerArt {
             polygon([CGPoint(x: 73,y: 18),CGPoint(x: 53,y: 57),CGPoint(x: 50,y: 75),CGPoint(x: 40,y: 62)], "#5892BE")
             line([CGPoint(x: 61,y: 38),CGPoint(x: 60,y: 49)], "#E6FAFF", 3)
             sparkle(23, 24, 4, "#C5ED84"); sparkle(79, 79, 4, "#C5ED84")
+        case "film-frame":
+            box(12, 12, 76, 76, 9, "#172B38")
+            box(23, 26, 54, 48, 2, "#BDE783", detail: true)
+            for x in stride(from: 22.0, through: 70, by: 12) {
+                box(x, 17, 7, 5, 1, "#F8F3DF", detail: true)
+                box(x, 79, 7, 5, 1, "#F8F3DF", detail: true)
+            }
+            oval(55, 33, 12, 12, "#F8F3DF", detail: true)
+            polygon([CGPoint(x: 23,y: 69),CGPoint(x: 42,y: 44),CGPoint(x: 55,y: 59),CGPoint(x: 64,y: 50),CGPoint(x: 77,y: 69)], "#305E68", detail: true)
+        case "headphones":
+            oval(11, 11, 78, 78, "#233447")
+            let arch = path { p in p.move(to: CGPoint(x: 25,y: 58)); p.addCurve(to: CGPoint(x: 75,y: 58), control1: CGPoint(x: 21,y: 12), control2: CGPoint(x: 79,y: 12)) }
+            cg.addPath(arch); cg.setStrokeColor(color("#BDE783")); cg.setLineWidth(9); cg.strokePath()
+            box(18, 49, 18, 31, 7, "#91D3E8"); box(64, 49, 18, 31, 7, "#91D3E8")
+            line([CGPoint(x: 40,y: 64),CGPoint(x: 40,y: 72)], "#BDE783", 3)
+            line([CGPoint(x: 50,y: 55),CGPoint(x: 50,y: 79)], "#BDE783", 3)
+            line([CGPoint(x: 59,y: 62),CGPoint(x: 59,y: 72)], "#BDE783", 3)
+        case "comet":
+            oval(12, 12, 76, 76, "#192D43")
+            polygon([CGPoint(x: 21,y: 76),CGPoint(x: 57,y: 19),CGPoint(x: 82,y: 37)], "#A8A1DE")
+            line([CGPoint(x: 22,y: 66),CGPoint(x: 48,y: 34)], "#91D3E8", 4)
+            sparkle(65, 34, 19, "#C8EE87"); sparkle(28, 28, 6, "#F5F4DE")
+            sparkle(73, 72, 8, "#91D3E8")
+        case "checker":
+            box(12, 12, 76, 76, 14, "#172B38")
+            for row in 0..<4 { for column in 0..<4 where (row + column).isMultiple(of: 2) {
+                box(22 + Double(column) * 14, 22 + Double(row) * 14, 14, 14, 1, "#C8EE87", detail: true)
+            } }
+            line([CGPoint(x: 21,y: 81),CGPoint(x: 79,y: 19)], "#8DD0E7", 4)
+        case "mountain":
+            polygon([CGPoint(x: 50,y: 9),CGPoint(x: 89,y: 30),CGPoint(x: 85,y: 73),CGPoint(x: 50,y: 91),CGPoint(x: 15,y: 73),CGPoint(x: 11,y: 30)], "#223D3A")
+            oval(60, 24, 16, 16, "#CCE987", detail: true)
+            polygon([CGPoint(x: 20,y: 70),CGPoint(x: 42,y: 29),CGPoint(x: 62,y: 70)], "#8AD0DB", detail: true)
+            polygon([CGPoint(x: 40,y: 70),CGPoint(x: 65,y: 44),CGPoint(x: 82,y: 70)], "#C8EE87", detail: true)
+            polygon([CGPoint(x: 34,y: 44),CGPoint(x: 42,y: 29),CGPoint(x: 49,y: 44),CGPoint(x: 41,y: 40)], "#F8F3DF", detail: true)
+            line([CGPoint(x: 31,y: 79),CGPoint(x: 67,y: 79)], "#F8F3DF", 2)
+        case "vinyl":
+            oval(10, 10, 80, 80, "#172B38")
+            for radius in [31.0, 25.0] {
+                cg.addEllipse(in: CGRect(x: 50-radius,y: 50-radius,width: radius*2,height: radius*2))
+                cg.setStrokeColor(color("#52707F")); cg.setLineWidth(1.5); cg.strokePath()
+            }
+            oval(34, 34, 32, 32, "#C8EE87", detail: true)
+            oval(46, 46, 8, 8, "#172B38", detail: true)
+            line([CGPoint(x: 29,y: 27),CGPoint(x: 34,y: 35)], "#F8F3DF", 3)
+            line([CGPoint(x: 22,y: 37),CGPoint(x: 28,y: 41)], "#F8F3DF", 3)
+            sparkle(82, 16, 8, "#91D3E8")
         default: break
         }
     }

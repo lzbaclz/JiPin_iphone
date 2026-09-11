@@ -6,6 +6,30 @@ import XCTest
 @testable import JiPinCore
 
 final class LivePhotoTests: XCTestCase {
+    func testReadyMadeSamplesKeepFreshIdentityAndNativeMotion() async throws {
+        let first = try await LivePhotoSamples.make()
+        let second = try await LivePhotoSamples.make()
+        XCTAssertEqual(first.count, 2)
+        XCTAssertTrue(Set(first.map(\.id)).isDisjoint(with: Set(second.map(\.id))))
+        for (index, photo) in first.enumerated() {
+            let clip = try XCTUnwrap(photo.liveClip)
+            XCTAssertEqual(clip.source.id, photo.id)
+            XCTAssertEqual(clip.source.duration, 3, accuracy: 0.05)
+            XCTAssertFalse(ImageIOHelpers.containsGPS(photo.data))
+            let pair = try await LivePhotoSamples.sourcePair(index: index)
+            XCTAssertEqual(pair.image.lastPathComponent, "sample-\(index).jpg", "Release examples must load their bundled pair, not encode at first use")
+            let native = try await LivePhotoMedia.request(imageURL: pair.image, videoURL: pair.video)
+            XCTAssertEqual(native.size, CGSize(width: 720, height: 960))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: clip.url.path))
+        }
+        let cancelled = Task { () throws -> [ImportedPhoto] in
+            withUnsafeCurrentTask { $0?.cancel() }
+            return try await LivePhotoSamples.make()
+        }
+        do { _ = try await cancelled.value; XCTFail("Cancelled sample loading must not open an editor") }
+        catch is CancellationError { }
+    }
+
     private func fixture(color: UIColor = .red, duration: Double = 1.5, size: CGSize = CGSize(width: 160, height: 240)) async throws -> ImportedPhoto {
         let pair = try await LivePhotoWriter.write(size: size, duration: duration) { cg, time in
             cg.scaleBy(x: size.width / 160, y: size.height / 240)

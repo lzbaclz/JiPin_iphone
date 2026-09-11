@@ -24,11 +24,11 @@ final class VersionThreeTests: XCTestCase {
         CollageRenderer.shared.render(project: project, assets: DataAssetLibrary(), canvasSize: size, preview: false)
     }
 
-    func testOriginalCollectionsContainSixteenCuteTwoCoolAndSixFrames() {
+    func testOriginalCollectionsContainSixteenCuteEightCoolAndSixFrames() {
         XCTAssertEqual(StickerCatalog.stickers(in: .cute).count, 16)
-        XCTAssertEqual(StickerCatalog.stickers(in: .cool).count, 2)
+        XCTAssertEqual(StickerCatalog.stickers(in: .cool).count, 8)
         XCTAssertEqual(DecorationFrameCatalog.all.count, 6)
-        XCTAssertEqual(Set(originals.map(\.id)).count, 18)
+        XCTAssertEqual(Set(originals.map(\.id)).count, 24)
         let keys = originals.compactMap { item -> String? in if case .illustration(let key) = item.render { return key }; return nil }
         XCTAssertEqual(Set(keys), Set(OriginalStickerArt.names))
     }
@@ -45,7 +45,7 @@ final class VersionThreeTests: XCTestCase {
             XCTAssertLessThan(alphas.filter { $0 > 0 }.count, 45_000, item.id)
             outputs.insert(image.pngData()!)
         }
-        XCTAssertEqual(outputs.count, 18)
+        XCTAssertEqual(outputs.count, 24)
     }
 
     func testDecorativeFramesLeaveCenterTransparentAtAllAspectRatios() {

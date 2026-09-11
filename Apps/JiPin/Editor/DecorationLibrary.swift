@@ -26,7 +26,7 @@ struct StickerLibrary: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("把小可爱，贴进日常").font(.title2.bold())
-                            Text("16 个甜甜贴图 · 2 个酷感点缀")
+                            Text("\(StickerCatalog.stickers(in: .cute).count) 个可爱贴图 · \(StickerCatalog.stickers(in: .cool).count) 个酷感点缀")
                                 .font(.subheadline).foregroundStyle(.secondary)
                         }
                         Spacer()

@@ -122,3 +122,20 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - 性能对照：4 张 2400×3200 JPEG、600×600 预览、30 次几何变化。同一渲染器无缓存为 33.80 ms/帧，缓存复用为 18.72 ms/帧（1.81×）；另一次为 33.42 / 19.28 ms。30 次变化只解码 4 张输入，未反复解码。数值来自模拟器、含同机负载差异，不能换算为真实 iPhone 帧率。
 - 本机结果：`/private/tmp/jipin-gesture-fix/core-first.xcresult`、`small-final.xcresult`（常规核心）、`ui-full.xcresult`（完整 UI）、`final-targeted.xcresult`、`acceptance.xcresult`（最终核心与手势）、`drawing-verified.xcresult`（微调与画笔兼容）。中途修正了 UI 测试对默认布局、虚拟元素和涂鸦选中状态的假设。
 - 4.0.1 (5) 正式归档与 App Store Connect 本地 IPA 导出成功；包大小 5,599,384 字节，SHA-256 `a45e80f4747d1920404b920e990458d46bddc8e9a5287fef78dfcf7686fe8aa0`。未上传 TestFlight；真实设备最终手感仍需安装此更新验证。
+
+
+## V4.0.2 体验与导出回归（2026-09-10）
+
+- 核心 145 项：144 通过、1 项原生相册保存后回读测试因未授予专项读取权限而跳过，0 失败。发布包依然仅声明添加照片用途。
+- UI 共 38 条：完整运行 36 条通过，修正个人风格保存定位及导出脚本对固定操作区的判断后，清理测试运行器并重新构建，另两条原用例通过。最终 38 条均有通过记录；不是一次全量运行全部成功。
+- 新增 4 条用户流程：真实照片模式预览并进入选定海报；直接套用风格并撤销、全部工具与文字标签；首屏直接保存；内置 Live 示例进入、预览并保留高清保存入口。
+- 新增原生 Live 示例资源测试：安装包资源、独立照片标识、原生配对解析、3 秒时长、取消与 GPS 检查。原版草稿、撤销与跨模式复制继续回归。
+- 大图测试发现已缩小素材重复走视频合成解码的等待，改为方向和尺寸已满足要求时直接读取视频轨道。大图、九路 Live、旋转素材专项通过，随后全部 Live 核心通过。
+- Live 快速预览为最长边 640；保存、分享视频按用户选择的 1080 / 1440 再生成，静态导出仍生成所选静态尺寸。Live 保存、草稿重开、扩展草稿交接、系统选择器保留 Live 及转静态流程均通过。
+- 设计目录已重新导出：46 布局、23 海报、84 贴纸、20 背景、10 滤镜、9 风格、6 装饰边框。24 个原创贴图渲染均不同且保留透明外围。
+- 视觉核验：实图模式选择、固定保存、菜单文字、字号行距、新增贴图总览、个人风格保存自动定位与 Live 保存成功。截图见 `docs/version-screenshots/v4.0.2/`。
+- 结果目录 `build/Validation-4.0.2/`：`FullRegression.xcresult`、`CleanFinalFlows.xcresult`、`MediaAndNewUI.xcresult`、`validation-summary.json`、日志和分发包核验 JSON。最终覆盖 183 个不同用例，182 通过、1 跳过，没有剩余失败项。
+- 主 App 与扩展都是 4.0.2 / 6；正式签名归档和本地 App Store Connect IPA 导出通过。Apple Distribution、嵌套签名、App Group、`get-task-allow=false`、`beta-reports-active=true`、四个内置 Live 文件哈希均核验通过。
+- 最终 IPA：`build/TestFlight/JiPin-4.0.2-6/Export/JiPin.ipa`，8,900,654 字节；SHA-256 `fc8053062ba1017792fdd0aa2d8b320eea69a08642d18c8bdc26063b10dd2bc0`。尚未上传 TestFlight。
+
+模拟器不替代真实相机/iCloud/照片宿主及低内存设备验收。原生图库回读的跳过项没有计入通过数量。

@@ -332,10 +332,11 @@ struct PhotoRosterBar: View {
 struct AdjustTools: View {
     @ObservedObject var session: EditorSession
     @State private var picker: [PhotosPickerItem] = []
+    @State private var showLayerControls = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            PhotoRosterBar(session: session)
+            Text("构图调整").font(.headline)
             HStack {
                 Button("旋转 90°") { session.rotateSelected(degrees: 90) }
                 Button("水平翻转") { session.flipSelected(horizontal: true) }
@@ -379,6 +380,7 @@ struct AdjustTools: View {
                     }
                 }.accessibilityIdentifier("adjust-reset-position")
             }.buttonStyle(.bordered).font(.caption)
+            DisclosureGroup("图层与透明度", isExpanded: $showLayerControls) {
             HStack {
                 Button(session.selected?.isLocked == true ? "解锁" : "锁定") { session.toggleLock() }
                 Button(session.selected?.isVisible == false ? "显示" : "隐藏") { session.toggleVisible() }
@@ -386,6 +388,12 @@ struct AdjustTools: View {
                 Button("删除", role: .destructive) { session.deleteSelected() }
             }
             .buttonStyle(.bordered)
+            HStack {
+                Text("透明度")
+                Spacer()
+                Text("\(Int(((session.selected?.opacity ?? 1) * 100).rounded()))%")
+                    .monospacedDigit()
+            }.font(.caption)
             Slider(
                 value: Binding(
                     get: { session.selected?.opacity ?? 1 },
@@ -401,10 +409,11 @@ struct AdjustTools: View {
                     session.endGesture()
                 }
             }
-            Text("透明度")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            .accessibilityLabel("图层透明度")
+            }.padding(.top, 6)
             if session.selected?.kind == .photo {
+                Text("照片管理").font(.headline).padding(.top, 6)
+                PhotoRosterBar(session: session)
                 HStack {
                     Button("照片前移") { session.movePhoto(forward: false) }
                     Button("照片后移") { session.movePhoto(forward: true) }
@@ -594,22 +603,37 @@ struct TextTools: View {
                 .textFieldStyle(.roundedBorder)
                 .focused($focused)
                 .lineLimit(3...6)
-            HStack {
-                ColorPicker("颜色", selection: colorBinding)
+            ColorPicker("文字颜色", selection: colorBinding)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text("字号")
+                    Spacer()
+                    Text("画布短边的 \(sizeBinding.wrappedValue * 100, specifier: "%.1f")%")
+                        .monospacedDigit().foregroundStyle(.secondary)
+                }.font(.caption)
                 Slider(value: sizeBinding, in: 0.02...0.14) { editing in
                     if editing { session.beginGesture() } else { session.endGesture() }
                 }
+                .accessibilityLabel("文字字号").accessibilityIdentifier("text-size-slider")
             }
-            HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("对齐").font(.caption)
                 Picker("对齐", selection: alignBinding) {
                     Text("左").tag(TextAlignmentKind.leading)
                     Text("中").tag(TextAlignmentKind.center)
                     Text("右").tag(TextAlignmentKind.trailing)
                 }
                 .pickerStyle(.segmented)
+                HStack {
+                    Text("行距")
+                    Spacer()
+                    Text("\(lineBinding.wrappedValue, specifier: "%.2f") 倍")
+                        .monospacedDigit().foregroundStyle(.secondary)
+                }.font(.caption)
                 Slider(value: lineBinding, in: 0.9...1.6) { editing in
                     if editing { session.beginGesture() } else { session.endGesture() }
                 }
+                .accessibilityLabel("文字行距").accessibilityIdentifier("text-line-spacing-slider")
             }
             HStack {
                 ColorPicker("底色", selection: backgroundBinding)
@@ -655,12 +679,6 @@ struct TextTools: View {
                 session.beginGesture()
             } else {
                 session.endGesture()
-            }
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("完成") { focused = false }
             }
         }
     }
