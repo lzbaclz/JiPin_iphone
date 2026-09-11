@@ -139,3 +139,13 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - 最终 IPA：`build/TestFlight/JiPin-4.0.2-6/Export/JiPin.ipa`，8,900,654 字节；SHA-256 `fc8053062ba1017792fdd0aa2d8b320eea69a08642d18c8bdc26063b10dd2bc0`。尚未上传 TestFlight。
 
 模拟器不替代真实相机/iCloud/照片宿主及低内存设备验收。原生图库回读的跳过项没有计入通过数量。
+
+## V4.0.3 长图滚动修复（2026-09-11）
+
+- 使用旧版识别器、相同照片区域触点重现无法纵向滚动：`BeforeFixPhotoSwipe.xcresult` 按预期失败。
+- iPhone 17 / iOS 26.3：9 个核心用例、4 个原模板手势用例通过。5 个新增长图用例中，4 个首轮通过；多指撤销用例原先假设合成捏合不改变角度，改为比较每次实际手势前后的角度、缩放和撤销状态后通过。
+- iPhone 16e / iOS 26.3：5 个新增长图用例全部通过，覆盖纵横直接滑动、无额外撤销、Live 工具页保持及原生导出、双指编辑后恢复浏览、长按交换。
+- 最终 18 个不同测试均取得通过结果；原有核心几何与缓存测试、模板编辑和画笔操作没有回归。未把对照失败或首次断言失败算作通过。
+- 证据：`build/Validation-4.0.3/GestureRegression.xcresult`、`FinalGestureUndo.xcresult`、`SmallPhone.xcresult`、`validation-summary.json`。最终模拟器截图见 `docs/version-screenshots/v4.0.3/`。
+- 触点定位按导航栏与工具栏之间的真实可见区域计算，避免 SwiftUI 的全屏 ScrollView AX frame 让测试误触底部工具区。
+- 本轮没有替代用户真机确认；未声明物理设备帧率或完成 App Store 所要求的真机录屏。

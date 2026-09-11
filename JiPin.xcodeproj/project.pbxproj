@@ -41,6 +41,7 @@
 		ED37F3FFEB98CD480C75B4CF /* PhotoImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13DB5BA26C45EC0D03D1F13D /* PhotoImporter.swift */; };
 		F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2846E0A67CB441F686E1758C /* Version402UITests.swift */; };
 		F664A4A047EDC6192EF839B0 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
+		F76D8223DA88E47212F06197 /* LongStripGestureUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F483BE155155A488F909829 /* LongStripGestureUITests.swift */; };
 		F8CA2BA986C0D472285A02D3 /* PagedExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D79685F0DDC106D8A6A938 /* PagedExportView.swift */; };
 /* End PBXBuildFile section */
 
@@ -108,6 +109,7 @@
 		77EDA9E69047D54E728DA5B8 /* CompletionRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionRegressionTests.swift; sourceTree = "<group>"; };
 		7A2F6428DFD72735223F6CC7 /* JiPinUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = JiPinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		81BFFCE6F0B601BB2F8A7C13 /* LivePhotoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePhotoTests.swift; sourceTree = "<group>"; };
+		8F483BE155155A488F909829 /* LongStripGestureUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongStripGestureUITests.swift; sourceTree = "<group>"; };
 		99F8DDBF18E618470BEE45C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionTwoTests.swift; sourceTree = "<group>"; };
 		A7DAFBBD592118541B0E3AFD /* JiPinCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = JiPinCore; path = Packages/JiPinCore; sourceTree = SOURCE_ROOT; };
@@ -270,6 +272,7 @@
 				6E92CD5CC3B931FD46DE7F39 /* CanvasGestureUITests.swift */,
 				51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */,
 				C941A28287669E882473912B /* LivePhotoUITests.swift */,
+				8F483BE155155A488F909829 /* LongStripGestureUITests.swift */,
 				2846E0A67CB441F686E1758C /* Version402UITests.swift */,
 			);
 			path = JiPinUITests;
@@ -455,6 +458,7 @@
 				5C5F3CDAC5EF79CE4CF66DE1 /* CanvasGestureUITests.swift in Sources */,
 				226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */,
 				28F0E2472BB73A28AB4D6644 /* LivePhotoUITests.swift in Sources */,
+				F76D8223DA88E47212F06197 /* LongStripGestureUITests.swift in Sources */,
 				F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -559,7 +563,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -579,7 +583,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.2;
+				MARKETING_VERSION = 4.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -723,7 +727,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -737,7 +741,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.2;
+				MARKETING_VERSION = 4.0.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

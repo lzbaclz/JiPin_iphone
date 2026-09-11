@@ -230,10 +230,10 @@ public final class EditorSession: ObservableObject {
         }
     }
 
-    public func select(_ id: UUID?) {
+    public func select(_ id: UUID?, activatingTool: Bool = true) {
         if selectedID != id && isGestureActive { endGesture() }
         selectedID = id
-        guard let object = selected else { return }
+        guard activatingTool, let object = selected else { return }
         switch object.kind {
         case .text:
             activeTool = .text

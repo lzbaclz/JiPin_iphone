@@ -132,6 +132,7 @@ struct EditorView: View {
                         .shadow(color: .black.opacity(0.12), radius: session.project.mode == .longStrip ? 0 : 12, y: 6)
                         .padding(16)
                 }
+                .accessibilityIdentifier("canvas-scroll")
             }
             .overlay(alignment: .top) {
                 if session.project.mode == .longStrip {
@@ -169,6 +170,17 @@ struct EditorView: View {
                 .padding(8)
                 .background(.ultraThinMaterial, in: Capsule())
                 .padding(10)
+            }
+            .overlay(alignment: .bottomLeading) {
+                if session.project.mode == .longStrip && !session.isDrawingTool {
+                    Text("单指滑动 · 双指调图")
+                        .font(.caption2)
+                        .padding(8)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(10)
+                        .allowsHitTesting(false)
+                        .accessibilityIdentifier("longstrip-gesture-hint")
+                }
             }
         }
         .frame(maxHeight: .infinity)

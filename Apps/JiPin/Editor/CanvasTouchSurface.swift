@@ -23,6 +23,7 @@ final class CanvasTouchRecognizer: UIGestureRecognizer {
     private(set) var rebased = false
     private(set) var swapping = false
     var fingerCount: Int { min(fingers.count, 2) }
+    private var isTracking: Bool { state == .possible || state == .began || state == .changed }
 
     private func points() -> [CGPoint] { fingers.prefix(2).map { $0.location(in: nil) } }
     private func rebase() {
@@ -48,6 +49,7 @@ final class CanvasTouchRecognizer: UIGestureRecognizer {
         }
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard isTracking else { return }
         let fresh = fingers.isEmpty
         fingers.append(contentsOf: touches.sorted { $0.timestamp < $1.timestamp })
         if fresh {
@@ -68,16 +70,20 @@ final class CanvasTouchRecognizer: UIGestureRecognizer {
         else if fingerCount == 2 { state = .began; notify?(self) }
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard isTracking else { return }
         rebased = false; measure()
         if state == .possible {
             guard hypot(centroid.x - firstPoint.x, centroid.y - firstPoint.y) > 3 else { return }
-            guard canMove else { state = .failed; return }
             holdTimer?.invalidate(); holdTimer = nil
+            // Yield a one-finger browse to the ancestor scroll view. Once failed, later
+            // touch callbacks must not restart an editing gesture or commit a tap.
+            guard canMove else { state = .failed; return }
             state = .began
         } else { state = .changed }
         notify?(self)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard isTracking else { return }
         holdTimer?.invalidate(); holdTimer = nil
         rebased = false; measure()
         let wasPossible = state == .possible
@@ -90,7 +96,10 @@ final class CanvasTouchRecognizer: UIGestureRecognizer {
             rebase(); state = .changed; notify?(self)
         }
     }
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) { state = .cancelled; notify?(self) }
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard isTracking else { return }
+        state = .cancelled; notify?(self)
+    }
     override func reset() {
         super.reset(); holdTimer?.invalidate(); holdTimer = nil
         fingers = []; scale = 1; degrees = 0; rebased = false; swapping = false
@@ -148,7 +157,9 @@ struct CanvasTouchSurface: UIViewRepresentable {
         canvas.accessibilityIdentifier = "editor-canvas"
         canvas.accessibilityLabel = "拼图画布"
         canvas.accessibilityValue = description
-        canvas.accessibilityHint = session.isDrawingTool ? "在画布上拖动即可绘制" : "拖动平移照片，双指缩放旋转；长按后拖动交换照片。"
+        canvas.accessibilityHint = session.isDrawingTool ? "在画布上拖动即可绘制" : session.project.mode == .longStrip
+            ? "在照片上单指滑动浏览长图，双指平移、缩放和旋转照片；长按后拖动交换照片。文字和贴纸可直接拖动。"
+            : "拖动平移照片，双指缩放旋转；长按后拖动交换照片。"
         canvas.accessibilityTraits = [.image, .allowsDirectInteraction]
         canvas.accessibilityFrameInContainerSpace = CGRect(origin: .zero, size: canvasSize)
         view.canvasTarget = canvas
@@ -160,7 +171,10 @@ struct CanvasTouchSurface: UIViewRepresentable {
             element.accessibilityLabel = "照片 \(index + 1)"
             element.accessibilityTraits = object.id == session.selectedID ? [.image, .button, .selected] : [.image, .button]
             element.accessibilityFrameInContainerSpace = session.usesLayoutPhotoFrame(object) ? (frames[object.id] ?? .zero) : LayoutEngine.rotatedFrame(object.transform, canvasSize: canvasSize)
-            element.select = { [weak session] in session?.select(object.id) }
+            element.select = { [weak session] in
+                guard let session else { return }
+                session.select(object.id, activatingTool: session.project.mode != .longStrip)
+            }
             return element
         }
         view.photoTargets = view.photoTargets.filter { session.project.object(id: $0.key) != nil }
@@ -179,18 +193,24 @@ struct CanvasTouchSurface: UIViewRepresentable {
         private var pose: CanvasManipulation?
         private var zoom: CGFloat = 1
         private var projectID: UUID?
+        private var defersPhotoSelection = false
         init(_ parent: CanvasTouchSurface) { self.parent = parent }
         private func local(_ point: CGPoint) -> CGPoint { surface?.convert(point, from: nil) ?? point }
         func prepare(at point: CGPoint) {
             let session = parent.session
             projectID = session.project.id
             target = session.hitTest(local(point), canvasSize: parent.canvasSize)
-            session.select(target)
-            surface?.touch.canMove = session.selected?.isLocked == false
-            surface?.touch.canSwap = session.selected.map(session.usesLayoutPhotoFrame) == true && session.selected?.isLocked == false
+            let object = target.flatMap { session.project.object(id: $0) }
+            defersPhotoSelection = session.project.mode == .longStrip && (object == nil || object?.kind == .photo)
+            // Scrolling must not select each photo crossed, switch the tool panel, or
+            // resize the viewport. A tap, two fingers, or a hold explicitly edits instead.
+            if !defersPhotoSelection { session.select(target) }
+            surface?.touch.canMove = object?.isLocked == false && !defersPhotoSelection
+            surface?.touch.canSwap = object.map(session.usesLayoutPhotoFrame) == true && object?.isLocked == false
             pose = nil; zoom = parent.canvasZoom
         }
         func tap(at point: CGPoint, count: Int) {
+            if defersPhotoSelection { parent.session.select(target, activatingTool: false) }
             guard count == 2, parent.session.selected?.kind == .text else { return }
             parent.session.activeTool = .text; parent.session.wantsTextFocus = true
         }
@@ -204,7 +224,9 @@ struct CanvasTouchSurface: UIViewRepresentable {
         }
         func handle(_ gesture: CanvasTouchRecognizer) {
             let session = parent.session
-            guard session.project.id == projectID, session.selectedID == target else { return }
+            guard session.project.id == projectID else { return }
+            if gesture.state == .began && defersPhotoSelection { session.select(target, activatingTool: false) }
+            guard session.selectedID == target else { return }
             if gesture.state == .changed && !session.isGestureActive { gesture.state = .cancelled; return }
             switch gesture.state {
             case .began, .changed:
@@ -231,7 +253,8 @@ struct CanvasTouchSurface: UIViewRepresentable {
                 if gesture.swapping, let target,
                    let end = session.hitTest(local(gesture.centroid), canvasSize: parent.canvasSize), target != end,
                    let object = session.project.object(id: end), session.usesLayoutPhotoFrame(object), !object.isLocked {
-                    session.swapPhotos(a: target, b: end); session.select(end)
+                    session.swapPhotos(a: target, b: end)
+                    session.select(end, activatingTool: session.project.mode != .longStrip)
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
                 session.endGesture(); pose = nil

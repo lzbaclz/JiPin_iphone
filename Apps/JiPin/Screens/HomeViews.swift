@@ -65,7 +65,10 @@ struct RootView: View {
                 if args.contains("-quickLiveCollage") {
                     appState.quickCollage = QuickCollageLaunch(photos: photos, failed: [], overflowCount: 0)
                 } else {
-                    let session = EditorSession(project: ProjectFactory.make(mode: .template, photos: photos), assets: AssetLibrary(photos: photos))
+                    let mode = args.firstIndex(of: "-sampleMode").flatMap { index in
+                        index + 1 < args.count ? CollageMode(rawValue: args[index + 1]) : nil
+                    } ?? .template
+                    let session = EditorSession(project: ProjectFactory.make(mode: mode, photos: photos), assets: AssetLibrary(photos: photos))
                     session.project.name = "会动的小日常"
                     session.activeTool = .livePhoto
                     appState.openEditor(session)

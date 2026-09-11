@@ -162,3 +162,13 @@ xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
 - 变更、测试与内置 Live 示例的维护方法：[4.0.2 发布说明](v4.0.2-release.md)
 
 产物已在本机导出，尚未上传 TestFlight。主 App、扩展以及内嵌框架签名已核验；安装包只声明添加照片用途，未加入测试用的全图库读取用途说明。
+
+## V4.0.3 长图滑动修复包
+
+当前主 App 和扩展均为 **4.0.3 / build 7**，草稿保持 schema 4。修复内容与验证见 [4.0.3 发布说明](v4.0.3-release.md)。
+
+```sh
+JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.3-7" ./scripts/archive-testflight.sh
+```
+
+长图交互回归为 `JiPinUITests/LongStripGestureUITests`，覆盖纵横浏览、Live、双指与长按、撤销以及工具页稳定。开发参数 `-sampleLiveEditor -sampleMode longStrip` 可打开内置 Live 长图示例。
