@@ -27,6 +27,7 @@
 | `index.html` | 宣传首页 |
 | `landing.css` / `landing.js` | 首页响应式样式及原生 JavaScript 互动 |
 | `site-config.js` | 已验证的 App Store / TestFlight 公开链接 |
+| `testflight-invite.mjs` | TestFlight 二维码生成、PNG 下载与复制邀请链接 |
 | `support.html` | 原来的操作帮助内容 |
 | `privacy.html` / `styles.css` | 原隐私政策及帮助页面样式 |
 | `assets/` | 本地托管的图标、截图、原创插画、贴纸和短视频 |
@@ -59,7 +60,24 @@ window.JIPIN_SITE = Object.freeze({
 
 App Store 链接需以 `https://apps.apple.com/` 开头并指向 App 页面；TestFlight 链接需以 `https://testflight.apple.com/join/` 开头。不要使用 App Store Connect 后台链接或其他 App 的测试链接。
 
+配置真实 TestFlight 公开链接后，首页手机旁显示扫码卡片，下载区显示加入按钮、二维码、PNG 下载和复制邀请链接。手机访问者可以直接点邀请链接，不必扫描自己的屏幕。
+
+二维码在浏览器本地生成，使用随本站托管、固定版本的 MIT 开源编码器，不调用第三方二维码服务。二维码及按钮来自同一个规范化链接，保留四个模块的白边，不在码面覆盖图标。未配置有效链接时，这些入口不显示。
+
 页面只展示有效格式的配置，至少一个入口可用时隐藏“即将上线”。仍需维护者在发布前实际确认链接可用；前端格式检查不代表已通过 Apple 审核。
+
+## 创建 TestFlight 公开邀请
+
+在 App Store Connect 的极拼 App 中打开 **TestFlight → 外部测试**，使用“官网公开内测”群组，将需要测试的构建版本加入群组。首次外部测试需要补充测试说明、反馈邮箱和 Apple 审核联系资料，并通过 TestFlight Beta App Review。
+
+有可供外部测试的构建后，在群组的“测试员”页创建公开链接。可设置人数上限和设备条件。把生成的 `https://testflight.apple.com/join/…` 链接填到配置中，先在未加入测试的设备上验证可用，再发布。
+
+- 公共招募使用公开链接或其二维码，无需手填邀请码。
+- 指定邀请某个人，在群组中按电子邮件邀请。兑换码来自 Apple 的邀请流程，不是网站自行生成的通用安装码。
+- Xcode 中以 **TestFlight Internal Only** 上传的构建只能用于内部测试；外测应使用 **App Store Connect** 分发路径。
+- 官网二维码是否显示由配置决定，不会自动查询审核状态。构建过期、关闭招募或群组名额用完时，应及时维护邀请入口。
+
+参考：[Apple 外部测试流程](https://developer.apple.com/help/app-store-connect/test-a-beta-version/invite-external-testers/)、[TestFlight 安装说明](https://testflight.apple.com/)。
 
 ## 发布
 

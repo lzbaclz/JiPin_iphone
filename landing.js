@@ -287,12 +287,18 @@
   const testFlightURL = publicURL(config.testFlightURL, 'testflight.apple.com', /^\/join\/[a-zA-Z0-9]+\/?$/);
   if (appStoreURL || testFlightURL) {
     document.querySelector('#release-status').hidden = true;
-    document.querySelector('#download-note').textContent = '适用于 iPhone · iOS 17 或更新版本';
+    document.querySelector('#download-note').textContent = testFlightURL && !appStoreURL ? '通过 TestFlight 体验内测版 · 适用于 iPhone · iOS 17 或更新版本' : '适用于 iPhone · iOS 17 或更新版本';
     [[appStoreURL, '#app-store-link'], [testFlightURL, '#testflight-link']].forEach(([url, selector]) => {
       if (!url) return;
       const link = document.querySelector(selector);
       link.href = url;
       link.hidden = false;
     });
+  }
+  if (testFlightURL) {
+    // An invitation still works if QR rendering cannot load.
+    import('./testflight-invite.mjs?v=135dd9b171').then(({ mountTestFlightInvitation }) => {
+      mountTestFlightInvitation(testFlightURL);
+    }).catch(() => {});
   }
 })();

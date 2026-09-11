@@ -27,3 +27,29 @@
 
 @media(max-width:680px){.hero-handnote{display:none}.nav-cta{min-height:44px}.sticker-tray button{min-height:44px}}
 .noscript-note{padding:12px 16px;margin-bottom:18px;border:1px solid var(--line);border-radius:10px;font-size:.8rem;color:var(--muted)}
+
+/* Public TestFlight invitations are enabled only after a real link is supplied. */
+.hero-qr-card{position:absolute;z-index:5;left:12px;top:249px;width:231px;padding:15px 17px 16px;border:1px solid #e7d8c6;border-radius:21px;background:#fffefa;box-shadow:0 15px 35px #674d3029;text-align:center;transition:transform .2s,box-shadow .2s}
+.hero-qr-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px #674d3033}
+.hero-qr-card img{width:176px;height:176px;margin:0 auto 9px;image-rendering:pixelated}
+.hero-qr-card strong{display:block;font-size:.88rem;font-weight:650;color:var(--orange-dark);line-height:1.6}
+.hero-qr-card>span{display:block;margin-top:4px;font-size:.64rem;color:#796f60}
+.has-testflight .mini-print{display:none}
+.testflight-invitation{position:relative;z-index:2;display:grid;grid-template-columns:180px 1fr;gap:32px;align-items:center;text-align:left;width:min(676px,100%);margin:29px auto 0;padding:24px 28px;background:#fffbf3;border:1px solid #e5cdb1;border-radius:21px;box-shadow:0 6px 20px #b8996c0b}
+.invite-qr img{width:180px;height:180px;background:white;border:1px solid #ece2d4;border-radius:4px;image-rendering:pixelated}
+.invite-qr a{display:flex;align-items:center;justify-content:center;gap:9px;min-height:44px;font-size:.77rem;color:var(--orange-dark);text-decoration:underline;text-underline-offset:4px;margin-top:5px}
+.invite-copy .eyebrow{font-size:.53rem;margin-bottom:12px!important;color:#a17a56}
+.invite-copy h3{font-size:1.06rem;margin-bottom:11px;line-height:1.6}
+.invite-copy>p:not(.eyebrow):not(.invite-status){font-size:.77rem;line-height:1.9;color:#796953}
+.invite-copy>.invite-tip{margin-top:9px;font-size:.7rem!important}
+.invite-address{display:block;color:#955431;text-decoration:underline;text-underline-offset:4px;font-size:.71rem;overflow-wrap:anywhere;min-height:40px;padding-top:12px;user-select:all}
+.invite-copy-button{display:inline-flex;gap:11px;align-items:center;background:none;border:0;border-bottom:1px solid #c7a27e;padding:7px 0;min-height:44px;font-size:.76rem;color:#8c5031}
+.invite-copy-button:hover{color:var(--orange-dark)}
+.invite-status{font-size:.69rem;color:#806347;line-height:1.7}
+.invite-status:not(:empty){margin-top:8px}
+@media(min-width:1450px){.hero-qr-card{top:271px;left:8px}}
+@media(max-width:1100px){.hero-qr-card{top:215px;left:1px;width:204px;padding:12px 13px}.hero-qr-card img{width:162px;height:162px}.hero-qr-card strong{font-size:.78rem}.hero-qr-card>span{font-size:.56rem}}
+@media(max-width:850px){.hero-qr-card{top:188px;left:-7px;width:174px;padding:10px}.hero-qr-card img{width:140px;height:140px}.hero-qr-card strong{font-size:.7rem}.hero-qr-card>span{font-size:.5rem}}
+@media(max-width:680px){.hero-qr-card{top:204px;left:2px;width:196px;padding:12px}.hero-qr-card img{width:162px;height:162px}.hero-qr-card strong{font-size:.77rem}.hero-qr-card>span{font-size:.56rem}.testflight-invitation{display:flex;flex-direction:column;gap:20px;padding:23px 20px 22px;margin-top:26px;border-radius:17px}.invite-qr{display:flex;align-items:center;flex-direction:column}.invite-qr img{width:186px;height:186px}.invite-copy{width:100%;text-align:left}.invite-copy h3{font-size:1.03rem}.invite-copy>p:not(.eyebrow):not(.invite-status){font-size:.81rem}.invite-copy .eyebrow{font-size:.55rem}.invite-copy>.invite-tip{font-size:.73rem!important}.invite-copy-button{font-size:.77rem}.invite-address{font-size:.73rem}.invite-status{font-size:.73rem}}
+@media(max-width:360px){.hero-qr-card{top:182px;left:-1px;width:177px;padding:9px}.hero-qr-card img{width:151px;height:151px}.hero-qr-card strong{font-size:.7rem}.hero-qr-card>span{font-size:.5rem}}
+@media print{.hero-qr-card{display:none!important}.testflight-invitation{break-inside:avoid;box-shadow:none}.invite-copy-button,.invite-qr a{display:none}}
