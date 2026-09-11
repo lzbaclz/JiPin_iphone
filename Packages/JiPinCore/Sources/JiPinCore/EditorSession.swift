@@ -145,7 +145,11 @@ public final class EditorSession: ObservableObject {
         max(min(PhotoLimits.range(for: project.mode).upperBound - project.photoOrder.count, JiPin.maxObjects - project.objects.count), 0)
     }
     public var outputSizeLabel: String {
-        ExportGeometry.pixelLabel(for: project, assets: assets.snapshot)
+        if project.hasLivePhotos {
+            let size = LivePhotoExporter.photoSize(project: project, assets: assets.snapshot)
+            return "\(project.exportPreference.quality.title) \(Int(size.width))×\(Int(size.height)) 像素"
+        }
+        return ExportGeometry.pixelLabel(for: project, assets: assets.snapshot)
     }
 
     public enum BrushMode: String, CaseIterable, Identifiable, Sendable {

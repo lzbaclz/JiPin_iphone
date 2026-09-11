@@ -176,10 +176,10 @@ struct LayoutTools: View {
                 }
                 .accessibilityIdentifier("longstrip-seamless")
                 .accessibilityHint("间距设为零")
-                Text("输出 \(session.outputSizeLabel)")
+                Text("照片 \(session.outputSizeLabel)")
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel("实际输出尺寸 \(session.outputSizeLabel)")
+                    .accessibilityLabel("照片输出尺寸 \(session.outputSizeLabel)")
             } else {
                 HStack {
                     ForEach(CanvasSpec.presets, id: \.title) { spec in

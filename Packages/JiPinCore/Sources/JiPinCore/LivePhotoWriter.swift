@@ -8,7 +8,9 @@ public struct LivePhotoExport: Sendable {
     public let imageURL: URL
     public let videoURL: URL
     public let identifier: String
+    /// Encoded motion dimensions. The still image can retain more detail than the video.
     public let size: CGSize
+    public let photoSize: CGSize
     public let duration: Double
     public let coverTime: Double
     public var byteCount: Int64 {
@@ -23,7 +25,8 @@ public enum LivePhotoWriter {
                              draw: (CGContext, Double) throws -> Void) async throws -> LivePhotoExport {
         try Task.checkCancellation()
         guard size.width.isFinite, size.height.isFinite, size.width >= 2, size.height >= 2,
-              size.width <= 1920, size.height <= 1920, duration.isFinite, duration >= 0.1, duration <= 3 else {
+              size.width <= 3840, size.height <= 3840, size.width * size.height <= 4_194_304,
+              duration.isFinite, duration >= 0.1, duration <= 3 else {
             throw LivePhotoError.encodingFailed
         }
         let size = CGSize(width: floor(size.width / 2) * 2, height: floor(size.height / 2) * 2)
@@ -39,7 +42,7 @@ public enum LivePhotoWriter {
         var completed = false
         defer { if !completed { writer.cancelWriting() } }
         writer.metadata = [contentIdentifier(identifier)]
-        let video = AVAssetWriterInput(mediaType: .video, outputSettings: [
+        let videoSettings: [String: Any] = [
             AVVideoCodecKey: AVVideoCodecType.h264,
             AVVideoWidthKey: width, AVVideoHeightKey: height,
             AVVideoColorPropertiesKey: [
@@ -52,7 +55,9 @@ public enum LivePhotoWriter {
                 AVVideoMaxKeyFrameIntervalKey: 30, AVVideoAllowFrameReorderingKey: false,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel
             ]
-        ])
+        ]
+        guard writer.canApply(outputSettings: videoSettings, forMediaType: .video) else { throw LivePhotoError.encodingFailed }
+        let video = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
         video.expectsMediaDataInRealTime = false
         let buffers = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: video, sourcePixelBufferAttributes: [
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
@@ -133,7 +138,17 @@ public enum LivePhotoWriter {
         completed = true
         await progress?(1)
         return LivePhotoExport(lease: lease, imageURL: imageURL, videoURL: videoURL, identifier: identifier,
-                               size: size, duration: finalDuration.seconds, coverTime: coverTime.seconds)
+                               size: size, photoSize: size, duration: finalDuration.seconds, coverTime: coverTime.seconds)
+    }
+
+    /// Retain the original photo detail instead of upscaling an encoded video frame.
+    static func replacingStill(in export: LivePhotoExport, with image: CGImage) throws -> LivePhotoExport {
+        try Task.checkCancellation()
+        try writeStill(image, identifier: export.identifier, to: export.imageURL)
+        return LivePhotoExport(lease: export.lease, imageURL: export.imageURL, videoURL: export.videoURL,
+                               identifier: export.identifier, size: export.size,
+                               photoSize: CGSize(width: image.width, height: image.height),
+                               duration: export.duration, coverTime: export.coverTime)
     }
 
     static func contentIdentifier(_ identifier: String) -> AVMetadataItem {

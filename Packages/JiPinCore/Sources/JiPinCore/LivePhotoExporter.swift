@@ -90,6 +90,7 @@ private final class LiveFrameAssets: AssetProviding {
     let maxSide: CGFloat
     init(library: DataAssetLibrary, maxSide: CGFloat) { self.library = library; self.maxSide = maxSide }
     func imageData(for id: UUID) -> Data? { library.images[id] }
+    func releaseImages() { frames.removeAll(); stills.removeAll() }
     func decodedImage(for id: UUID, maxLongSide: CGFloat) -> CGImage? {
         if let frame = frames[id] { return frame }
         let requestedSide = min(maxLongSide, maxSide)
@@ -101,17 +102,31 @@ private final class LiveFrameAssets: AssetProviding {
 }
 
 public enum LivePhotoExporter {
+    public static func motionMaxSide(for project: CollageProject) -> CGFloat {
+        if project.mode == .longStrip { return project.exportPreference.quality == .hd ? 3840 : 1920 }
+        return project.exportPreference.quality == .hd ? 1440 : 1080
+    }
+
+    public static func photoSize(project: CollageProject, assets: DataAssetLibrary) -> CGSize {
+        let size: CGSize
+        switch ExportGeometry.outputSize(for: project, assets: assets) {
+        case .ok(let value), .needsChoice(_, let value): size = value
+        }
+        return CGSize(width: max(1, floor(size.width)), height: max(1, floor(size.height)))
+    }
+
     public static func outputSize(project: CollageProject, assets: DataAssetLibrary, maxSide: CGFloat = 1080) -> CGSize {
         let dimensions: CGSize
         switch ExportGeometry.outputSize(for: project, assets: assets) {
         case .ok(let size), .needsChoice(_, let size): dimensions = size
         }
-        let scale = min(max(maxSide, 2), 1440) / max(dimensions.width, dimensions.height, 1)
+        let scale = min(min(max(maxSide, 2), 3840) / max(dimensions.width, dimensions.height, 1),
+                        sqrt(4_194_304 / max(dimensions.width * dimensions.height, 1)))
         return CGSize(width: max(2, floor(dimensions.width * scale / 2) * 2), height: max(2, floor(dimensions.height * scale / 2) * 2))
     }
 
     /// Run from a detached task; this is CPU/video work and must not run on the UI actor.
-    public static func render(project: CollageProject, assets: DataAssetLibrary, maxSide: CGFloat = 1080,
+    public static func render(project: CollageProject, assets: DataAssetLibrary, maxSide: CGFloat = 1080, preview: Bool = false,
                               progress: (@Sendable (Double) async -> Void)? = nil) async throws -> LivePhotoExport {
         try Task.checkCancellation()
         let sources = project.resolvedLiveSources
@@ -151,7 +166,7 @@ public enum LivePhotoExporter {
         var opaque = project
         opaque.exportPreference.format = .jpeg
         opaque.exportPreference.transparentBackground = false
-        let result = try await LivePhotoWriter.write(size: size, duration: settings.safeDuration, progress: { value in
+        var result = try await LivePhotoWriter.write(size: size, duration: settings.safeDuration, progress: { value in
             await progress?(0.25 + value * 0.63)
         }) { context, time in
             for (id, reader) in readers {
@@ -160,7 +175,19 @@ public enum LivePhotoExporter {
             }
             CollageRenderer.shared.draw(project: opaque, assets: frameAssets, canvasSize: size, preview: false, in: context)
         }
-        readers.removeAll(); frameAssets.frames.removeAll(); prepared.removeAll()
+        readers.removeAll(); frameAssets.releaseImages(); prepared.removeAll()
+        if !preview {
+            // Use the imported original stills, including each Live Photo's key photo. Rendering
+            // after releasing the motion decoders keeps full-resolution photo memory separate.
+            result = try autoreleasepool {
+                let coverSize = photoSize(project: project, assets: assets)
+                guard let image = CollageRenderer.shared.render(project: opaque, assets: assets,
+                                                               canvasSize: coverSize, preview: false).cgImage else {
+                    throw LivePhotoError.encodingFailed
+                }
+                return try LivePhotoWriter.replacingStill(in: result, with: image)
+            }
+        }
         if let audioID = settings.audioSourceID {
             guard let clip = clips[audioID], clip.source.hasAudio else { throw LivePhotoError.missingResources }
             try await attachAudio(from: clip, to: result)

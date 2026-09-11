@@ -101,7 +101,7 @@ final class LivePhotoTests: XCTestCase {
             project.objects.append(LayerObject(kind: .sticker, zIndex: 80, transform: CanvasTransform(centerX: 0.8, centerY: 0.8, width: 0.18, height: 0.18), sticker: StickerPayload(stickerID: "cute-bunny")))
             let result = try await LivePhotoExporter.render(project: project, assets: assets, maxSide: 240)
             let live = try await LivePhotoMedia.request(imageURL: result.imageURL, videoURL: result.videoURL)
-            XCTAssertEqual(live.size, result.size, mode.rawValue)
+            XCTAssertEqual(live.size, result.photoSize, mode.rawValue)
             let first = try await movieFrame(result.videoURL, at: 0.1), last = try await movieFrame(result.videoURL, at: 1.3)
             XCTAssertGreaterThan(try difference(first, last), 3, mode.rawValue)
         }
@@ -228,13 +228,13 @@ final class LivePhotoTests: XCTestCase {
         XCTAssertTrue(resources.contains { $0.type == .pairedVideo })
         let native: PHLivePhoto = try await withCheckedThrowingContinuation { continuation in
             let options = PHLivePhotoRequestOptions(); options.deliveryMode = .highQualityFormat
-            PHImageManager.default().requestLivePhoto(for: asset, targetSize: CGSize(width: 320, height: 320), contentMode: .aspectFit, options: options) { live, info in
+            PHImageManager.default().requestLivePhoto(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options) { live, info in
                 if (info?[PHImageResultIsDegradedKey] as? Bool) == true { return }
                 if let live { continuation.resume(returning: live) }
                 else { continuation.resume(throwing: LivePhotoError.invalidPair) }
             }
         }
-        XCTAssertEqual(native.size, result.size)
+        XCTAssertEqual(native.size, result.photoSize)
     }
 
     func testNineLiveSourcesRenderAndTenthIsRejected() async throws {

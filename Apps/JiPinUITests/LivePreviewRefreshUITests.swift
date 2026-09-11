@@ -87,7 +87,7 @@ final class LivePreviewRefreshUITests: XCTestCase {
         quality.tap()
         app.buttons.matching(NSPredicate(format: "label CONTAINS '标准'")).firstMatch.tap()
         waitForPreview(app, duration: "3 秒")
-        XCTAssertTrue(app.staticTexts["live-message"].label.contains("1080"))
+        XCTAssertTrue(app.staticTexts["live-message"].label.contains("2048"), "标准照片封面保留 2048 像素，不能只保存 1080 动态帧。")
         let generate = app.buttons["live-generate"]
         revealExportControl(generate, in: app)
         generate.tap()

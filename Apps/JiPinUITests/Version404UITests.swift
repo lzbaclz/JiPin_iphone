@@ -53,7 +53,7 @@ final class Version404UITests: XCTestCase {
     func testSavingStillFromLiveClosesBothExportSheets() {
         let app = openExport(live: true)
         XCTAssertTrue(app.buttons["live-play"].waitForExistence(timeout: 60))
-        XCTAssertTrue(app.staticTexts["预览已就绪。保存时将生成 1440 清晰度的成品。"].exists)
+        XCTAssertTrue(app.staticTexts["live-message"].label.contains("保存后照片为 1440 ×"))
         let still = app.buttons["live-export-still"]
         revealExportControl(still, in: app); still.tap()
         XCTAssertTrue(app.buttons["export-save-album"].waitForExistence(timeout: 10))

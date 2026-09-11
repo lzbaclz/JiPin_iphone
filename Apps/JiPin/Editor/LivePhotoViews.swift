@@ -114,7 +114,11 @@ struct LivePhotoExportView: View {
     @State private var isVisible = false
     @State private var preparedConfiguration: RenderConfiguration?
     private var busy: Bool { isRendering || isSaving }
-    private var maxSide: Int { session.project.exportPreference.quality == .hd ? 1440 : 1080 }
+    private var maxSide: Int { Int(LivePhotoExporter.motionMaxSide(for: session.project)) }
+    private var photoSizeLabel: String {
+        dimensions(LivePhotoExporter.photoSize(project: session.project, assets: session.assets.snapshot))
+    }
+    private func dimensions(_ size: CGSize) -> String { "\(Int(size.width)) × \(Int(size.height))" }
     private struct RenderConfiguration: Equatable {
         var settings: LivePhotoSettings
         var quality: ExportQuality
@@ -157,17 +161,24 @@ struct LivePhotoExportView: View {
                 } header: { Text("LIVE PHOTO") } footer: {
                     Text("保存后在苹果相册中长按播放。较短的 Live 会在首尾停留，普通照片保持静止。")
                 }
-                Section("动态设置") {
+                Section {
                     LivePhotoOptions(session: session, prefix: "live-export")
                     Picker("清晰度", selection: $session.project.exportPreference.quality) {
-                        Text("标准 · 1080").tag(ExportQuality.standard)
-                        Text("高清 · 1440").tag(ExportQuality.hd)
+                        Text("标准").tag(ExportQuality.standard)
+                        Text("高清").tag(ExportQuality.hd)
                     }.accessibilityIdentifier("live-quality")
                     let size = LivePhotoExporter.outputSize(project: session.project, assets: session.assets.snapshot, maxSide: CGFloat(maxSide))
-                    LabeledContent("尺寸", value: "\(Int(size.width)) × \(Int(size.height))")
+                    LabeledContent("照片尺寸", value: photoSizeLabel)
+                        .accessibilityIdentifier("live-photo-size")
+                    LabeledContent("动态尺寸", value: dimensions(size))
+                        .accessibilityIdentifier("live-motion-size")
                     if let result, preparedSide == maxSide {
                         LabeledContent("文件大小", value: ByteCountFormatter.string(fromByteCount: result.byteCount, countStyle: .file))
                     }
+                } header: {
+                    Text("动态设置")
+                } footer: {
+                    Text("照片封面保留原图细节，动态画面单独合成。长图放大查看时，静态照片比播放中的画面更清晰。")
                 }.disabled(isSaving || (isRendering && renderingFullSize))
                 Section {
                     if isRendering {
@@ -196,7 +207,7 @@ struct LivePhotoExportView: View {
                 VStack(spacing: 10) {
                     if isRendering && renderingFullSize {
                         ProgressView(value: progress)
-                        Text("正在准备 \(maxSide) 清晰度 · \(Int(progress * 100))%")
+                        Text("正在准备成品 · \(Int(progress * 100))%")
                             .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                     }
                     if let message {
@@ -285,7 +296,7 @@ struct LivePhotoExportView: View {
                 defer { ExportJobLock.end() }
                 try Task.checkCancellation()
                 let worker = Task.detached(priority: .userInitiated) {
-                    try await LivePhotoExporter.render(project: project, assets: assets, maxSide: CGFloat(side)) { value in
+                    try await LivePhotoExporter.render(project: project, assets: assets, maxSide: CGFloat(side), preview: purpose == .preview) { value in
                         await MainActor.run { if jobID == id { progress = value } }
                     }
                 }
@@ -299,7 +310,7 @@ struct LivePhotoExportView: View {
                 preparedConfiguration = requestedConfiguration; playback += 1
                 switch purpose {
                 case .preview:
-                    message = "预览已就绪。保存时将生成 \(maxSide) 清晰度的成品。"
+                    message = "预览已就绪。保存后照片为 \(photoSizeLabel) 像素。"
                 case .save:
                     await savePair(rendered)
                 case .share:

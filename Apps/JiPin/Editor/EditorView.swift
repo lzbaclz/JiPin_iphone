@@ -141,25 +141,17 @@ struct EditorView: View {
                 }
                 .accessibilityIdentifier("canvas-scroll")
             }
-            .overlay(alignment: .top) {
-                if session.project.mode == .longStrip {
-                    Text("输出 \(session.outputSizeLabel)")
-                        .font(.caption.monospacedDigit().weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .padding(10)
-                        .accessibilityLabel("实际输出尺寸 \(session.outputSizeLabel)")
-                }
-            }
             .overlay(alignment: .topLeading) {
-                if session.project.hasLivePhotos {
-                    Button { session.wantsLivePreview = true } label: {
-                        Label("LIVE · \(session.project.resolvedLiveSources.count)", systemImage: "livephoto")
-                            .font(.caption.weight(.semibold)).padding(8)
-                            .background(.ultraThinMaterial, in: Capsule())
-                    }.padding(10).accessibilityIdentifier("canvas-live-preview")
-                }
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: 8) {
+                        canvasLiveBadge
+                        canvasOutputBadge.fixedSize(horizontal: true, vertical: true)
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        canvasLiveBadge
+                        canvasOutputBadge
+                    }
+                }.padding(10)
             }
             .overlay(alignment: .bottomTrailing) {
                 HStack(spacing: 8) {
@@ -191,6 +183,28 @@ struct EditorView: View {
             }
         }
         .frame(maxHeight: .infinity)
+    }
+
+    @ViewBuilder private var canvasLiveBadge: some View {
+        if session.project.hasLivePhotos {
+            Button { session.wantsLivePreview = true } label: {
+                Label("LIVE · \(session.project.resolvedLiveSources.count)", systemImage: "livephoto")
+                    .font(.caption.weight(.semibold)).padding(8)
+                    .background(.ultraThinMaterial, in: Capsule())
+            }.accessibilityIdentifier("canvas-live-preview")
+        }
+    }
+
+    @ViewBuilder private var canvasOutputBadge: some View {
+        if session.project.mode == .longStrip {
+            Text("照片 \(session.outputSizeLabel)")
+                .font(.caption.monospacedDigit().weight(.semibold))
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(.ultraThinMaterial, in: Capsule())
+                .accessibilityLabel("照片输出尺寸 \(session.outputSizeLabel)")
+                .accessibilityIdentifier("canvas-output-size")
+                .allowsHitTesting(false)
+        }
     }
 
     private func fittedCanvas(in size: CGSize) -> CGSize {
