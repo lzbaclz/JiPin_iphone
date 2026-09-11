@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "carrot.png",
+  "styleReference": "assets/stickers/cute-bear.webp",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "hasAlpha": true,
+  "sha256": "3fd6e34ddd174800450ac53e6969a3b7c910f267742aa6a37c4e15c903edf212",
+  "prompt": "Use case: stylized-concept\nAsset type: one transparent PNG character sprite for the existing 即拼 website's animated sticker collage.\nPrimary request: Generate exactly ONE new cute little carrot character, using the previously viewed bear sticker solely as a STYLE REFERENCE for the rounded friendly drawing, thick soft cocoa-brown outline, and clean white sticker border. This is a new carrot image; the bear is not an edit target and no bear features should remain.\nScene/backdrop: genuinely transparent background with an actual alpha channel. No opaque background and no checkerboard pattern drawn into the image.\nSubject: a single centered plump small orange carrot body, with a softly rounded tapered tip and a short fresh green leaf tuft. Two small cocoa-brown eyes, a tiny smiling mouth, soft pink cheeks. Keep it simple, cute, friendly, and easy to read at small sizes.\nStyle/medium: simple flat pastel colors, gently hand-drawn rounded sticker illustration matching the style reference, thick soft cocoa-brown outline plus a clean white sticker border. No photorealism or 3D.\nComposition/framing: square approximately 1024 by 1024 pixels. One complete carrot with its entire leaf tuft and white border fully inside the frame, centered with generous transparent margins on every side. No cropping.\nConstraints: one carrot only. No bear features, no bunny, no other characters, no scenery, no words, no letters, no watermark."
+}

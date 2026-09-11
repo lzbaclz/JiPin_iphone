@@ -75,9 +75,16 @@ git push origin HEAD:codex/app-store-pages
 ## 2026-09-11 名称、主题与预览修复
 
 - 当前页面（首页、支持、隐私）统一使用用户确认的品牌名“即拼”；旧版归档作为历史快照保留。
-- 首页和贴纸体验加入小兔、小熊；四种玩法可切换“可爱日常”和“山河旅行”。
+- 首页和贴纸体验展示小兔、小萝卜；四种玩法可切换“可爱日常”和“山河旅行”。
 - 长图有独立滚动区域、始终可见的纵向滑块、浏览进度和上下浏览按钮。滚动位置与滑块双向同步，播放时保持当前位置。
 - 两种主题的四种玩法都配有真实动态成品预览。切换主题/模式会停止旧视频并重置播放按钮；取消旧视频加载不会误报播放失败。
 - 八份成品来自 App 4.0.6 的原生导出流程，经 PhotoKit 配对检查。网页 MP4 仅负责播放；FAQ 提供 Mac 可导入的原生照片/视频配对 ZIP，明确单独下载封面不能成为 Live。
 - 原生生成证据：`assets/examples/validation.json`；视频抽帧检查：`assets/examples/playback-validation.json`（每个视频的 12 个采样帧都不同）。生成源码：`tools/native-live/MixedExamples.swift`。
 - 浏览器已逐一验证八个播放器、主题/玩法切换、长图滑块与到顶/到底，另以 390 像素 iframe 检查窄屏布局及点击操作。
+
+
+## 小兔 × 小萝卜
+
+官网可爱日常示例中的小熊已替换为小萝卜。首页 Live 成品、四种玩法、静态封面、贴纸体验照片和 Mac 原生 Live 素材包同步更新。网页资源使用 `bunny-carrot-*` 新地址，避免缓存继续显示旧角色。山河主题保留现有资源。
+
+小萝卜透明源图和生成提示词保存在 `assets/examples/source/`，使用内置图像生成工具制作，风格参考既有贴纸。`tools/native-live/CarrotExamples.swift` 将角色加入轻微上下摇摆与转动，再用真实 App 渲染器生成四份原生 Live 配对。原生识别和网页逐帧检查记录仍在 `assets/examples/validation.json` 与 `playback-validation.json`。

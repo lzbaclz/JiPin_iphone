@@ -30,3 +30,10 @@
 `MixedExamples.swift` 使用主 App 4.0.6 的 `JiPinCore`（代码 a5738f6），读取内置兔子、小熊原生 Live 和已存在的山水 Live。通过 `ProjectFactory` 和 `LivePhotoExporter` 为每种主题生成模板、自由、海报、长图八份原生成品，逐一使用 PhotoKit 识别完整照片尺寸。临时生成 App 的资源目录需要显式标记 `buildPhase: resources`。
 
 照片封面和动态视频完整保留在 `assets/examples/cute-live.zip` 与 `shanhe-live.zip`，网页 WebP/MP4 从对应资源转码，ZIP 提供完整配对。原生验证记录为 `assets/examples/validation.json`，网页视频的抽帧验证记录为 `playback-validation.json`。可爱角色沿用 App 已有原创素材，没有引入用户照片。
+
+
+## 小萝卜替换
+
+当前可爱主题由 `CarrotExamples.swift` 生成。将 `assets/examples/source/carrot.png` 作为 `carrot.png` 加入临时生成 App 资源，使用与小兔相同的 720×960、3 秒原生 Live 时序。角色加入上下轻摇与小角度摆动；小兔继续使用 App 内置原始资源。输出在 `Documents/Carrot-Examples/`，包含四种玩法和用于贴纸体验的萝卜场景。
+
+网站使用 `bunny-carrot-*.webp` / `*.mp4` 和 `bunny-carrot-live.zip`。源图保持生成工具输出的透明度，未通过代码重画角色。

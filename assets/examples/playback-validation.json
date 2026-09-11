@@ -1,21 +1,21 @@
 [
   {
-    "name": "cute-template",
+    "name": "bunny-carrot-template",
     "decodedFrames": 12,
     "distinctFrames": 12
   },
   {
-    "name": "cute-freeform",
+    "name": "bunny-carrot-freeform",
     "decodedFrames": 12,
     "distinctFrames": 12
   },
   {
-    "name": "cute-poster",
+    "name": "bunny-carrot-poster",
     "decodedFrames": 12,
     "distinctFrames": 12
   },
   {
-    "name": "cute-long-strip",
+    "name": "bunny-carrot-long-strip",
     "decodedFrames": 12,
     "distinctFrames": 12
   },

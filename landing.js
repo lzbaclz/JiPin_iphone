@@ -100,7 +100,8 @@
     });
     modePanel.setAttribute('aria-labelledby', `tab-${key}`);
     document.querySelector('.collage-stage').dataset.layout = key;
-    const base = `assets/examples/${selectedTheme}-${key}`;
+    const prefix = selectedTheme === 'cute' ? 'bunny-carrot' : selectedTheme;
+    const base = `assets/examples/${prefix}-${key}`;
     const themeName = selectedTheme === 'cute' ? '可爱日常' : '山河旅行';
     modeVideo.pause();
     modeVideo.hidden = true;
