@@ -196,3 +196,5 @@ JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.5-9" ./scripts/archive-testfl
 ```
 
 签名归档和分发 IPA 位于 `build/TestFlight/JiPin-4.0.5-9/`，验证记录位于 `build/Validation-4.0.5/`。
+
+4.0.5（9）已成功上传 TestFlight，Apple 处理完成。内部群组已可测试；公开群组已关联并提交 Beta 审核，当前等待审核，自动通知设置保持开启。

@@ -167,3 +167,5 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - 回归 16 条 Live 核心、5 条既有 Live UI、5 条长图手势、2 条清晰度/嵌套保存流程。共 32 个不同用例，31 通过、1 个需专门图库读取权限的 PhotoKit 回读用例跳过，0 失败。
 - 证据：`build/Validation-4.0.5/PreviewRegression.xcresult`、`Compatibility.xcresult`、`SmallPhone.xcresult`、`validation-summary.json`；截图为原创模拟器素材，位于 `docs/version-screenshots/v4.0.5/`。
 - 主 App 和扩展为 4.0.5 / 9，正式签名归档和 IPA 导出完成，签名、版本、App Group 和分发权限校验通过。真机上的原始照片场景仍以用户安装更新后的体验为准。
+
+- 发布结果：4.0.5（9）已于 2026-09-11 上传并处理完成，内测“正在测试”，公测“正在等待审核”。代码提交 `860e187`；分发状态见 `build/Validation-4.0.5/testflight-status.json`。
