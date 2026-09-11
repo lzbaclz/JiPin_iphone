@@ -16,7 +16,7 @@
 - 用户点击播放的 3 秒 Live 拼图效果演示，明确区分网页视频与 App 内的原生 Live 导出。
 - 原创贴纸体验：点击添加、拖动、键盘移动、删除、重新开始；最多 8 张。
 - 相册入口、草稿、本地编辑介绍，V1–V4 发展历程，以及常见问题。
-- 已接入极拼自己的 TestFlight 公开邀请和二维码；首次外测处于审核中，页面明确提示暂不能加入或安装。
+- 极拼 4.0.2（构建 6）已通过 TestFlight 外测审核，官网提供公开邀请、扫码加入、PNG 下载和复制链接。
 
 产品描述与截图依据 4.0.1，不把正在开发中的功能写成已发布能力。没有虚构用户数量、评分、评价或下载入口。
 
@@ -71,7 +71,7 @@ App Store 链接需以 `https://apps.apple.com/` 开头并指向 App 页面；Te
 
 可直接保存 [二维码 PNG](assets/testflight-qr.png)。这是正式邀请链接对应的图片；若更换群组链接，需要一并更新该静态图片。
 
-当前群组为“官网公开内测”，已添加 4.0.2（构建 6）并提交 Beta App Review。Apple 生成的链接为 <https://testflight.apple.com/join/1NqZxpgX>。审核通过前无法通过此链接加入；通过后继续使用同一链接和二维码。确认公开邀请可正常加入后，将 `testFlightStatus` 改为 `open`，更新资源版本参数并发布。
+当前群组为“官网公开内测”，4.0.2（构建 6）已通过 Beta App Review，公开页面已显示极拼 Beta 版入口。邀请链接为 <https://testflight.apple.com/join/1NqZxpgX>，`testFlightStatus` 已设为 `open`。原链接及二维码无需更换。此状态仅代表 TestFlight 外测开放，不代表 App Store 正式上架审核通过。
 
 在 App Store Connect 的极拼 App 中打开 **TestFlight → 外部测试**，使用“官网公开内测”群组，将需要测试的构建版本加入群组。首次外部测试需要补充测试说明、反馈邮箱和 Apple 审核联系资料，并通过 TestFlight Beta App Review。
 
