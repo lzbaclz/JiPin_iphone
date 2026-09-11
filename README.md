@@ -128,7 +128,7 @@ xcodebuild test -project JiPin.xcodeproj -scheme JiPin \
   -only-testing:JiPinUITests
 ```
 
-当前包含 144 项核心用例和 34 条界面用例，涵盖布局、导出、草稿、Live、手势、异常与兼容性。原生相册保存后回读的专项需要额外测试图库授权，常规运行可能跳过；启用方法及分轮验证结果见 [构建说明](docs/BUILD.md) 和 [测试记录](docs/TEST-RECORD.md)。
+核心与界面自动化测试涵盖布局、导出、草稿、Live、手势、异常与兼容性。4.0.3 的 18 个不同回归用例已取得通过结果，其中 5 个长图专项在两种模拟器尺寸上验证。原生相册保存后回读的专项需要额外测试图库授权，常规运行可能跳过；启用方法及分轮验证结果见 [构建说明](docs/BUILD.md) 和 [测试记录](docs/TEST-RECORD.md)。
 
 常用开发启动参数可配置到 Xcode scheme 的 **Arguments Passed On Launch**：
 
