@@ -105,6 +105,10 @@ public final class EditorSession: ObservableObject {
     @Published public private(set) var isGestureActive = false
     public var recommendationProject: CollageProject { gestureSnapshot ?? project }
 
+    /// Read only when inserting: viewport changes do not edit the project or enter undo history.
+    /// The editor supplies a normalized point using a weak reference to its canvas view.
+    public var canvasInsertionPoint: (() -> CGPoint?)?
+
     public let assets: AssetLibrary
     public let undo = UndoStack()
     public let store: DraftStore
@@ -550,10 +554,11 @@ public final class EditorSession: ObservableObject {
         let canvas = project.mode == .longStrip
             ? Self.previewCanvasSize(project: project, assets: assets.snapshot) : project.canvas.size(maxLongSide: 1000)
         let unit = min(canvas.width, canvas.height)
+        let center = newDecorationCenter
         let layer = LayerObject(
             kind: .sticker,
             zIndex: (project.objects.map(\.zIndex).max() ?? 0) + 1,
-            transform: CanvasTransform(centerX: 0.5, centerY: 0.5, width: 0.25 * unit / canvas.width, height: 0.25 * unit / canvas.height),
+            transform: CanvasTransform(centerX: center.x, centerY: center.y, width: 0.25 * unit / canvas.width, height: 0.25 * unit / canvas.height),
             sticker: StickerPayload(stickerID: id)
         )
         project.objects.append(layer)
@@ -565,6 +570,12 @@ public final class EditorSession: ObservableObject {
         switch ExportGeometry.outputSize(for: project, assets: assets) {
         case .ok(let size), .needsChoice(_, let size): return size
         }
+    }
+
+    private var newDecorationCenter: CGPoint {
+        guard project.mode == .longStrip, let point = canvasInsertionPoint?(),
+              point.x.isFinite, point.y.isFinite else { return CGPoint(x: 0.5, y: 0.5) }
+        return CGPoint(x: min(max(point.x, 0), 1), y: min(max(point.y, 0), 1))
     }
 
     public func setDecorationFrame(_ frame: DecorationFrame?) {
@@ -581,10 +592,11 @@ public final class EditorSession: ObservableObject {
             return
         }
         checkpoint()
+        let center = newDecorationCenter
         let layer = LayerObject(
             kind: .shape,
             zIndex: (project.objects.map(\.zIndex).max() ?? 0) + 1,
-            transform: CanvasTransform(width: 0.2, height: 0.2),
+            transform: CanvasTransform(centerX: center.x, centerY: center.y, width: 0.2, height: 0.2),
             shape: ShapePayload(shapeID: id)
         )
         project.objects.append(layer)
@@ -603,10 +615,11 @@ public final class EditorSession: ObservableObject {
         let ratio = max(photo.pixelSize.width, 1) / max(photo.pixelSize.height, 1)
         let width = min(0.28, 0.7 * ratio / project.canvas.ratio)
         let height = width * project.canvas.ratio / ratio
+        let center = newDecorationCenter
         let layer = LayerObject(
             kind: .sticker,
             zIndex: (project.objects.map(\.zIndex).max() ?? 0) + 1,
-            transform: CanvasTransform(width: width, height: height),
+            transform: CanvasTransform(centerX: center.x, centerY: center.y, width: width, height: height),
             sticker: StickerPayload(stickerID: "custom-image", assetID: photo.id)
         )
         project.objects.append(layer)

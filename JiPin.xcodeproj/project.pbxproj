@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0714DD41A8C31C47942226EB /* CanvasTouchSurface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC6C832C2018A245D8C6E5D /* CanvasTouchSurface.swift */; };
+		18CC2CC56EB0B5AEDF2ADB33 /* StickerPlacementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 231A606B81E079234F16D65F /* StickerPlacementTests.swift */; };
 		226C7DA202A93DEBA1A62046 /* EditorFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BA5E90B2658E80B613A40E /* EditorFlowUITests.swift */; };
 		28F0E2472BB73A28AB4D6644 /* LivePhotoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C941A28287669E882473912B /* LivePhotoUITests.swift */; };
 		29284C04CFD290690FB1F402 /* Version404UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02421F764BD2238EDCC09767 /* Version404UITests.swift */; };
@@ -32,6 +33,7 @@
 		90575CD1D4CAA69329DD5444 /* ExportTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC5704349022FB402ACF49E /* ExportTestSupport.swift */; };
 		925AE2A064FE0C221B3842D7 /* QuickCollageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */; };
 		947B83C765999E2D96736E82 /* JiPinAction.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3173826CCE37D292036A632F /* JiPinAction.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9CF65CE888854F1241292DD6 /* StickerViewportUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53D5205F992BA82E5311C6A /* StickerViewportUITests.swift */; };
 		AAD2F6FE5BA769C7D1F2B8B9 /* StyleGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC62B3DEE63E88B6856801BC /* StyleGallery.swift */; };
 		AD066BDFAB0FB6E3AB8B80A1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 011A26E814FC62F68EC3BBD7 /* PrivacyInfo.xcprivacy */; };
 		B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */; };
@@ -98,6 +100,7 @@
 		158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePreviewRefreshUITests.swift; sourceTree = "<group>"; };
 		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
 		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
+		231A606B81E079234F16D65F /* StickerPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerPlacementTests.swift; sourceTree = "<group>"; };
 		2846E0A67CB441F686E1758C /* Version402UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version402UITests.swift; sourceTree = "<group>"; };
 		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		2C3CDA137ED7A1F098F5D08E /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
@@ -125,6 +128,7 @@
 		AC62B3DEE63E88B6856801BC /* StyleGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleGallery.swift; sourceTree = "<group>"; };
 		ACAACE628D3992ABE8D81EE6 /* JiPin.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JiPin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B49F9655988424477E1BADD3 /* LivePhotoQualityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePhotoQualityTests.swift; sourceTree = "<group>"; };
+		B53D5205F992BA82E5311C6A /* StickerViewportUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerViewportUITests.swift; sourceTree = "<group>"; };
 		BCF869917688CD6BFEE85880 /* HomeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViews.swift; sourceTree = "<group>"; };
 		BF31E3BDD328DAD28C3DA340 /* DecorationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecorationLibrary.swift; sourceTree = "<group>"; };
 		C941A28287669E882473912B /* LivePhotoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePhotoUITests.swift; sourceTree = "<group>"; };
@@ -219,6 +223,7 @@
 				B49F9655988424477E1BADD3 /* LivePhotoQualityTests.swift */,
 				81BFFCE6F0B601BB2F8A7C13 /* LivePhotoTests.swift */,
 				6BA4A376E6E1202D64C10C46 /* RenderExportTests.swift */,
+				231A606B81E079234F16D65F /* StickerPlacementTests.swift */,
 				6DDFFDCE874A2009D2A1B4E8 /* VersionThreeTests.swift */,
 				A4A229856BB4F8720E0370DE /* VersionTwoTests.swift */,
 			);
@@ -287,6 +292,7 @@
 				158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */,
 				8F483BE155155A488F909829 /* LongStripGestureUITests.swift */,
 				0CDE612799F6D714E1A5CF97 /* LongStripQualityUITests.swift */,
+				B53D5205F992BA82E5311C6A /* StickerViewportUITests.swift */,
 				2846E0A67CB441F686E1758C /* Version402UITests.swift */,
 				02421F764BD2238EDCC09767 /* Version404UITests.swift */,
 			);
@@ -477,6 +483,7 @@
 				5AB0A1FAC504A36228430DF7 /* LivePreviewRefreshUITests.swift in Sources */,
 				F76D8223DA88E47212F06197 /* LongStripGestureUITests.swift in Sources */,
 				D1BD26F8E9D4FBFD68C31221 /* LongStripQualityUITests.swift in Sources */,
+				9CF65CE888854F1241292DD6 /* StickerViewportUITests.swift in Sources */,
 				F5E237BEF0D66D627452203C /* Version402UITests.swift in Sources */,
 				29284C04CFD290690FB1F402 /* Version404UITests.swift in Sources */,
 			);
@@ -514,6 +521,7 @@
 				88D8B889B1BC9035C294A896 /* LivePhotoQualityTests.swift in Sources */,
 				788BB9EBFBEA68407B4FB597 /* LivePhotoTests.swift in Sources */,
 				7C2C0B0EADD72DFFC5A577E3 /* RenderExportTests.swift in Sources */,
+				18CC2CC56EB0B5AEDF2ADB33 /* StickerPlacementTests.swift in Sources */,
 				72748E82FA59F7E48D44F474 /* VersionThreeTests.swift in Sources */,
 				492FB70AADFE81C81DA2936E /* VersionTwoTests.swift in Sources */,
 			);

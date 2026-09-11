@@ -120,6 +120,26 @@ struct CanvasTouchSurface: UIViewRepresentable {
         let touch = CanvasTouchRecognizer()
         var canvasTarget: PhotoTarget?
         var photoTargets: [UUID: PhotoTarget] = [:]
+        var stickerTargets: [UUID: PhotoTarget] = [:]
+
+        var normalizedVisibleCenter: CGPoint? {
+            guard window != nil, bounds.width > 0, bounds.height > 0 else { return nil }
+            var ancestor = superview
+            while let view = ancestor {
+                if let scroll = view as? UIScrollView {
+                    // SwiftUI can extend the scroll view beneath its safe-area tool panels.
+                    // Convert its usable viewport into unscaled canvas coordinates; UIKit
+                    // accounts for both the current content offset and the canvas zoom.
+                    let viewport = scroll.bounds.inset(by: scroll.adjustedContentInset)
+                    let visible = bounds.intersection(convert(viewport, from: scroll))
+                    guard !visible.isNull, visible.width > 0, visible.height > 0 else { return nil }
+                    return CGPoint(x: (visible.midX - bounds.minX) / bounds.width,
+                                   y: (visible.midY - bounds.minY) / bounds.height)
+                }
+                ancestor = view.superview
+            }
+            return nil
+        }
         override init(frame: CGRect) {
             super.init(frame: frame)
             isMultipleTouchEnabled = true; backgroundColor = .clear
@@ -150,6 +170,7 @@ struct CanvasTouchSurface: UIViewRepresentable {
     }
     func updateUIView(_ view: Surface, context: Context) {
         context.coordinator.parent = self
+        session.canvasInsertionPoint = { [weak view] in view?.normalizedVisibleCenter }
         let enabled = !session.isDrawingTool && context.environment.isEnabled
         if view.touch.isEnabled != enabled { view.touch.isEnabled = enabled }
         let frames = session.photoFrames(canvasSize: canvasSize)
@@ -178,7 +199,18 @@ struct CanvasTouchSurface: UIViewRepresentable {
             return element
         }
         view.photoTargets = view.photoTargets.filter { session.project.object(id: $0.key) != nil }
-        view.accessibilityElements = session.isDrawingTool ? [canvas] : [canvas] + photos
+        let stickers = session.project.visibleObjects.filter { $0.kind == .sticker }.enumerated().map { index, object in
+            let element = view.stickerTargets[object.id] ?? Surface.PhotoTarget(accessibilityContainer: view)
+            view.stickerTargets[object.id] = element
+            element.accessibilityIdentifier = "canvas-sticker-\(index)"
+            element.accessibilityLabel = object.displayName
+            element.accessibilityTraits = object.id == session.selectedID ? [.image, .button, .selected] : [.image, .button]
+            element.accessibilityFrameInContainerSpace = LayoutEngine.rotatedFrame(object.transform, canvasSize: canvasSize)
+            element.select = { [weak session] in session?.select(object.id) }
+            return element
+        }
+        view.stickerTargets = view.stickerTargets.filter { session.project.object(id: $0.key) != nil }
+        view.accessibilityElements = session.isDrawingTool ? [canvas] : [canvas] + photos + stickers
     }
     static func dismantleUIView(_ view: Surface, coordinator: Coordinator) {
         if coordinator.parent.session.isGestureActive { coordinator.parent.session.endGesture() }

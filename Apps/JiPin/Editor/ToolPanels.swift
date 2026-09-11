@@ -820,6 +820,7 @@ struct StickerTools: View {
                                 .background(JiPinTheme.canvas, in: RoundedRectangle(cornerRadius: 12))
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("sticker-inline-\(sticker.id)")
                             Button {
                                 appState.favorites.toggleSticker(sticker.id)
                             } label: {
