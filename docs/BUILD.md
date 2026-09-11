@@ -172,3 +172,6 @@ JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.3-7" ./scripts/archive-testfl
 ```
 
 长图交互回归为 `JiPinUITests/LongStripGestureUITests`，覆盖纵横浏览、Live、双指与长按、撤销以及工具页稳定。开发参数 `-sampleLiveEditor -sampleMode longStrip` 可打开内置 Live 长图示例。
+
+
+4.0.3（构建 7）已完成正式签名归档、IPA 导出和 TestFlight 上传，Apple 处理完成后已关联内部群组与“官网公开内测”群组。公开群组的新构建需等待本次 Beta 审核；审核期间旧版 4.0.2 继续可用。签名核验与上传记录见 4.0.3 发布说明。
