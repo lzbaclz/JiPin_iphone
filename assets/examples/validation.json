@@ -1,0 +1,82 @@
+[
+  {
+    "duration" : 3,
+    "identifier" : "F8AE35FC-5608-4040-9581-10DC324A9FBE",
+    "name" : "cute-template",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 3413,
+    "photoWidth" : 4096,
+    "videoHeight" : 1200,
+    "videoWidth" : 1440
+  },
+  {
+    "duration" : 3,
+    "identifier" : "3F3E321C-DC3D-4D38-AA7B-AFCA56172B0E",
+    "name" : "cute-freeform",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 4096,
+    "photoWidth" : 4096,
+    "videoHeight" : 1440,
+    "videoWidth" : 1440
+  },
+  {
+    "duration" : 3,
+    "identifier" : "9E97FF4B-BCB9-46E1-B5F0-8DF24E598FA5",
+    "name" : "cute-poster",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 4096,
+    "photoWidth" : 3072,
+    "videoHeight" : 1440,
+    "videoWidth" : 1080
+  },
+  {
+    "duration" : 3,
+    "identifier" : "C6A87AB0-8484-42BF-8F4A-2D94E3AFC859",
+    "name" : "cute-long-strip",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 3857,
+    "photoWidth" : 1440,
+    "videoHeight" : 3350,
+    "videoWidth" : 1250
+  },
+  {
+    "duration" : 3,
+    "identifier" : "4D5C47AF-B3BA-4C0C-AD0C-839FD4B63FE8",
+    "name" : "shanhe-template",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 3413,
+    "photoWidth" : 4096,
+    "videoHeight" : 1200,
+    "videoWidth" : 1440
+  },
+  {
+    "duration" : 3,
+    "identifier" : "4DDA7E62-2BE3-4C33-BF50-4052059A6D5E",
+    "name" : "shanhe-freeform",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 4096,
+    "photoWidth" : 4096,
+    "videoHeight" : 1440,
+    "videoWidth" : 1440
+  },
+  {
+    "duration" : 3,
+    "identifier" : "2CEBD0C6-834A-4A50-A264-D3259C0AB393",
+    "name" : "shanhe-poster",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 4096,
+    "photoWidth" : 3072,
+    "videoHeight" : 1440,
+    "videoWidth" : 1080
+  },
+  {
+    "duration" : 3,
+    "identifier" : "C8A46FCD-E45F-48C0-A9E5-6A8500AC7212",
+    "name" : "shanhe-long-strip",
+    "nativePhotoKitValidated" : true,
+    "photoHeight" : 5434,
+    "photoWidth" : 1440,
+    "videoHeight" : 3838,
+    "videoWidth" : 1016
+  }
+]

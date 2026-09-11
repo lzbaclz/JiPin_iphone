@@ -50,7 +50,41 @@
       features: ['2–20 张照片，按顺序拼接', '横向或纵向，跟着故事走', '支持静态长图分页导出']
     }
   };
+  const playbackRefresh = new Map();
   let selectedMode = 'template';
+  let selectedTheme = 'cute';
+  const exampleThemes = [...document.querySelectorAll('[data-example-theme]')];
+  const viewport = document.querySelector('#mode-viewport');
+  const resultImage = document.querySelector('#mode-result');
+  const modeVideo = document.querySelector('#mode-video');
+  const stripPosition = document.querySelector('#long-strip-position');
+  const stripProgress = document.querySelector('#long-strip-progress');
+  const stripControls = ['#long-strip-controls', '#long-strip-progress', '#long-strip-next', '#long-strip-top'].map(selector => document.querySelector(selector));
+  const syncStripPosition = () => {
+    const max = Math.max(viewport.scrollHeight - viewport.clientHeight, 0);
+    const percent = max ? Math.round(viewport.scrollTop / max * 100) : 0;
+    stripPosition.disabled = !max;
+    stripPosition.value = String(percent);
+    stripPosition.setAttribute('aria-valuetext', `已浏览 ${percent}%`);
+    stripProgress.textContent = `已浏览 ${percent}%`;
+    document.querySelector('#long-strip-top').disabled = percent === 0;
+    document.querySelector('#long-strip-next').disabled = percent === 100;
+  };
+  viewport.addEventListener('scroll', syncStripPosition, { passive: true });
+  stripPosition.addEventListener('input', () => {
+    viewport.scrollTop = (viewport.scrollHeight - viewport.clientHeight) * Number(stripPosition.value) / 100;
+    syncStripPosition();
+  });
+  const scrollBehavior = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  document.querySelector('#long-strip-next').addEventListener('click', () => viewport.scrollBy({ top: viewport.clientHeight * 0.85, behavior: scrollBehavior() }));
+  document.querySelector('#long-strip-top').addEventListener('click', () => viewport.scrollTo({ top: 0, behavior: scrollBehavior() }));
+  resultImage.addEventListener('load', () => {
+    modeVideo.width = resultImage.naturalWidth;
+    modeVideo.height = resultImage.naturalHeight;
+    syncStripPosition();
+  });
+  modeVideo.addEventListener('loadedmetadata', syncStripPosition);
+  if ('ResizeObserver' in window) new ResizeObserver(syncStripPosition).observe(viewport);
   const tabs = [...document.querySelectorAll('[data-mode]')];
   const modePanel = document.querySelector('#mode-panel');
   const screenshotDialog = document.querySelector('.screenshot-dialog');
@@ -66,11 +100,26 @@
     });
     modePanel.setAttribute('aria-labelledby', `tab-${key}`);
     document.querySelector('.collage-stage').dataset.layout = key;
-    const result = document.querySelector('#mode-result');
-    result.src = `assets/shanhe/mode-${key}.webp`;
-    result.alt = `极拼用山水素材生成的${mode.label}成品`;
-    result.width = key === 'long-strip' ? 720 : 1080;
-    result.height = ({ template: 900, freeform: 1080, poster: 1440, 'long-strip': 2700 })[key];
+    const base = `assets/examples/${selectedTheme}-${key}`;
+    const themeName = selectedTheme === 'cute' ? '可爱日常' : '山河旅行';
+    modeVideo.pause();
+    modeVideo.hidden = true;
+    resultImage.hidden = false;
+    resultImage.src = `${base}.webp`;
+    resultImage.alt = `即拼用${themeName}素材生成的${mode.label}成品`;
+    resultImage.removeAttribute('width');
+    resultImage.removeAttribute('height');
+    modeVideo.src = `${base}.mp4`;
+    modeVideo.poster = `${base}.webp`;
+    modeVideo.setAttribute('aria-label', `${themeName}${mode.label}的动态成品预览`);
+    modeVideo.load();
+    playbackRefresh.get(modeVideo)?.();
+    document.querySelector('#mode-caption').textContent = `${themeName} · 即拼实际合成`;
+    viewport.setAttribute('aria-label', key === 'long-strip' ? '长图预览，可滚动或拖动旁边滑块' : '拼图预览');
+    stripControls.forEach(control => { control.hidden = key !== 'long-strip'; });
+    exampleThemes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.exampleTheme === selectedTheme)));
+    viewport.scrollTop = 0;
+    requestAnimationFrame(syncStripPosition);
     document.querySelector('.mode-number').textContent = mode.number;
     document.querySelector('#mode-title').textContent = mode.title;
     document.querySelector('#mode-description').textContent = mode.description;
@@ -80,6 +129,10 @@
       return item;
     }));
   };
+  exampleThemes.forEach(button => button.addEventListener('click', () => {
+    selectedTheme = button.dataset.exampleTheme;
+    updateMode(selectedMode);
+  }));
   tabs.forEach((tab, index) => {
     tab.disabled = false;
     tab.addEventListener('click', () => updateMode(tab.dataset.mode));
@@ -100,7 +153,7 @@
   screenshotTrigger.hidden = false;
   screenshotTrigger.addEventListener('click', () => {
     screenshotImage.src = `assets/screens/${selectedMode}.webp`;
-    screenshotImage.alt = `${modes[selectedMode].label}的极拼 App 实际界面`;
+    screenshotImage.alt = `${modes[selectedMode].label}的即拼 App 实际界面`;
     document.querySelector('#screenshot-title').textContent = `${modes[selectedMode].label} · App 实际界面`;
     screenshotDialog.showModal();
     document.body.style.overflow = 'hidden';
@@ -136,30 +189,53 @@
     video.addEventListener('play', refresh);
     video.addEventListener('pause', refresh);
     video.addEventListener('ended', refresh);
+    video.addEventListener('emptied', refresh);
+    video.addEventListener('loadstart', refresh);
+    playbackRefresh.set(video, refresh);
     button.addEventListener('click', async () => {
       if (!video.paused) { video.pause(); return; }
       videos.forEach(other => { if (other !== video) other.pause(); });
+      const requestedSource = video.src || video.currentSrc;
       try {
+        if (video === modeVideo) {
+          const offset = viewport.scrollTop;
+          video.width = resultImage.naturalWidth || video.width;
+          video.height = resultImage.naturalHeight || video.height;
+          video.hidden = false;
+          resultImage.hidden = true;
+          viewport.scrollTop = offset;
+          viewport.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+          requestAnimationFrame(syncStripPosition);
+        }
         if (video.error) video.load();
         await video.play();
+        if ((video.src || video.currentSrc) !== requestedSource) return;
         if (document.hidden) video.pause();
         button.removeAttribute('title');
-      } catch {
+      } catch (error) {
+        if (error.name === 'AbortError' || (video.src || video.currentSrc) !== requestedSource) { refresh(); return; }
         video.controls = true;
         button.setAttribute('aria-label', '播放失败，点击重试');
+        const text = button.querySelector('.play-label');
+        if (text) text.textContent = '播放失败，点此重试';
         button.title = '播放失败，请重试或使用视频控件';
       }
     });
   }
   if ('IntersectionObserver' in window) {
+    // A long video is taller than its preview. Observe the visible viewport,
+    // otherwise scrolling within a long collage can incorrectly pause playback.
+    const observedVideos = new Map(videos.map(video => [video === modeVideo ? viewport : video, video]));
     const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => { if (!entry.isIntersecting) entry.target.pause(); });
+      entries.forEach(entry => { if (!entry.isIntersecting) observedVideos.get(entry.target)?.pause(); });
     }, { threshold: 0.1 });
-    videos.forEach(video => observer.observe(video));
+    observedVideos.forEach((video, target) => observer.observe(target));
   }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) videos.forEach(video => video.pause());
   });
+
+  updateMode(selectedMode);
 
   const workspace = document.querySelector('#sticker-workspace');
   const placed = document.querySelector('.placed-stickers');

@@ -1,0 +1,42 @@
+[
+  {
+    "name": "cute-template",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "cute-freeform",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "cute-poster",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "cute-long-strip",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "shanhe-template",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "shanhe-freeform",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "shanhe-poster",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  },
+  {
+    "name": "shanhe-long-strip",
+    "decodedFrames": 12,
+    "distinctFrames": 12
+  }
+]

@@ -23,3 +23,10 @@
 - 浏览器不原生导入 JPEG/MOV 配对；网页没有宣称点击即可把浏览器视频存成 Live。
 
 原生配对须保持同名、同时导入支持的照片管理工具；只保存 JPEG 会得到静态图。素材包内的说明提供导入步骤。
+
+
+## 可爱日常与四种动态玩法
+
+`MixedExamples.swift` 使用主 App 4.0.6 的 `JiPinCore`（代码 a5738f6），读取内置兔子、小熊原生 Live 和已存在的山水 Live。通过 `ProjectFactory` 和 `LivePhotoExporter` 为每种主题生成模板、自由、海报、长图八份原生成品，逐一使用 PhotoKit 识别完整照片尺寸。临时生成 App 的资源目录需要显式标记 `buildPhase: resources`。
+
+照片封面和动态视频完整保留在 `assets/examples/cute-live.zip` 与 `shanhe-live.zip`，网页 WebP/MP4 从对应资源转码，ZIP 提供完整配对。原生验证记录为 `assets/examples/validation.json`，网页视频的抽帧验证记录为 `playback-validation.json`。可爱角色沿用 App 已有原创素材，没有引入用户照片。
