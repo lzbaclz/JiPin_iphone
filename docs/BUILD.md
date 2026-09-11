@@ -183,3 +183,5 @@ JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.3-7" ./scripts/archive-testfl
 ```sh
 JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.4-8" ./scripts/archive-testflight.sh
 ```
+
+4.0.4（构建 8）已完成签名核验、TestFlight 上传与群组关联。内部测试已可使用，公开外测提交完成时等待 Apple Beta 审核。具体 IPA 大小、校验值与验证证据见 4.0.4 发布说明。
