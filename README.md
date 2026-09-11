@@ -6,7 +6,7 @@
 
 极拼是一款面向 iPhone 的本地拼图 App，支持模板、自由拼图、海报和横竖长图，以及原生 Live Photo 混合拼图。使用 Swift / SwiftUI 开发，最低支持 **iOS 17**。
 
-**当前版本：4.0.6（构建 10）** · [快速开始](#快速开始) · [构建与签名](docs/BUILD.md) · [测试记录](docs/TEST-RECORD.md) · [已知边界](docs/KNOWN-ISSUES.md)
+**当前版本：4.0.7（构建 11）** · [快速开始](#快速开始) · [构建与签名](docs/BUILD.md) · [测试记录](docs/TEST-RECORD.md) · [已知边界](docs/KNOWN-ISSUES.md)
 
 ## 功能
 
