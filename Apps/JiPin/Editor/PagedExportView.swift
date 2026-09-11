@@ -4,6 +4,7 @@ import JiPinCore
 
 struct PagedExportView: View {
     @ObservedObject var session: EditorSession
+    var onSaved: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var length = PageLength.reading
     @State private var exported: ExportedPages?
@@ -139,6 +140,7 @@ struct PagedExportView: View {
                 }
             }
             message = "已保存 \(result.files.count) 页到相册。"
+            if let onSaved { onSaved() } else { dismiss() }
         } catch { message = "保存未完成：\(error.localizedDescription)" }
     }
 }

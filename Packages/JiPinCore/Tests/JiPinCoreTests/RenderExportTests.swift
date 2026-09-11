@@ -4,6 +4,29 @@ import XCTest
 import JiPinCore
 
 final class RenderExportTests: XCTestCase {
+    func testNewProjectsDefaultToHDInEveryMode() throws {
+        let photos = makePhotos(3)
+        let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))
+        for mode in CollageMode.allCases {
+            let project = ProjectFactory.make(mode: mode, photos: photos)
+            XCTAssertEqual(project.exportPreference.quality, .hd, "\(mode)")
+            guard case .ok(let size) = ExportGeometry.outputSize(for: project, assets: assets) else {
+                return XCTFail("Three photos must fit the normal HD output limits")
+            }
+            if mode == .longStrip { XCTAssertEqual(size.width, 1440) }
+            else { XCTAssertEqual(max(size.width, size.height), 4096) }
+        }
+    }
+
+    func testExplicitStandardPreferenceSurvivesDraftCoding() throws {
+        var project = ProjectFactory.make(mode: .longStrip, photos: makePhotos(3))
+        project.exportPreference.quality = .standard
+        let restored = try JSONDecoder().decode(CollageProject.self, from: JSONEncoder().encode(project))
+        XCTAssertEqual(restored.exportPreference.quality, .standard)
+        XCTAssertEqual(restored, project)
+        XCTAssertEqual(ExportPreference(format: .png).quality, .hd)
+    }
+
     func testFourModesExportWithoutGPSAndWithExpectedSize() {
         let photos = makePhotos(4)
         let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }))

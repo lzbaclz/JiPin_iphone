@@ -75,7 +75,7 @@ final class Version402UITests: XCTestCase {
         }
         save.tap()
         if XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch.waitForExistence(timeout: 2) { app.tap() }
-        XCTAssertTrue(app.staticTexts["已保存到相册。"].waitForExistence(timeout: 30))
+        assertEditorAfterAlbumSave(app)
         keep(app, "402-saved-with-one-action")
     }
 
@@ -88,7 +88,7 @@ final class Version402UITests: XCTestCase {
         XCTAssertTrue(app.buttons["canvas-live-preview"].waitForExistence(timeout: 10))
         app.buttons["editor-export"].tap()
         XCTAssertTrue(app.buttons["live-play"].waitForExistence(timeout: 45))
-        XCTAssertTrue(app.staticTexts["预览已就绪。保存时将生成 1080 清晰度的成品。"].exists)
+        XCTAssertTrue(app.staticTexts["预览已就绪。保存时将生成 1440 清晰度的成品。"].exists)
         XCTAssertTrue(app.buttons["live-save-album"].isHittable)
         keep(app, "402-fast-live-preview")
     }

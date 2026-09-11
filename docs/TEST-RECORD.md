@@ -149,3 +149,11 @@ UI 测试定位修正：工具条改用容器内的短距离拖动，避免一�
 - 证据：`build/Validation-4.0.3/GestureRegression.xcresult`、`FinalGestureUndo.xcresult`、`SmallPhone.xcresult`、`validation-summary.json`。最终模拟器截图见 `docs/version-screenshots/v4.0.3/`。
 - 触点定位按导航栏与工具栏之间的真实可见区域计算，避免 SwiftUI 的全屏 ScrollView AX frame 让测试误触底部工具区。
 - 本轮没有替代用户真机确认；未声明物理设备帧率或完成 App Store 所要求的真机录屏。
+
+## V4.0.4 默认高清与保存后关闭（2026-09-11）
+
+- `ExportRegression.xcresult`：首轮 69 项中 68 通过，1 项界面尺寸断言因系统千位分隔格式失败；产品默认值、实际尺寸和保存流程已工作。
+- `FinalExportFlow.xcresult`：规范化尺寸显示后的高清保存用例，以及长图直接滑动回归，2 项通过。
+- `DeniedPermission.xcresult`：在新建 iPhone 16e 模拟器真实拒绝添加照片权限，1 项通过；窗口没有关闭，错误与重试按钮保留。
+- 汇总 71 个不同用例全部取得通过结果；包含核心导出/分页、Live 保存与系统选图、静态/Live/分页保存自动关闭、手动标准选择保留及旧草稿编解码。
+- 证据与按用例汇总记录位于 `build/Validation-4.0.4/`，最终截图位于 `docs/version-screenshots/v4.0.4/`。

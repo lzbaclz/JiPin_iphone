@@ -498,7 +498,7 @@ public struct ExportPreference: Codable, Hashable, Sendable {
     public var quality: ExportQuality
     public var transparentBackground: Bool
 
-    public init(format: ExportFormat = .jpeg, quality: ExportQuality = .standard, transparentBackground: Bool = false) {
+    public init(format: ExportFormat = .jpeg, quality: ExportQuality = .hd, transparentBackground: Bool = false) {
         self.format = format
         self.quality = quality
         self.transparentBackground = transparentBackground

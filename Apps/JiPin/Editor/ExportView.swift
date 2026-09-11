@@ -5,6 +5,7 @@ import JiPinCore
 
 struct ExportView: View {
     @ObservedObject var session: EditorSession
+    var onSaved: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var preview: UIImage?
     @State private var estimated = "估算生成后显示实际大小"
@@ -43,6 +44,7 @@ struct ExportView: View {
                     Picker("尺寸", selection: $session.project.exportPreference.quality) {
                         ForEach(ExportQuality.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
+                    .accessibilityIdentifier("export-quality")
                     if session.project.mode == .freeform || session.project.mode == .poster {
                         Toggle("透明背景（PNG）", isOn: Binding(
                             get: { session.project.exportPreference.transparentBackground },
@@ -138,7 +140,7 @@ struct ExportView: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() }.disabled(isBusy) } }
             .interactiveDismissDisabled(isBusy)
             .onAppear { refresh() }
-            .sheet(isPresented: $showPages) { PagedExportView(session: session) }
+            .sheet(isPresented: $showPages) { PagedExportView(session: session, onSaved: finishSaving) }
             .onChange(of: session.project.exportPreference) { _, _ in refresh() }
             .sheet(isPresented: $showShare, onDismiss: cleanupShareFile) {
                 if let shareURL { ShareSheet(items: [shareURL]) }
@@ -274,9 +276,14 @@ struct ExportView: View {
                 PHAssetCreationRequest.forAsset().addResource(with: .photo, data: data, options: nil)
             }
             message = "已保存到相册。"
+            finishSaving()
         } catch {
             message = "保存失败：\(error.localizedDescription)。项目仍保留，可以重试或存储到文件。"
         }
+    }
+
+    private func finishSaving() {
+        if let onSaved { onSaved() } else { dismiss() }
     }
 
     private func cleanupShareFile() {

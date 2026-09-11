@@ -91,6 +91,7 @@ struct LivePhotoPreview: UIViewRepresentable {
 
 struct LivePhotoExportView: View {
     @ObservedObject var session: EditorSession
+    var onSaved: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var result: LivePhotoExport?
     @State private var live: PHLivePhoto?
@@ -100,13 +101,13 @@ struct LivePhotoExportView: View {
     @State private var isSaving = false
     @State private var message: String?
     @State private var jobID = UUID()
-    @State private var maxSide = 1080
     @State private var preparedSide = 0
     @State private var renderingFullSize = false
     @State private var playback = 0
     @State private var showStatic = false
     @State private var showShare = false
     private var busy: Bool { isRendering || isSaving }
+    private var maxSide: Int { session.project.exportPreference.quality == .hd ? 1440 : 1080 }
 
     var body: some View {
         NavigationStack {
@@ -140,9 +141,9 @@ struct LivePhotoExportView: View {
                 }
                 Section("动态设置") {
                     LivePhotoOptions(session: session, prefix: "live-export")
-                    Picker("清晰度", selection: $maxSide) {
-                        Text("标准 · 1080").tag(1080)
-                        Text("高清 · 1440").tag(1440)
+                    Picker("清晰度", selection: $session.project.exportPreference.quality) {
+                        Text("标准 · 1080").tag(ExportQuality.standard)
+                        Text("高清 · 1440").tag(ExportQuality.hd)
                     }.accessibilityIdentifier("live-quality")
                     let size = LivePhotoExporter.outputSize(project: session.project, assets: session.assets.snapshot, maxSide: CGFloat(maxSide))
                     LabeledContent("尺寸", value: "\(Int(size.width)) × \(Int(size.height))")
@@ -203,7 +204,7 @@ struct LivePhotoExportView: View {
             .onDisappear { renderTask?.cancel() }
             .onChange(of: maxSide) { _, _ in invalidate() }
             .onChange(of: session.project.livePhotoSettings) { _, _ in invalidate() }
-            .sheet(isPresented: $showStatic) { ExportView(session: session) }
+            .sheet(isPresented: $showStatic) { ExportView(session: session, onSaved: finishSaving) }
             .sheet(isPresented: $showShare) { if let result { ShareSheet(items: [result.videoURL]) } }
         }
     }
@@ -269,6 +270,11 @@ struct LivePhotoExportView: View {
         do {
             try await LivePhotoLibrary.save(result)
             message = "已保存 Live 到相册。打开系统相册，长按这张拼图即可播放。"
+            finishSaving()
         } catch { message = "保存失败：\(error.localizedDescription)" }
+    }
+
+    private func finishSaving() {
+        if let onSaved { onSaved() } else { dismiss() }
     }
 }

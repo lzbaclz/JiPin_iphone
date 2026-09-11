@@ -175,3 +175,11 @@ JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.3-7" ./scripts/archive-testfl
 
 
 4.0.3（构建 7）已完成正式签名归档、IPA 导出和 TestFlight 上传，Apple 处理完成后已关联内部群组与“官网公开内测”群组。公开群组的新构建需等待本次 Beta 审核；审核期间旧版 4.0.2 继续可用。签名核验与上传记录见 4.0.3 发布说明。
+
+## V4.0.4 高清默认与保存收尾
+
+主 App 与扩展版本统一为 **4.0.4 / build 8**。项目清晰度默认高清，保存成功后关闭根导出入口。新用例为 `Version404UITests`；拒绝相册权限用例在新建模拟器单独执行，避免已有授权影响结果。完整记录见 [4.0.4 发布说明](v4.0.4-release.md)。
+
+```sh
+JIPIN_EXPORT_ROOT="$PWD/build/TestFlight/JiPin-4.0.4-8" ./scripts/archive-testflight.sh
+```

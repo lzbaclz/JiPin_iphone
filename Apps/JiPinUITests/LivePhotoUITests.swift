@@ -61,9 +61,10 @@ final class LivePhotoUITests: XCTestCase {
         save.tap()
         // Trigger the interruption handler when this simulator has not granted add-only permission.
         if XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch.waitForExistence(timeout: 2) { app.tap() }
-        let saved = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH '已保存 Live 到相册'")).firstMatch
-        XCTAssertTrue(saved.waitForExistence(timeout: 30))
+        assertEditorAfterAlbumSave(app)
         keep(app, "v4-live-saved-to-photos")
+        app.buttons["editor-export"].tap()
+        XCTAssertTrue(app.buttons["live-play"].waitForExistence(timeout: 60))
         let still = app.buttons["live-export-still"]
         reveal(still, in: app); still.tap()
         let staticGenerate = app.buttons["export-generate"]
@@ -126,8 +127,7 @@ final class LivePhotoUITests: XCTestCase {
         }
         save.tap()
         if XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.firstMatch.waitForExistence(timeout: 2) { app.tap() }
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH '已保存 Live 到相册'")).firstMatch.waitForExistence(timeout: 30))
-        app.navigationBars["导出 Live"].buttons["关闭"].tap()
+        assertEditorAfterAlbumSave(app)
         app.navigationBars.buttons["完成"].tap()
         XCTAssertTrue(app.buttons["home-pick-photos"].waitForExistence(timeout: 15))
         app.buttons["home-pick-photos"].tap()

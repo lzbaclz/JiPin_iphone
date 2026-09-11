@@ -69,8 +69,8 @@ struct EditorView: View {
                 showExport = value
                 if !value { session.wantsLivePreview = false }
             })) {
-                if session.project.hasLivePhotos { LivePhotoExportView(session: session) }
-                else { ExportView(session: session) }
+                if session.project.hasLivePhotos { LivePhotoExportView(session: session, onSaved: finishExport) }
+                else { ExportView(session: session, onSaved: finishExport) }
             }
             .sheet(isPresented: $showCopyMode) {
                 CopyModeView(session: session)
@@ -96,6 +96,13 @@ struct EditorView: View {
             }
             .disabled(appState.isClosingEditor)
         }
+    }
+
+    private func finishExport() {
+        // Saving can finish inside Live → static → pages. Dismiss the root export
+        // presentation only after Photos confirms the complete write succeeded.
+        showExport = false
+        session.wantsLivePreview = false
     }
 
     private var copyModeButton: some View {
