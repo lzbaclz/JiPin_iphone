@@ -22,6 +22,7 @@ struct IDPhotoEditorView: View {
     @State private var brushDiameter = 24.0
     @State private var customSize = false
     @State private var export: IDPhotoExportSnapshot?
+    @State private var isPreparingExport = false
     @State private var showPicker = false
     @State private var replacement: PhotosPickerItem?
     @State private var replacementTask: Task<Void, Never>?
@@ -95,22 +96,30 @@ struct IDPhotoEditorView: View {
                     }
                 }
             }
-            .disabled(session.isClosing || isReplacing)
+            .disabled(session.isClosing || isReplacing || isPreparingExport)
             .background(JiPinTheme.grouped)
             .navigationTitle("制作证件照").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(session.isClosing ? "保存中…" : "完成") {
                         Task { if await session.close() { onClose() } }
-                    }.disabled(session.isClosing || isReplacing).accessibilityIdentifier("idphoto-close")
+                    }.disabled(session.isClosing || isReplacing || isPreparingExport).accessibilityIdentifier("idphoto-close")
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button(action: session.undo) { Image(systemName: "arrow.uturn.backward") }
-                        .disabled(session.undoCount == 0 || isReplacing || session.isClosing).accessibilityLabel("撤销").accessibilityIdentifier("idphoto-undo")
+                        .disabled(session.undoCount == 0 || isReplacing || session.isClosing || isPreparingExport).accessibilityLabel("撤销").accessibilityIdentifier("idphoto-undo")
                     Button(action: session.redo) { Image(systemName: "arrow.uturn.forward") }
-                        .disabled(session.redoCount == 0 || isReplacing || session.isClosing).accessibilityLabel("重做").accessibilityIdentifier("idphoto-redo")
-                    Button("保存") { export = session.exportSnapshot() }
-                        .fontWeight(.semibold).disabled(session.preview == nil || session.isAnalyzing || isReplacing || session.isClosing)
+                        .disabled(session.redoCount == 0 || isReplacing || session.isClosing || isPreparingExport).accessibilityLabel("重做").accessibilityIdentifier("idphoto-redo")
+                    Button(isPreparingExport ? "保存草稿…" : "保存") {
+                        isPreparingExport = true
+                        Task {
+                            defer { isPreparingExport = false }
+                            session.endTransaction()
+                            guard await session.persistNow() else { return }
+                            export = session.exportSnapshot()
+                        }
+                    }
+                        .fontWeight(.semibold).disabled(session.preview == nil || session.isAnalyzing || isReplacing || session.isClosing || isPreparingExport)
                         .accessibilityIdentifier("idphoto-export")
                 }
             }
@@ -118,7 +127,10 @@ struct IDPhotoEditorView: View {
                 IDPhotoCustomSizeView(template: session.project.template) { template in session.edit { $0.template = template } }
             }
             .sheet(item: $export) { snapshot in
-                IDPhotoExportView(snapshot: snapshot) {
+                IDPhotoExportView(snapshot: snapshot, onQualityChanged: { value in
+                    session.edit { $0.exportQuality = value }
+                    Task { await session.persistNow() }
+                }) {
                     export = nil
                     session.notice = "已保存到相册。"
                 }

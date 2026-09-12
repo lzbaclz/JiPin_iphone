@@ -3,6 +3,20 @@ import UIKit
 @testable import JiPinCore
 
 final class IDPhotoFoundationTests: XCTestCase {
+    func testLegacyDraftDefaultsToHDAndExplicitCompressionSurvivesReopen() throws {
+        let project = IDPhotoProject()
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(project)) as? [String: Any])
+        json.removeValue(forKey: "exportQuality")
+        let legacy = try JSONDecoder().decode(IDPhotoProject.self, from: JSONSerialization.data(withJSONObject: json))
+        XCTAssertEqual(legacy.exportQuality, .highDefinition)
+        XCTAssertEqual(legacy.id, project.id)
+        var compact = legacy
+        compact.exportQuality = .compressed
+        let store = IDPhotoDraftStore(containerURL: try root())
+        try store.save(project: compact, sourceData: image(), maskData: nil, faceRegions: [])
+        XCTAssertEqual(try store.load(id: compact.id).project.exportQuality, .compressed)
+    }
+
     private func root() throws -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("IDPhotoTests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

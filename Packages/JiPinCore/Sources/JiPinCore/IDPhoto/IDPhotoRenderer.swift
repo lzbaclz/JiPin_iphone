@@ -174,19 +174,23 @@ public enum IDPhotoRenderer {
     /// Both rendering paths use the same upright source, crop transform and effects.
     public static func render(project: IDPhotoProject, prepared: IDPhotoPreparedSource,
                               faces: [IDPhotoFaceRegion] = [], maxSide: CGFloat? = nil) throws -> UIImage {
+        try project.validate()
+        let base = project.template.pixelSize
+        let factor: CGFloat
+        if let maxSide {
+            guard maxSide.isFinite, maxSide > 0, maxSide <= 2048 else { throw IDPhotoRenderError.invalidOutputSize }
+            factor = maxSide / max(base.width, base.height)
+        } else { factor = 1 }
+        let size = CGSize(width: max(1, (base.width * factor).rounded()), height: max(1, (base.height * factor).rounded()))
+        return try renderPixels(project: project, prepared: prepared, faces: faces, size: size)
+    }
+
+    private static func renderPixels(project: IDPhotoProject, prepared: IDPhotoPreparedSource,
+                                     faces: [IDPhotoFaceRegion], size: CGSize) throws -> UIImage {
         try autoreleasepool {
             try project.validate()
-            let width = project.template.width, height = project.template.height
-            guard (100...2048).contains(width), (100...2048).contains(height), width * height <= 4_000_000 else {
-                throw IDPhotoRenderError.invalidOutputSize
-            }
-            let factor: CGFloat
-            if let maxSide {
-                guard maxSide.isFinite, maxSide > 0, maxSide <= 2048 else { throw IDPhotoRenderError.invalidOutputSize }
-                factor = maxSide / CGFloat(max(width, height))
-            } else { factor = 1 }
-            let size = CGSize(width: max(1, (CGFloat(width) * factor).rounded()),
-                              height: max(1, (CGFloat(height) * factor).rounded()))
+            guard size.width >= 1, size.height >= 1, max(size.width, size.height) <= 4096,
+                  size.width * size.height <= 8_388_608 else { throw IDPhotoRenderError.invalidOutputSize }
             let rect = CGRect(origin: .zero, size: size)
             let personMask = try prepared.editedMask(strokes: project.strokes)
             if !project.keepOriginalBackground && personMask == nil { throw IDPhotoRenderError.missingMask }
@@ -230,18 +234,19 @@ public enum IDPhotoRenderer {
 
     public static func jpegData(project: IDPhotoProject, prepared: IDPhotoPreparedSource,
                                 faces: [IDPhotoFaceRegion] = []) throws -> Data {
-        guard let image = try render(project: project, prepared: prepared, faces: faces).cgImage else {
+        let configuration = try IDPhotoExportConfiguration(template: project.template, quality: project.exportQuality)
+        guard let image = try renderPixels(project: project, prepared: prepared, faces: faces, size: configuration.pixelSize).cgImage else {
             throw IDPhotoRenderError.renderingFailed
         }
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data, UTType.jpeg.identifier as CFString, 1, nil) else {
             throw IDPhotoRenderError.encodingFailed
         }
-        let ppi = project.template.ppi
+        let ppi = configuration.ppi
         // Encode from rendered pixels and an explicit metadata allowlist. Never copy
         // source GPS, EXIF device identifiers, dates or orientation into the new file.
         CGImageDestinationAddImage(destination, image, [
-            kCGImageDestinationLossyCompressionQuality: 0.96,
+            kCGImageDestinationLossyCompressionQuality: configuration.quality.jpegQuality,
             kCGImagePropertyDPIWidth: ppi,
             kCGImagePropertyDPIHeight: ppi,
             kCGImagePropertyOrientation: 1,

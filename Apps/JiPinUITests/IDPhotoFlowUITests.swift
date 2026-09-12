@@ -189,6 +189,66 @@ final class IDPhotoFlowUITests: XCTestCase {
         keep(app, "IDPhoto-unavailable-analysis-resize-fallback")
     }
 
+    func test07HDDefaultAndCompressedChoiceProduceTheirOwnPixels() throws {
+        let app = launchFixture()
+        app.buttons["idphoto-export"].tap()
+        let save = app.buttons["idphoto-save-album"]
+        waitEnabled(save)
+        let size = app.descendants(matching: .any).matching(identifier: "idphoto-export-size").firstMatch
+        waitLabel(size, contains: "1180")
+        func exportedSize() throws -> CGSize {
+            let data = try Data(contentsOf: fixture.appendingPathComponent("export.jpg"))
+            let source = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil))
+            let props = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
+            return CGSize(width: props[kCGImagePropertyPixelWidth] as? Int ?? 0,
+                          height: props[kCGImagePropertyPixelHeight] as? Int ?? 0)
+        }
+        XCTAssertEqual(try exportedSize(), CGSize(width: 1180, height: 1652))
+        let picker = app.buttons["idphoto-export-quality"]
+        reveal(picker, in: app); picker.tap(); app.buttons["压缩"].tap()
+        waitEnabled(save)
+        waitLabel(size, contains: "295")
+        XCTAssertEqual(try exportedSize(), CGSize(width: 295, height: 413))
+        picker.tap(); app.buttons["高清"].tap()
+        waitEnabled(save)
+        XCTAssertEqual(try exportedSize(), CGSize(width: 1180, height: 1652))
+        keep(app, "IDPhoto-HD-quality-options")
+    }
+
+    func test08SavedIDPhotoAppearsInMainDraftsAndReopensAfterRelaunch() throws {
+        let app = launchFixture()
+        app.buttons["idphoto-color-blue"].tap()
+        app.buttons["idphoto-export"].tap()
+        let save = app.buttons["idphoto-save-album"]
+        waitEnabled(save)
+        let picker = app.buttons["idphoto-export-quality"]
+        reveal(picker, in: app); picker.tap(); app.buttons["压缩"].tap()
+        waitEnabled(save); reveal(save, in: app)
+        allowAlbumSave(); save.tap(); respondToPhotoAlert(app)
+        XCTAssertTrue(app.staticTexts["idphoto-notice"].waitForExistence(timeout: 30))
+        app.buttons["idphoto-close"].tap()
+        XCTAssertTrue(app.buttons["idphoto-import"].waitForExistence(timeout: 15))
+        let entryDraft = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'idphoto-draft-' AND NOT identifier BEGINSWITH 'idphoto-draft-delete-'")).firstMatch
+        reveal(entryDraft, in: app)
+        let identifier = entryDraft.identifier
+        app.buttons["idphoto-entry-close"].tap()
+        app.tabBars.buttons["草稿"].tap()
+        let saved = app.buttons[identifier]
+        XCTAssertTrue(saved.waitForExistence(timeout: 15), app.debugDescription)
+        keep(app, "IDPhoto-in-main-drafts")
+        app.terminate(); app.launchArguments = []; app.launchEnvironment = [:]; app.launch()
+        app.tabBars.buttons["草稿"].tap()
+        XCTAssertTrue(app.buttons[identifier].waitForExistence(timeout: 15))
+        app.buttons[identifier].tap()
+        waitEnabled(app.buttons["idphoto-export"])
+        XCTAssertTrue(app.buttons["idphoto-color-blue"].isSelected)
+        app.buttons["idphoto-export"].tap(); waitEnabled(app.buttons["idphoto-save-album"])
+        waitLabel(app.descendants(matching: .any).matching(identifier: "idphoto-export-size").firstMatch, contains: "295")
+        app.buttons["idphoto-export-close"].tap(); app.buttons["idphoto-close"].tap()
+        XCTAssertTrue(app.tabBars.buttons["草稿"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons[identifier].exists)
+    }
+
     // Run separately after resetting both photos and photos-add privacy on this simulator.
     func test06DeniedAlbumPermissionKeepsPhotoAndExportForRetry() {
         let app = launchFixture()

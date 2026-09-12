@@ -86,3 +86,8 @@ Live 视频用 `SharedMotionAssets/{uuid}.mov` 存储，不写入 JSON 或单个
 证件照使用 App 私有 Application Support/JiPin/IDPhotoDrafts/{uuid}/，独立 schema 1，原片、软蒙版、关键点保护区域、参数、修边笔画和缩略图成套保存，不放入原拼图 SharedAssets 回收目录。保存采用暂存目录与原子交换，失败保留上一份完整草稿；原片指纹校验防止复用同一 ID 覆盖照片。
 
 原片丢失时拒绝打开；蒙版损坏时保留照片／参数并显示需要重新识别的说明。清缓存不删除这些草稿，目录排除云备份；修图参数初始为零，旧拼图 schema 1–4 不受影响。
+
+
+## V4.0.9 证件照导出偏好与统一列表
+
+独立草稿目录和 schema 1 保持不变；新增可选 `exportQuality` 字段（`highDefinition`／`compressed`），老草稿没有该字段时默认高清。选择压缩后随该项目保存。主「草稿」页直接读取同一 IDPhotoDrafts 索引，打开、删除都针对原记录，不复制草稿或混入拼图素材回收范围。导出前先确认当前草稿写入成功。

@@ -21,8 +21,11 @@ struct RootView: View {
         .sheet(isPresented: $appState.showSettings) {
             SettingsView()
         }
-        .fullScreenCover(isPresented: $appState.showIDPhoto) {
-            IDPhotoEntryView { appState.showIDPhoto = false }
+        .fullScreenCover(isPresented: $appState.showIDPhoto, onDismiss: {
+            appState.pendingIDPhotoDraftID = nil
+            appState.draftRefreshID = UUID()
+        }) {
+            IDPhotoEntryView(initialDraftID: appState.pendingIDPhotoDraftID) { appState.showIDPhoto = false }
         }
         .fullScreenCover(item: $appState.quickCollage) { launch in
             QuickCollageView(
@@ -276,7 +279,7 @@ struct CreateHomeView: View {
                     }.buttonStyle(.plain).accessibilityIdentifier("home-try-stickers")
                         .accessibilityHint("打开可编辑的示例插画拼图，可替换为自己的照片")
 
-                    Button { appState.showIDPhoto = true } label: {
+                    Button { appState.openIDPhoto() } label: {
                         HStack(spacing: 16) {
                             Image(systemName: "person.crop.rectangle")
                                 .font(.system(size: 34)).foregroundStyle(JiPinTheme.accent)
@@ -617,7 +620,11 @@ struct CreateHomeView: View {
 
 struct DraftsView: View {
     @EnvironmentObject private var appState: AppState
+    @Environment(\.scenePhase) private var scenePhase
     @State private var drafts: [DraftSummary] = []
+    @State private var idPhotoDrafts: [IDPhotoDraftSummary] = []
+    @State private var idPhotoDeleteCandidate: IDPhotoDraftSummary?
+    @State private var reloadTask: Task<Void, Never>?
     @State private var renameTarget: DraftSummary?
     @State private var renameText = ""
     @State private var errorMessage: String?
@@ -625,30 +632,48 @@ struct DraftsView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if drafts.isEmpty {
-                    ContentUnavailableView("没有草稿", systemImage: "rectangle.stack", description: Text("创作页开始的拼图会自动保存在这里。"))
+                if drafts.isEmpty && idPhotoDrafts.isEmpty {
+                    ContentUnavailableView("没有草稿", systemImage: "rectangle.stack", description: Text("拼图和证件照会自动保存在这里。"))
                 } else {
                     List {
-                        ForEach(drafts) { draft in
-                            DraftRow(summary: draft) {
-                                open(draft.id)
-                            }
-                            .swipeActions {
-                                Button("复制") { duplicate(draft.id) }
-                                Button("重命名") {
-                                    renameTarget = draft
-                                    renameText = draft.name
+                        if !idPhotoDrafts.isEmpty {
+                            Section("证件照") {
+                                ForEach(idPhotoDrafts) { draft in
+                                    IDPhotoDraftRow(summary: draft) { appState.openIDPhoto(draftID: draft.id) }
+                                        .swipeActions {
+                                            Button("删除", role: .destructive) { idPhotoDeleteCandidate = draft }
+                                        }
+                                        .contextMenu {
+                                            Button("继续编辑") { appState.openIDPhoto(draftID: draft.id) }
+                                            Button("删除", role: .destructive) { idPhotoDeleteCandidate = draft }
+                                        }
                                 }
-                                Button("删除", role: .destructive) { delete(draft) }
                             }
-                            .contextMenu {
-                                Button("继续编辑") { open(draft.id) }
-                                Button("复制") { duplicate(draft.id) }
-                                Button("重命名") {
-                                    renameTarget = draft
-                                    renameText = draft.name
+                        }
+                        if !drafts.isEmpty {
+                            Section("拼图") {
+                                ForEach(drafts) { draft in
+                                    DraftRow(summary: draft) {
+                                        open(draft.id)
+                                    }
+                                    .swipeActions {
+                                        Button("复制") { duplicate(draft.id) }
+                                        Button("重命名") {
+                                            renameTarget = draft
+                                            renameText = draft.name
+                                        }
+                                        Button("删除", role: .destructive) { delete(draft) }
+                                    }
+                                    .contextMenu {
+                                        Button("继续编辑") { open(draft.id) }
+                                        Button("复制") { duplicate(draft.id) }
+                                        Button("重命名") {
+                                            renameTarget = draft
+                                            renameText = draft.name
+                                        }
+                                        Button("删除", role: .destructive) { delete(draft) }
+                                    }
                                 }
-                                Button("删除", role: .destructive) { delete(draft) }
                             }
                         }
                     }
@@ -664,6 +689,26 @@ struct DraftsView: View {
                 }
             }
             .onAppear { reload() }
+            .onChange(of: appState.draftRefreshID) { _, _ in reload() }
+            .onChange(of: scenePhase) { _, phase in if phase == .active { reload() } }
+            .onDisappear { reloadTask?.cancel() }
+            .alert("删除证件照草稿？", isPresented: Binding(
+                get: { idPhotoDeleteCandidate != nil }, set: { if !$0 { idPhotoDeleteCandidate = nil } }
+            )) {
+                Button("删除草稿", role: .destructive) {
+                    guard let id = idPhotoDeleteCandidate?.id else { return }
+                    idPhotoDeleteCandidate = nil
+                    Task {
+                        do {
+                            try await Task.detached(priority: .utility) { try IDPhotoDraftStore.shared.delete(id: id) }.value
+                            reload()
+                        } catch { errorMessage = error.localizedDescription }
+                    }
+                }
+                Button("取消", role: .cancel) { idPhotoDeleteCandidate = nil }
+            } message: {
+                Text("仅删除极拼中的证件照草稿，不影响相册原照片和已经保存的成品。")
+            }
             .alert("删除草稿", isPresented: Binding(
                 get: { deleteCandidate != nil },
                 set: { if !$0 { deleteCandidate = nil } }
@@ -708,6 +753,12 @@ struct DraftsView: View {
 
     private func reload() {
         drafts = appState.drafts.listDrafts()
+        reloadTask?.cancel()
+        reloadTask = Task {
+            let photos = await Task.detached(priority: .userInitiated) { IDPhotoDraftStore.shared.listDrafts() }.value
+            guard !Task.isCancelled else { return }
+            idPhotoDrafts = photos
+        }
     }
 
     private func open(_ id: UUID) {
@@ -726,6 +777,29 @@ struct DraftsView: View {
 
     private func delete(_ draft: DraftSummary) {
         deleteCandidate = draft
+    }
+}
+
+struct IDPhotoDraftRow: View {
+    let summary: IDPhotoDraftSummary
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                IDPhotoDraftThumbnail(path: summary.thumbnailPath).id(summary.updatedAt)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(summary.name).font(.headline).foregroundStyle(JiPinTheme.ink)
+                    Text("证件照 · \(summary.template.title) · \(summary.template.millimeterDescription)")
+                        .font(.caption).foregroundStyle(JiPinTheme.muted)
+                    Text(summary.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
+            }
+        }.buttonStyle(.plain).accessibilityElement(children: .combine)
+            .accessibilityIdentifier("idphoto-draft-\(summary.id.uuidString)")
     }
 }
 
@@ -897,7 +971,7 @@ struct SupportView: View {
             }
             Section("证件照") {
                 Text("首页打开「证件照」，选择常用尺寸或自定义像素，导入一张单人照片。可选白、红、蓝、蓝白渐变或浅灰底色，亮度、轻磨皮和色温默认关闭。")
-                Text("发丝或衣领边缘不理想时，可放大后使用擦除／恢复修边。完成后按所选像素保存高质量 JPEG；证件照草稿在该工具内继续编辑。Live 照片只使用静态画面。")
+                Text("发丝或衣领边缘不理想时，可放大后使用擦除／恢复修边。保存默认高清，可选择压缩版用于尺寸受限的上传；自定义像素保持原尺寸。证件照草稿也会出现在首页「草稿」页。Live 照片只使用静态画面。")
                 Text("用于正式证件或考试时，以办理方要求为准；部分用途不允许换底或美颜。")
             }
             Section("草稿与素材") {

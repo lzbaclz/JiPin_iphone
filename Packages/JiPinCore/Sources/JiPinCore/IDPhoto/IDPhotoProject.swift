@@ -158,6 +158,7 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
     public var background: IDPhotoBackground
     public var keepOriginalBackground: Bool
     public var adjustments: IDPhotoAdjustments
+    public var exportQuality: IDPhotoExportQuality
     public var strokes: [IDPhotoBrushStroke]
     public var createdAt: Date
     public var updatedAt: Date
@@ -166,10 +167,11 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
     public init(id: UUID = UUID(), name: String = "证件照", template: IDPhotoTemplate = IDPhotoTemplateCatalog.defaultTemplate,
                 crop: IDPhotoCrop = .init(), background: IDPhotoBackground = .white, keepOriginalBackground: Bool = false,
                 adjustments: IDPhotoAdjustments = .init(), strokes: [IDPhotoBrushStroke] = [], createdAt: Date = Date(),
-                updatedAt: Date? = nil, schemaVersion: Int = 1) {
+                updatedAt: Date? = nil, schemaVersion: Int = 1, exportQuality: IDPhotoExportQuality = .highDefinition) {
         self.id = id; self.name = name; self.template = template; self.crop = crop; self.background = background
         self.keepOriginalBackground = keepOriginalBackground; self.adjustments = adjustments; self.strokes = strokes
         self.createdAt = createdAt; self.updatedAt = updatedAt ?? createdAt; self.schemaVersion = schemaVersion
+        self.exportQuality = exportQuality
     }
 
     public mutating func touch() { updatedAt = Date() }
@@ -184,7 +186,7 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, template, crop, background, keepOriginalBackground, adjustments, strokes, createdAt, updatedAt, schemaVersion
+        case id, name, template, crop, background, keepOriginalBackground, adjustments, strokes, createdAt, updatedAt, schemaVersion, exportQuality
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -195,6 +197,7 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
         background = try c.decode(IDPhotoBackground.self, forKey: .background)
         keepOriginalBackground = try c.decode(Bool.self, forKey: .keepOriginalBackground)
         adjustments = try c.decode(IDPhotoAdjustments.self, forKey: .adjustments)
+        exportQuality = try c.decodeIfPresent(IDPhotoExportQuality.self, forKey: .exportQuality) ?? .highDefinition
         strokes = try c.decode([IDPhotoBrushStroke].self, forKey: .strokes)
         createdAt = try c.decode(Date.self, forKey: .createdAt); updatedAt = try c.decode(Date.self, forKey: .updatedAt)
         try validate()

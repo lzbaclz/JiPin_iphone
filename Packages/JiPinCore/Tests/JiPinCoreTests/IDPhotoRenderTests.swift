@@ -4,7 +4,60 @@ import UIKit
 import XCTest
 
 final class IDPhotoRenderTests: XCTestCase {
-    func testAllFiveTemplatesAndCustomExportExactPixels300PPIWithoutSourceGPS() throws {
+    func testDefaultHDExportsMoreOriginalPixelsWithMatchingPrintSize() throws {
+        let data = try sourceData(size: CGSize(width: 1800, height: 2600))
+        for template in IDPhotoTemplateCatalog.all {
+            let project = IDPhotoProject(template: template, keepOriginalBackground: true)
+            let jpeg = try IDPhotoRenderer.jpegData(project: project, sourceData: data)
+            let source = try XCTUnwrap(CGImageSourceCreateWithData(jpeg as CFData, nil))
+            let info = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
+            XCTAssertEqual(info[kCGImagePropertyPixelWidth] as? Int, template.width * 4)
+            XCTAssertEqual(info[kCGImagePropertyPixelHeight] as? Int, template.height * 4)
+            XCTAssertEqual((info[kCGImagePropertyDPIWidth] as? NSNumber)?.doubleValue, 1200)
+            XCTAssertEqual((info[kCGImagePropertyDPIHeight] as? NSNumber)?.doubleValue, 1200)
+            XCTAssertNil(info[kCGImagePropertyGPSDictionary])
+        }
+    }
+
+    func testHDKeepsFineOriginalDetailInsteadOfEnlargingTheCompressedJPEG() throws {
+        let size = CGSize(width: 1180, height: 1652)
+        let striped = image(size: size) { context in
+            context.setShouldAntialias(false)
+            for x in stride(from: 0, to: 1180, by: 2) {
+                context.setFillColor((x.isMultiple(of: 4) ? UIColor.black : UIColor.white).cgColor)
+                context.fill(CGRect(x: x, y: 0, width: 2, height: 1652))
+            }
+        }
+        let data = try XCTUnwrap(ImageIOHelpers.pngData(from: striped))
+        var project = IDPhotoProject(keepOriginalBackground: true)
+        let high = try IDPhotoRenderer.jpegData(project: project, sourceData: data)
+        project.exportQuality = .compressed
+        let compact = try IDPhotoRenderer.jpegData(project: project, sourceData: data)
+        let highImage = try XCTUnwrap(ImageIOHelpers.fullImage(from: high))
+        let compactImage = try XCTUnwrap(ImageIOHelpers.fullImage(from: compact))
+        func deviation(_ image: CGImage) -> Double {
+            let pixels = bytes(image)
+            let values = (20..<(image.width - 20)).map { Double(pixels[((image.height / 2) * image.width + $0) * 4]) }
+            let mean = values.reduce(0, +) / Double(values.count)
+            return sqrt(values.map { pow($0 - mean, 2) }.reduce(0, +) / Double(values.count))
+        }
+        XCTAssertGreaterThan(deviation(highImage), 100, "Fine black/white source lines must survive HD export.")
+        XCTAssertLessThan(deviation(compactImage), 30, "Fixture must resolve detail that the small output loses.")
+        XCTAssertLessThan(compact.count, high.count)
+    }
+
+    func testBothQualitiesKeepCustomPixelDimensionsAndCompressionChangesBytes() throws {
+        let source = try textureData(size: 400)
+        var project = IDPhotoProject(template: try .custom(width: 400, height: 400), keepOriginalBackground: true)
+        let high = try IDPhotoRenderer.jpegData(project: project, sourceData: source)
+        project.exportQuality = .compressed
+        let compressed = try IDPhotoRenderer.jpegData(project: project, sourceData: source)
+        XCTAssertEqual(ImageIOHelpers.pixelSize(of: high), CGSize(width: 400, height: 400))
+        XCTAssertEqual(ImageIOHelpers.pixelSize(of: compressed), CGSize(width: 400, height: 400))
+        XCTAssertLessThan(compressed.count, high.count)
+    }
+
+    func testCompressedTemplatesAndCustomExportExactPixels300PPIWithoutSourceGPS() throws {
         let source = try XCTUnwrap(ImageIOHelpers.jpegWithGPS(from: image(size: CGSize(width: 600, height: 900)) { _ in
             UIColor(red: 0.4, green: 0.3, blue: 0.2, alpha: 1).setFill()
             UIRectFill(CGRect(x: 0, y: 0, width: 600, height: 900))
@@ -12,7 +65,7 @@ final class IDPhotoRenderTests: XCTestCase {
         XCTAssertTrue(ImageIOHelpers.containsGPS(source))
         let templates = IDPhotoTemplateCatalog.all + [try IDPhotoTemplate.custom(width: 601, height: 801)]
         for template in templates {
-            let project = IDPhotoProject(template: template, keepOriginalBackground: true)
+            let project = IDPhotoProject(template: template, keepOriginalBackground: true, exportQuality: .compressed)
             let jpeg = try IDPhotoRenderer.jpegData(project: project, sourceData: source)
             let decoded = try XCTUnwrap(CGImageSourceCreateWithData(jpeg as CFData, nil))
             let properties = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(decoded, 0, nil) as? [CFString: Any])
@@ -26,9 +79,9 @@ final class IDPhotoRenderTests: XCTestCase {
         }
     }
 
-    func testPreviewUsesRequestedWorkingResolutionButExportKeepsSmallTemplate() throws {
+    func testPreviewUsesRequestedWorkingResolutionAndCompressedExportKeepsSmallTemplate() throws {
         let data = try sourceData(size: CGSize(width: 900, height: 1260))
-        let project = IDPhotoProject(keepOriginalBackground: true)
+        let project = IDPhotoProject(keepOriginalBackground: true, exportQuality: .compressed)
         let prepared = try IDPhotoPreparedSource(sourceData: data)
         let preview = try IDPhotoRenderer.render(project: project, prepared: prepared, maxSide: 1024)
         XCTAssertEqual(preview.cgImage?.height, 1024)

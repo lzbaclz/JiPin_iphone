@@ -24,6 +24,8 @@ final class AppState: ObservableObject {
     @Published var isClosingEditor = false
     @Published var showSettings = false
     @Published var showIDPhoto = false
+    @Published var pendingIDPhotoDraftID: UUID?
+    @Published var draftRefreshID = UUID()
     @Published var pendingDraftID: UUID?
     @Published var quickCollage: QuickCollageLaunch?
     @Published var modePickerLaunch: ModePickerLaunch?
@@ -41,6 +43,11 @@ final class AppState: ObservableObject {
 
     func openEditor(_ session: EditorSession) {
         editor = session
+    }
+
+    func openIDPhoto(draftID: UUID? = nil) {
+        pendingIDPhotoDraftID = draftID
+        showIDPhoto = true
     }
 
     func closeEditor() {

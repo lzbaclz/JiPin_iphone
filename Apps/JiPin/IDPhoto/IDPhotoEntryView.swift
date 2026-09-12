@@ -3,6 +3,7 @@ import PhotosUI
 import JiPinCore
 
 struct IDPhotoEntryView: View {
+    var initialDraftID: UUID? = nil
     var onClose: () -> Void
     @State private var selectedTemplate = IDPhotoTemplateCatalog.defaultTemplate
     @State private var selection: PhotosPickerItem?
@@ -22,7 +23,7 @@ struct IDPhotoEntryView: View {
             if let session {
                 IDPhotoEditorView(session: session) {
                     self.session = nil
-                    refreshDrafts()
+                    if initialDraftID != nil { onClose() } else { refreshDrafts() }
                 }
             } else {
                 entry
@@ -32,6 +33,7 @@ struct IDPhotoEntryView: View {
             guard !initialized else { return }
             initialized = true
             refreshDrafts()
+            if let initialDraftID { openDraft(initialDraftID); return }
             #if DEBUG
             openDebugSample()
             #endif
@@ -229,7 +231,7 @@ struct IDPhotoEntryView: View {
     #endif
 }
 
-private struct IDPhotoDraftThumbnail: View {
+struct IDPhotoDraftThumbnail: View {
     let path: URL?
     @State private var image: UIImage?
     var body: some View {
