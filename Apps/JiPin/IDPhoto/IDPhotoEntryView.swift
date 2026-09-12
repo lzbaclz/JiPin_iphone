@@ -6,6 +6,8 @@ struct IDPhotoEntryView: View {
     var initialDraftID: UUID? = nil
     var onClose: () -> Void
     @State private var selectedTemplate = IDPhotoTemplateCatalog.defaultTemplate
+    @State private var selectedByteLimit: Int?
+    @State private var preserveOriginalForImport = false
     @State private var selection: PhotosPickerItem?
     @State private var showPicker = false
     @State private var showCustomSize = false
@@ -50,18 +52,26 @@ struct IDPhotoEntryView: View {
                         Text("导入一张清晰单人照，在本机换底与轻修。Live 照片仅使用静态画面。")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
+                    Button { showCustomSize = true } label: {
+                        VStack(alignment: .leading, spacing: 5) {
+                            Label("按网站要求自定义", systemImage: "slider.horizontal.3").font(.headline)
+                            Text("输入宽 × 高、名称和文件上限").font(.caption)
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                    }.buttonStyle(.bordered).accessibilityIdentifier("idphoto-custom")
                     HStack {
-                        Text("选择规格").font(.headline)
+                        Text("通用打印尺寸").font(.headline)
                         Spacer()
                         IDPhotoSizeGuideButton(selection: selectedTemplate)
                     }
-                    IDPhotoTemplateGrid(selection: selectedTemplate) { selectedTemplate = $0 }
-                    Button { showCustomSize = true } label: {
-                        Label("自定义像素", systemImage: "ruler")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }.buttonStyle(.bordered).accessibilityIdentifier("idphoto-custom")
+                    IDPhotoTemplateGrid(selection: selectedTemplate) {
+                        selectedTemplate = $0; selectedByteLimit = nil; preserveOriginalForImport = false
+                    }
                     Text("当前尺寸：\(selectedTemplate.title) · 高清 · \((try? IDPhotoExportConfiguration(template: selectedTemplate, quality: .highDefinition))?.pixelDescription ?? "请检查尺寸")")
                         .font(.subheadline).foregroundStyle(.secondary).accessibilityIdentifier("idphoto-selected-size")
+                    if let selectedByteLimit {
+                        Text("文件小于 \(selectedByteLimit / 1000) KB\(preserveOriginalForImport ? " · 保留原背景并关闭轻修" : "")")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                     Button { selection = nil; showPicker = true } label: {
                         Label("导入一张照片", systemImage: "photo.badge.plus")
                             .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -88,7 +98,9 @@ struct IDPhotoEntryView: View {
             .photosPicker(isPresented: $showPicker, selection: $selection, matching: PhotoImporter.stillImages)
             .onChange(of: selection) { _, item in if let item { importPhoto(item) } }
             .sheet(isPresented: $showCustomSize) {
-                IDPhotoCustomSizeView(template: selectedTemplate) { selectedTemplate = $0 }
+                IDPhotoCustomSizeView(template: selectedTemplate, byteLimit: selectedByteLimit, preservesOriginal: preserveOriginalForImport) {
+                    selectedTemplate = $0.template; selectedByteLimit = $0.byteLimit; preserveOriginalForImport = $0.preservesOriginal
+                }
             }
             .alert("暂时无法完成", isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
                 Button("好") { errorMessage = nil }
@@ -121,7 +133,7 @@ struct IDPhotoEntryView: View {
                     IDPhotoDraftThumbnail(path: draft.thumbnailPath)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(draft.name).font(.headline).foregroundStyle(.primary)
-                        Text("\(draft.template.title) · \(draft.template.millimeterDescription)")
+                        Text("\(draft.template.title) · \(draft.template.displaySize)")
                             .font(.caption).foregroundStyle(.secondary)
                         Text(draft.updatedAt, style: .relative).font(.caption).foregroundStyle(.secondary)
                     }
@@ -143,6 +155,7 @@ struct IDPhotoEntryView: View {
     private func importPhoto(_ item: PhotosPickerItem) {
         cancelLoading()
         let token = UUID(), template = selectedTemplate
+        let limit = selectedByteLimit, keepOriginal = preserveOriginalForImport
         loadID = token; isLoading = true
         loadTask = Task {
             let result = await PhotoImporter.load([item], preserveLive: false)
@@ -152,7 +165,7 @@ struct IDPhotoEntryView: View {
                 errorMessage = result.failed.first?.failureReason ?? "未能读取这张照片，请重新选择。"
                 return
             }
-            let editor = IDPhotoSession(sourceData: photo.data, template: template)
+            let editor = IDPhotoSession(sourceData: photo.data, template: template, exportByteLimit: limit, keepOriginalBackground: keepOriginal)
             session = editor
             editor.start()
         }
@@ -280,47 +293,5 @@ struct IDPhotoTemplateGrid: View {
                     .accessibilityAddTraits(selection.id == template.id ? [.isSelected] : [])
             }
         }
-    }
-}
-
-struct IDPhotoCustomSizeView: View {
-    @Environment(\.dismiss) private var dismiss
-    let template: IDPhotoTemplate
-    let onSelect: (IDPhotoTemplate) -> Void
-    @State private var width = ""
-    @State private var height = ""
-    @State private var error: String?
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("按办理页面的像素要求输入") {
-                    HStack {
-                        Text("宽度")
-                        TextField("像素", text: $width).keyboardType(.numberPad).multilineTextAlignment(.trailing)
-                            .accessibilityLabel("宽度，像素").accessibilityIdentifier("idphoto-custom-width")
-                        Text("px").foregroundStyle(.secondary)
-                    }
-                    HStack {
-                        Text("高度")
-                        TextField("像素", text: $height).keyboardType(.numberPad).multilineTextAlignment(.trailing)
-                            .accessibilityLabel("高度，像素").accessibilityIdentifier("idphoto-custom-height")
-                        Text("px").foregroundStyle(.secondary)
-                    }
-                    Text("每边 100–2048 px，总像素不超过 400 万。导出保持输入像素，不会擅自放大。")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    if let error { Text(error).foregroundStyle(.red).accessibilityIdentifier("idphoto-custom-error") }
-                }
-            }.navigationTitle("自定义尺寸").navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("使用") {
-                            guard let w = Int(width), let h = Int(height) else { error = "请输入整数像素。"; return }
-                            do { onSelect(try IDPhotoTemplate.custom(width: w, height: h)); dismiss() }
-                            catch { self.error = error.localizedDescription }
-                        }.accessibilityIdentifier("idphoto-custom-apply")
-                    }
-                }
-        }.onAppear { width = "\(template.width)"; height = "\(template.height)" }
     }
 }

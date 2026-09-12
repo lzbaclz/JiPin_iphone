@@ -4,6 +4,56 @@ import UIKit
 import XCTest
 
 final class IDPhotoRenderTests: XCTestCase {
+    func testWebsite285By385JPEGStaysBelowOneMBForBothQualities() throws {
+        let source = try noiseData(size: 512)
+        var project = IDPhotoProject(template: try .custom(width: 285, height: 385, title: "报名一寸"),
+                                     keepOriginalBackground: true, exportByteLimit: 1_000_000)
+        for quality in IDPhotoExportQuality.allCases {
+            project.exportQuality = quality
+            let jpeg = try IDPhotoRenderer.jpegData(project: project, sourceData: source)
+            XCTAssertEqual(ImageIOHelpers.pixelSize(of: jpeg), CGSize(width: 285, height: 385))
+            XCTAssertLessThan(jpeg.count, 1_000_000)
+            XCTAssertEqual(Array(jpeg.prefix(2)), [0xff, 0xd8])
+            XCTAssertFalse(ImageIOHelpers.containsGPS(jpeg))
+        }
+    }
+
+    func testFileLimitCompressesWithoutResizingAndEnforcesStrictBoundary() throws {
+        let source = try noiseData(size: 512)
+        let prepared = try IDPhotoPreparedSource(sourceData: source)
+        var project = IDPhotoProject(template: try .custom(width: 512, height: 512), keepOriginalBackground: true)
+        let unlimited = try IDPhotoRenderer.jpegData(project: project, prepared: prepared)
+        XCTAssertGreaterThan(unlimited.count, 60_000, "Fixture must actually require compression.")
+        project.exportByteLimit = 60_000
+        let compact = try IDPhotoRenderer.jpegData(project: project, prepared: prepared)
+        XCTAssertLessThan(compact.count, 60_000)
+        XCTAssertEqual(ImageIOHelpers.pixelSize(of: compact), CGSize(width: 512, height: 512))
+        project.exportByteLimit = unlimited.count
+        XCTAssertLessThan(try IDPhotoRenderer.jpegData(project: project, prepared: prepared).count, unlimited.count,
+                          "Equal to the cap must not count as smaller than it.")
+        project.exportByteLimit = 1_000
+        XCTAssertThrowsError(try IDPhotoRenderer.jpegData(project: project, prepared: prepared)) { error in
+            guard case IDPhotoRenderError.fileLimitTooSmall = error else { return XCTFail("Unexpected error: \(error)") }
+        }
+    }
+
+    private func noiseData(size: Int) throws -> Data {
+        var state: UInt32 = 174_281
+        var rgba = [UInt8](repeating: 255, count: size * size * 4)
+        for i in 0..<(size * size) {
+            for channel in 0..<3 {
+                state = state &* 1_664_525 &+ 1_013_904_223
+                rgba[i * 4 + channel] = UInt8(truncatingIfNeeded: state >> 24)
+            }
+        }
+        let provider = try XCTUnwrap(CGDataProvider(data: Data(rgba) as CFData))
+        let cg = try XCTUnwrap(CGImage(width: size, height: size, bitsPerComponent: 8, bitsPerPixel: 32,
+            bytesPerRow: size * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+        return try XCTUnwrap(ImageIOHelpers.pngData(from: cg))
+    }
+
     func testDefaultHDExportsMoreOriginalPixelsWithMatchingPrintSize() throws {
         let data = try sourceData(size: CGSize(width: 1800, height: 2600))
         for template in IDPhotoTemplateCatalog.all {

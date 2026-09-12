@@ -4,6 +4,7 @@ import CoreGraphics
 public enum IDPhotoValidationError: LocalizedError, Equatable {
     case invalidTemplate, invalidCrop, invalidAdjustments, invalidStroke, invalidFaceRegion
     case invalidProject, unsupportedVersion
+    case invalidCustomName, invalidFileLimit
 
     public var errorDescription: String? {
         switch self {
@@ -14,6 +15,8 @@ public enum IDPhotoValidationError: LocalizedError, Equatable {
         case .invalidFaceRegion: return "人脸分析记录无效，请重新识别人像。"
         case .invalidProject: return "证件照草稿数据不完整，无法打开。"
         case .unsupportedVersion: return "此证件照草稿由其他版本创建，请更新极拼后打开。"
+        case .invalidCustomName: return "名称请控制在 40 个字以内，不要包含换行或控制字符。"
+        case .invalidFileLimit: return "文件上限请填写 1–20000 KB 的整数，或留空不限制。"
         }
     }
 }
@@ -35,6 +38,7 @@ public struct IDPhotoTemplate: Codable, Hashable, Identifiable, Sendable {
 
     public var pixelSize: CGSize { CGSize(width: width, height: height) }
     public var isCustom: Bool { id.hasPrefix("custom-") }
+    public var displaySize: String { isCustom ? "\(width) × \(height) px" : millimeterDescription }
     public var dimensionDescription: String { "\(width)×\(height) px · \(ppi) ppi" }
     public var millimeterDescription: String {
         let format: (Double) -> String = { $0.rounded() == $0 ? String(Int($0)) : String(format: "%.1f", $0) }
@@ -49,8 +53,14 @@ public struct IDPhotoTemplate: Codable, Hashable, Identifiable, Sendable {
               width * height <= 4_000_000 else { throw IDPhotoValidationError.invalidTemplate }
     }
 
-    public static func custom(width: Int, height: Int, ppi: Int = 300) throws -> Self {
-        let value = Self(id: "custom-\(width)x\(height)", title: "自定义像素", widthMM: Double(width) / Double(ppi) * 25.4,
+    public static func custom(width: Int, height: Int, ppi: Int = 300, title: String = "自定义像素") throws -> Self {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmed.isEmpty ? "自定义像素" : trimmed
+        guard name.count <= 40, name.utf8.count <= 160,
+              name.unicodeScalars.allSatisfy({ !CharacterSet.controlCharacters.contains($0) }) else {
+            throw IDPhotoValidationError.invalidCustomName
+        }
+        let value = Self(id: "custom-\(width)x\(height)", title: name, widthMM: Double(width) / Double(ppi) * 25.4,
                          heightMM: Double(height) / Double(ppi) * 25.4, width: width, height: height, ppi: ppi)
         try value.validate()
         return value

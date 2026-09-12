@@ -3,6 +3,36 @@ import UIKit
 @testable import JiPinCore
 
 final class IDPhotoFoundationTests: XCTestCase {
+    func testNamedWebsiteSpecificationAndByteLimitSurviveDraftRoundTrip() throws {
+        let template = try IDPhotoTemplate.custom(width: 285, height: 385, title: "报名一寸")
+        XCTAssertTrue(template.isCustom)
+        XCTAssertEqual(template.displaySize, "285 × 385 px")
+        for quality in IDPhotoExportQuality.allCases {
+            XCTAssertEqual(try IDPhotoExportConfiguration(template: template, quality: quality).pixelSize,
+                           CGSize(width: 285, height: 385))
+        }
+        let project = IDPhotoProject(template: template, keepOriginalBackground: true, exportByteLimit: 1_000_000)
+        let store = IDPhotoDraftStore(containerURL: try root())
+        try store.save(project: project, sourceData: image(), maskData: nil, faceRegions: [])
+        let restored = try store.load(id: project.id).project
+        XCTAssertEqual(restored.template.title, "报名一寸")
+        XCTAssertEqual(restored.exportByteLimit, 1_000_000)
+        XCTAssertTrue(restored.keepOriginalBackground)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(project)) as? [String: Any])
+        legacy.removeValue(forKey: "exportByteLimit")
+        XCTAssertNil(try JSONDecoder().decode(IDPhotoProject.self, from: JSONSerialization.data(withJSONObject: legacy)).exportByteLimit)
+        XCTAssertEqual(IDPhotoTemplateCatalog.defaultTemplate.pixelSize, CGSize(width: 295, height: 413))
+    }
+
+    func testCustomNameAndFileLimitRejectInvalidInput() throws {
+        XCTAssertThrowsError(try IDPhotoTemplate.custom(width: 285, height: 385, title: String(repeating: "长", count: 41)))
+        XCTAssertThrowsError(try IDPhotoTemplate.custom(width: 285, height: 385, title: "名称\n换行"))
+        XCTAssertEqual(try IDPhotoTemplate.custom(width: 285, height: 385, title: "  ").title, "自定义像素")
+        for limit in [-1, 0, 999, 20_000_001] {
+            XCTAssertThrowsError(try IDPhotoProject(exportByteLimit: limit).validate())
+        }
+    }
+
     func testLegacyDraftDefaultsToHDAndExplicitCompressionSurvivesReopen() throws {
         let project = IDPhotoProject()
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(project)) as? [String: Any])

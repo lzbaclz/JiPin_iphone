@@ -88,14 +88,14 @@ final class IDPhotoSession: ObservableObject, Identifiable {
     private var redoProjects: [IDPhotoProject] = []
     private var transaction: IDPhotoProject?
 
-    init(sourceData: Data, template: IDPhotoTemplate,
+    init(sourceData: Data, template: IDPhotoTemplate, exportByteLimit: Int? = nil, keepOriginalBackground: Bool = false,
          analysisProvider: @escaping AnalysisProvider = { data, size in
              try await IDPhotoSegmentation.analyze(sourceData: data, outputSize: size)
          }) {
         self.analysisProvider = analysisProvider
         self.sourceData = sourceData
         sourceSize = ImageIOHelpers.pixelSize(of: sourceData)
-        project = IDPhotoProject(template: template)
+        project = IDPhotoProject(template: template, keepOriginalBackground: keepOriginalBackground, exportByteLimit: exportByteLimit)
     }
 
     init(draft: IDPhotoLoadedDraft,
@@ -390,8 +390,9 @@ final class IDPhotoSession: ObservableObject, Identifiable {
             prepareAndPreview()
             return false
         }
-        let template = project.template
-        project = IDPhotoProject(template: template)
+        let previous = project
+        project = IDPhotoProject(template: previous.template, keepOriginalBackground: previous.keepOriginalBackground,
+                                 exportQuality: previous.exportQuality, exportByteLimit: previous.exportByteLimit)
         sourceData = data; sourceSize = ImageIOHelpers.pixelSize(of: data)
         maskData = nil; faces = []; prepared = nil; preview = nil; originalPreview = nil
         hasMask = false; canSmooth = false; analysisWarning = nil; notice = nil

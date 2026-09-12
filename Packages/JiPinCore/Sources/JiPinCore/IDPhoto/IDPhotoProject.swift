@@ -159,6 +159,8 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
     public var keepOriginalBackground: Bool
     public var adjustments: IDPhotoAdjustments
     public var exportQuality: IDPhotoExportQuality
+    /// Exclusive limit in bytes. Nil keeps the selected JPEG quality without a size cap.
+    public var exportByteLimit: Int?
     public var strokes: [IDPhotoBrushStroke]
     public var createdAt: Date
     public var updatedAt: Date
@@ -167,11 +169,13 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
     public init(id: UUID = UUID(), name: String = "证件照", template: IDPhotoTemplate = IDPhotoTemplateCatalog.defaultTemplate,
                 crop: IDPhotoCrop = .init(), background: IDPhotoBackground = .white, keepOriginalBackground: Bool = false,
                 adjustments: IDPhotoAdjustments = .init(), strokes: [IDPhotoBrushStroke] = [], createdAt: Date = Date(),
-                updatedAt: Date? = nil, schemaVersion: Int = 1, exportQuality: IDPhotoExportQuality = .highDefinition) {
+                updatedAt: Date? = nil, schemaVersion: Int = 1, exportQuality: IDPhotoExportQuality = .highDefinition,
+                exportByteLimit: Int? = nil) {
         self.id = id; self.name = name; self.template = template; self.crop = crop; self.background = background
         self.keepOriginalBackground = keepOriginalBackground; self.adjustments = adjustments; self.strokes = strokes
         self.createdAt = createdAt; self.updatedAt = updatedAt ?? createdAt; self.schemaVersion = schemaVersion
         self.exportQuality = exportQuality
+        self.exportByteLimit = exportByteLimit
     }
 
     public mutating func touch() { updatedAt = Date() }
@@ -182,11 +186,14 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
               strokes.reduce(0, { $0 + $1.points.count }) <= 250_000,
               Set(strokes.map(\.id)).count == strokes.count else { throw IDPhotoValidationError.invalidProject }
         try template.validate(); try crop.validate(); try adjustments.validate()
+        if let exportByteLimit, !(1_000...20_000_000).contains(exportByteLimit) {
+            throw IDPhotoValidationError.invalidFileLimit
+        }
         try strokes.forEach { try $0.validate() }
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, template, crop, background, keepOriginalBackground, adjustments, strokes, createdAt, updatedAt, schemaVersion, exportQuality
+        case id, name, template, crop, background, keepOriginalBackground, adjustments, strokes, createdAt, updatedAt, schemaVersion, exportQuality, exportByteLimit
     }
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -198,6 +205,7 @@ public struct IDPhotoProject: Codable, Hashable, Identifiable, Sendable {
         keepOriginalBackground = try c.decode(Bool.self, forKey: .keepOriginalBackground)
         adjustments = try c.decode(IDPhotoAdjustments.self, forKey: .adjustments)
         exportQuality = try c.decodeIfPresent(IDPhotoExportQuality.self, forKey: .exportQuality) ?? .highDefinition
+        exportByteLimit = try c.decodeIfPresent(Int.self, forKey: .exportByteLimit)
         strokes = try c.decode([IDPhotoBrushStroke].self, forKey: .strokes)
         createdAt = try c.decode(Date.self, forKey: .createdAt); updatedAt = try c.decode(Date.self, forKey: .updatedAt)
         try validate()

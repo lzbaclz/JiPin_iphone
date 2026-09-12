@@ -12,6 +12,7 @@ public enum IDPhotoRenderError: LocalizedError {
     case invalidOutputSize
     case renderingFailed
     case encodingFailed
+    case fileLimitTooSmall
 
     public var errorDescription: String? {
         switch self {
@@ -21,6 +22,7 @@ public enum IDPhotoRenderError: LocalizedError {
         case .invalidOutputSize: return "照片尺寸无效。自定义每边需为 100–2048 像素，总像素不超过 400 万。"
         case .renderingFailed: return "照片处理未完成，请重试。"
         case .encodingFailed: return "照片文件生成失败，请重试。"
+        case .fileLimitTooSmall: return "无法在保持所选像素的前提下压缩到这个文件上限。请返回自定义尺寸，适当提高文件上限。"
         }
     }
 }
@@ -238,15 +240,33 @@ public enum IDPhotoRenderer {
         guard let image = try renderPixels(project: project, prepared: prepared, faces: faces, size: configuration.pixelSize).cgImage else {
             throw IDPhotoRenderError.renderingFailed
         }
+        let preferred = configuration.quality.jpegQuality
+        let first = try encodeJPEG(image, ppi: configuration.ppi, quality: preferred)
+        guard let limit = project.exportByteLimit, first.count >= limit else { return first }
+        // Compress the one rendered image. Never change the pixel dimensions to
+        // meet a byte cap: a submission portal may enforce both independently.
+        var lower = 0.08, upper = preferred
+        var best = try encodeJPEG(image, ppi: configuration.ppi, quality: lower)
+        guard best.count < limit else { throw IDPhotoRenderError.fileLimitTooSmall }
+        for _ in 0..<7 {
+            try Task.checkCancellation()
+            let candidateQuality = (lower + upper) / 2
+            let candidate = try encodeJPEG(image, ppi: configuration.ppi, quality: candidateQuality)
+            if candidate.count < limit { best = candidate; lower = candidateQuality }
+            else { upper = candidateQuality }
+        }
+        return best
+    }
+
+    private static func encodeJPEG(_ image: CGImage, ppi: Int, quality: Double) throws -> Data {
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data, UTType.jpeg.identifier as CFString, 1, nil) else {
             throw IDPhotoRenderError.encodingFailed
         }
-        let ppi = configuration.ppi
         // Encode from rendered pixels and an explicit metadata allowlist. Never copy
         // source GPS, EXIF device identifiers, dates or orientation into the new file.
         CGImageDestinationAddImage(destination, image, [
-            kCGImageDestinationLossyCompressionQuality: configuration.quality.jpegQuality,
+            kCGImageDestinationLossyCompressionQuality: quality,
             kCGImagePropertyDPIWidth: ppi,
             kCGImagePropertyDPIHeight: ppi,
             kCGImagePropertyOrientation: 1,

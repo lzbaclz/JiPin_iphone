@@ -41,7 +41,14 @@ struct IDPhotoExportView: View {
 
     private var filename: String {
         let project = snapshot.project
-        let title = project.template.isCustom ? "自定义" : project.template.title
+        let unsafe = CharacterSet.controlCharacters.union(CharacterSet(charactersIn: "/\\:"))
+        let cleaned = project.template.title.unicodeScalars.map { unsafe.contains($0) ? "_" : String($0) }.joined()
+        var title = ""
+        for character in cleaned {
+            guard title.utf8.count + String(character).utf8.count <= 120 else { break }
+            title.append(character)
+        }
+        if title.isEmpty { title = "证件照" }
         let background = project.keepOriginalBackground ? "原背景" : project.background.title
         return "极拼_\(title)_\(background)_\(quality.title)_\(Int(outputSize.width))x\(Int(outputSize.height))"
     }
@@ -66,10 +73,21 @@ struct IDPhotoExportView: View {
                         .disabled(isSaving || isSharing || isPreparing || showShare || showFile)
                     LabeledContent("尺寸", value: sizeDescription)
                         .accessibilityIdentifier("idphoto-export-size")
-                    LabeledContent("规格", value: "\(snapshot.project.template.title) · \(snapshot.project.template.millimeterDescription)")
+                    LabeledContent("规格", value: "\(snapshot.project.template.title) · \(snapshot.project.template.displaySize)")
                     LabeledContent("格式", value: "JPEG · \(quality.title)")
                     LabeledContent("打印分辨率", value: "\(configuration?.ppi ?? snapshot.project.template.ppi) ppi")
                     LabeledContent("文件大小", value: data.map { ByteCountFormatter.string(fromByteCount: Int64($0.count), countStyle: .file) } ?? "正在计算")
+                    if let limit = snapshot.project.exportByteLimit {
+                        LabeledContent("文件上限", value: "小于 \(limit / 1000) KB")
+                            .accessibilityIdentifier("idphoto-export-byte-limit")
+                        if let data {
+                            Text("已生成 \(data.count) 字节，小于设定的 \(limit) 字节。像素保持所选尺寸。")
+                                .font(.footnote).foregroundStyle(.secondary)
+                                .accessibilityIdentifier("idphoto-export-limit-result")
+                        }
+                        Text("优先满足文件上限，必要时会降低 JPEG 压缩质量。")
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
                     Text(snapshot.project.template.isCustom
                          ? "两种清晰度均保持自定义像素；压缩版文件更小。原照片不会被覆盖。"
                          : "高清从原图保留更多像素；压缩版按模板标准像素输出，适合有尺寸要求的上传。打印规格不变。")

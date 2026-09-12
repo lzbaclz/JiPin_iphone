@@ -36,7 +36,7 @@ struct IDPhotoEditorView: View {
                 VStack(spacing: 0) {
                     VStack(spacing: 6) {
                         HStack {
-                            Text("\(session.project.template.title) · \(session.project.template.millimeterDescription)")
+                            Text("\(session.project.template.title) · \(session.project.template.displaySize)")
                                 .font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
                             Spacer(minLength: 4)
                             Button(isComparing ? "返回成品" : "对比原图") { isComparing.toggle() }
@@ -125,7 +125,15 @@ struct IDPhotoEditorView: View {
                 }
             }
             .sheet(isPresented: $customSize) {
-                IDPhotoCustomSizeView(template: session.project.template) { template in session.edit { $0.template = template } }
+                IDPhotoCustomSizeView(template: session.project.template, byteLimit: session.project.exportByteLimit,
+                                      preservesOriginal: session.project.keepOriginalBackground && session.project.adjustments.isIdentity) { specification in
+                    session.edit {
+                        $0.template = specification.template; $0.exportByteLimit = specification.byteLimit
+                        if specification.preservesOriginal {
+                            $0.keepOriginalBackground = true; $0.adjustments = .init(); $0.strokes = []
+                        }
+                    }
+                }
             }
             .sheet(item: $export) { snapshot in
                 IDPhotoExportView(snapshot: snapshot, onQualityChanged: { value in
@@ -188,16 +196,19 @@ struct IDPhotoEditorView: View {
 
     private var sizePanel: some View {
         VStack(alignment: .leading, spacing: 12) {
+            Button { customSize = true } label: {
+                Label("按网站要求自定义", systemImage: "slider.horizontal.3")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }.buttonStyle(.bordered).accessibilityIdentifier("idphoto-custom")
             HStack {
-                Text("选择规格").font(.headline)
+                Text("通用打印尺寸").font(.headline)
                 Spacer()
                 IDPhotoSizeGuideButton(selection: session.project.template)
             }
             IDPhotoTemplateGrid(selection: session.project.template, quality: session.project.exportQuality) { template in session.edit { $0.template = template } }
             HStack {
-                Button("自定义像素") { customSize = true }.accessibilityIdentifier("idphoto-custom")
-                Spacer()
                 Button("换张照片") { replacement = nil; showPicker = true }.accessibilityIdentifier("idphoto-replace-photo")
+                Spacer()
             }.buttonStyle(.bordered)
             Text("构图微调").font(.headline)
             HStack {

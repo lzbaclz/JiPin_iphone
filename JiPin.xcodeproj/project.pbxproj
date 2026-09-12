@@ -47,6 +47,7 @@
 		B5AE66DF906FFE862B0A7C8D /* JiPinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */; };
 		BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3CDA137ED7A1F098F5D08E /* ExportView.swift */; };
 		CABA6EC51F6BF4AD5CC1EDFE /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476F6890C326CD422DF6A934 /* ActionViewController.swift */; };
+		CD09A1C52EADBBD3AC52C171 /* IDPhotoCustomSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB5961A3655094170F8EBA4 /* IDPhotoCustomSizeView.swift */; };
 		CDA21BF0975765E8D1A304ED /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FF6E1CBA50B875AD32282A /* EditorView.swift */; };
 		D1BD26F8E9D4FBFD68C31221 /* LongStripQualityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDE612799F6D714E1A5CF97 /* LongStripQualityUITests.swift */; };
 		D2EE30C8A028D4B19674E7C7 /* CanvasInteractionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE5490F1230BBD284FB2FF5 /* CanvasInteractionTests.swift */; };
@@ -112,6 +113,7 @@
 		158F6CB0C41E5B25D9778DE9 /* LivePreviewRefreshUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePreviewRefreshUITests.swift; sourceTree = "<group>"; };
 		1B539EE3EEA2DE1FD6B54ECA /* QuickCollageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCollageView.swift; sourceTree = "<group>"; };
 		1C1D99A4DC01FCF50CEFA227 /* JiPinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JiPinApp.swift; sourceTree = "<group>"; };
+		1CB5961A3655094170F8EBA4 /* IDPhotoCustomSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDPhotoCustomSizeView.swift; sourceTree = "<group>"; };
 		231A606B81E079234F16D65F /* StickerPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerPlacementTests.swift; sourceTree = "<group>"; };
 		2846E0A67CB441F686E1758C /* Version402UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version402UITests.swift; sourceTree = "<group>"; };
 		2896185BCD1BEF79B099AB00 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				0D92E18D4014BF54EC92745D /* IDPhotoCropView.swift */,
+				1CB5961A3655094170F8EBA4 /* IDPhotoCustomSizeView.swift */,
 				C13D57BBB8D0ECC49D7FA183 /* IDPhotoEditorView.swift */,
 				F475DDDFF7D6E69725094C28 /* IDPhotoEntryView.swift */,
 				C206D37FE137D3CB733F6106 /* IDPhotoExportView.swift */,
@@ -543,6 +546,7 @@
 				BB7531D98AA09A15AA603A74 /* ExportView.swift in Sources */,
 				7561C9709802375CBCBACA72 /* HomeViews.swift in Sources */,
 				E8220EE1DBDC0439849AD857 /* IDPhotoCropView.swift in Sources */,
+				CD09A1C52EADBBD3AC52C171 /* IDPhotoCustomSizeView.swift in Sources */,
 				93F4C2DDF19B3A67E270E40F /* IDPhotoEditorView.swift in Sources */,
 				6DD32A474694666F8C1303BF /* IDPhotoEntryView.swift in Sources */,
 				7E1E3D12392ED8A29F212514 /* IDPhotoExportView.swift in Sources */,
@@ -643,7 +647,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -663,7 +667,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.10;
+				MARKETING_VERSION = 4.0.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -807,7 +811,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = MFLYL78RAN;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -821,7 +825,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 4.0.10;
+				MARKETING_VERSION = 4.0.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

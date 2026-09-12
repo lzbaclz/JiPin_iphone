@@ -50,7 +50,7 @@ struct IDPhotoSizeGuideView: View {
                         .font(.subheadline).foregroundStyle(.secondary)
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("打印规格").font(.headline)
+                        Text("通用打印规格").font(.headline)
                         ForEach(IDPhotoTemplateCatalog.all) { template in
                             HStack(alignment: .firstTextBaseline, spacing: 12) {
                                 Text(template.title)
@@ -65,7 +65,7 @@ struct IDPhotoSizeGuideView: View {
                     }
                     VStack(alignment: .leading, spacing: 8) {
                         Text("为什么预览看起来一样？").font(.headline)
-                        Text("预览会把照片缩放到适合屏幕的大小，所以同样构图看起来很像。保存文件会使用所选规格和清晰度对应的像素，实际打印时请按毫米尺寸设置。")
+                        Text("预览会把照片缩放到适合屏幕的大小，所以同样构图看起来很像。保存文件会使用所选规格和清晰度对应的像素，实际打印时请按毫米尺寸设置。如果网站明确要求像素，请使用自定义尺寸填写。")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                 }.padding(20)

@@ -790,7 +790,7 @@ struct IDPhotoDraftRow: View {
                 IDPhotoDraftThumbnail(path: summary.thumbnailPath).id(summary.updatedAt)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(summary.name).font(.headline).foregroundStyle(JiPinTheme.ink)
-                    Text("证件照 · \(summary.template.title) · \(summary.template.millimeterDescription)")
+                    Text("证件照 · \(summary.template.title) · \(summary.template.displaySize)")
                         .font(.caption).foregroundStyle(JiPinTheme.muted)
                     Text(summary.updatedAt.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption2).foregroundStyle(.secondary)

@@ -31,6 +31,31 @@ import UIKit
         }
         XCTFail("Preview did not settle: \(session.errorMessage ?? "none")")
     }
+    func testReplacingPhotoRetainsWebsiteSpecificationAndOriginalBackgroundChoice() async throws {
+        let session = try fixture()
+        let oldID = session.project.id
+        defer {
+            session.stop()
+            try? IDPhotoDraftStore.shared.delete(id: oldID)
+            try? IDPhotoDraftStore.shared.delete(id: session.project.id)
+        }
+        session.start(reanalyze: false); await settled(session)
+        let template = try IDPhotoTemplate.custom(width: 285, height: 385, title: "报名一寸")
+        session.edit {
+            $0.template = template; $0.exportByteLimit = 1_000_000
+            $0.keepOriginalBackground = true; $0.exportQuality = .compressed
+        }
+        let changed = await session.replaceSource(session.sourceData)
+        XCTAssertTrue(changed)
+        XCTAssertNotEqual(session.project.id, oldID)
+        XCTAssertEqual(session.project.template, template)
+        XCTAssertEqual(session.project.exportByteLimit, 1_000_000)
+        XCTAssertEqual(session.project.exportQuality, .compressed)
+        XCTAssertTrue(session.project.keepOriginalBackground)
+        XCTAssertTrue(session.project.adjustments.isIdentity)
+        XCTAssertTrue(session.project.strokes.isEmpty)
+        XCTAssertEqual(try IDPhotoDraftStore.shared.load(id: oldID).project.exportByteLimit, 1_000_000)
+    }
     func testColorAndLightEditsDuringAnalysisKeepAutomaticFramingAndUndoBaseline() async throws {
         let seed = try fixture()
         let suggested = IDPhotoCrop(centerX: 0.48, centerY: 0.47, zoom: 1.7)

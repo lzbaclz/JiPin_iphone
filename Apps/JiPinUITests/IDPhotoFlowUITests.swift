@@ -44,13 +44,21 @@ final class IDPhotoFlowUITests: XCTestCase {
     }
 
     private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
+        func scroll(_ container: XCUIElement) {
+            if element.exists && !element.frame.isEmpty && element.frame.minY < container.frame.minY + 8 {
+                container.swipeDown()
+            } else { container.swipeUp() }
+        }
         for _ in 0..<6 where !element.isHittable {
+            let keyboardDone = app.buttons["idphoto-custom-keyboard-done"]
+            if keyboardDone.exists && keyboardDone.isHittable { keyboardDone.tap(); continue }
             let panel = app.scrollViews["idphoto-tool-panel"]
-            if app.navigationBars["保存证件照"].exists, let collection = app.collectionViews.allElementsBoundByIndex.last(where: { $0.isHittable }) {
-                collection.swipeUp()
-            } else if panel.exists && panel.isHittable { panel.swipeUp() }
-            else if let scroll = app.scrollViews.allElementsBoundByIndex.last(where: { $0.isHittable }) { scroll.swipeUp() }
-            else { app.swipeUp() }
+            if app.navigationBars["保存证件照"].exists || app.navigationBars["自定义尺寸"].exists,
+               let collection = app.collectionViews.allElementsBoundByIndex.last(where: { $0.isHittable }) {
+                scroll(collection)
+            } else if panel.exists && panel.isHittable { scroll(panel) }
+            else if let container = app.scrollViews.allElementsBoundByIndex.last(where: { $0.isHittable }) { scroll(container) }
+            else { scroll(app) }
         }
         XCTAssertTrue(element.isHittable, app.debugDescription)
     }
@@ -322,6 +330,71 @@ final class IDPhotoFlowUITests: XCTestCase {
             XCTAssertTrue(app.buttons["idphoto-import"].waitForExistence(timeout: 10))
             app.terminate()
         }
+    }
+
+    func test11WebsiteShortcutExportsExactPixelsBelowOneMBAndKeepsSourceAppearance() throws {
+        let app = launchFixture()
+        app.buttons["idphoto-tool-retouch"].tap(); app.buttons["idphoto-natural"].tap()
+        app.buttons["idphoto-tool-size"].tap()
+        let custom = app.buttons["idphoto-custom"]; reveal(custom, in: app); custom.tap()
+        app.buttons["idphoto-custom-example-285"].tap()
+        XCTAssertEqual(app.textFields["idphoto-custom-width"].value as? String, "285")
+        XCTAssertEqual(app.textFields["idphoto-custom-height"].value as? String, "385")
+        app.buttons["idphoto-custom-apply"].tap()
+        waitLabel(app.staticTexts["idphoto-output-size"], contains: "285 × 385 px")
+        app.buttons["idphoto-tool-background"].tap()
+        XCTAssertEqual(app.switches["idphoto-preserve-bg"].value as? String, "1")
+        app.buttons["idphoto-tool-retouch"].tap()
+        for id in ["brightness", "smoothing", "temperature"] {
+            XCTAssertEqual(app.staticTexts["idphoto-\(id)-value"].label, "0")
+        }
+        app.buttons["idphoto-export"].tap()
+        let save = app.buttons["idphoto-save-album"]; waitEnabled(save)
+        func verifyFile() throws {
+            let data = try Data(contentsOf: fixture.appendingPathComponent("export.jpg"))
+            XCTAssertLessThan(data.count, 1_000_000)
+            let image = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil))
+            let p = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(image, 0, nil) as? [CFString: Any])
+            XCTAssertEqual(p[kCGImagePropertyPixelWidth] as? Int, 285)
+            XCTAssertEqual(p[kCGImagePropertyPixelHeight] as? Int, 385)
+            XCTAssertNil(p[kCGImagePropertyGPSDictionary])
+        }
+        try verifyFile()
+        let quality = app.buttons["idphoto-export-quality"]
+        reveal(quality, in: app); quality.tap(); app.buttons["压缩"].tap(); waitEnabled(save)
+        try verifyFile()
+        let limit = app.descendants(matching: .any).matching(identifier: "idphoto-export-byte-limit").firstMatch
+        reveal(limit, in: app); waitLabel(limit, contains: "1000")
+        keep(app, "IDPhoto-website-exact-export")
+        app.buttons["idphoto-export-close"].tap()
+        app.buttons["idphoto-tool-size"].tap(); reveal(custom, in: app); custom.tap()
+        let limitField = app.textFields["idphoto-custom-byte-limit"]
+        reveal(limitField, in: app)
+        XCTAssertEqual(limitField.value as? String, "1000")
+        keep(app, "IDPhoto-website-specification")
+    }
+
+    func test12CustomNameAndLimitValidationOnCreationEntry() {
+        let app = XCUIApplication(); app.launchArguments = []; app.launchEnvironment = [:]; app.launch()
+        let entry = app.buttons["idphoto-open"]; reveal(entry, in: app); entry.tap()
+        let custom = app.buttons["idphoto-custom"]
+        XCTAssertTrue(custom.waitForExistence(timeout: 10)); custom.tap()
+        replaceText(app.textFields["idphoto-custom-width"], with: "285")
+        replaceText(app.textFields["idphoto-custom-height"], with: "385")
+        let name = app.textFields["idphoto-custom-name"]; reveal(name, in: app)
+        replaceText(name, with: "Application photo")
+        app.buttons["idphoto-custom-keyboard-done"].tap()
+        let limit = app.textFields["idphoto-custom-byte-limit"]; reveal(limit, in: app)
+        replaceText(limit, with: "0"); app.buttons["idphoto-custom-apply"].tap()
+        XCTAssertTrue(app.staticTexts["idphoto-custom-error"].waitForExistence(timeout: 5))
+        reveal(limit, in: app); replaceText(limit, with: "1000")
+        app.buttons["idphoto-custom-apply"].tap()
+        let summary = app.staticTexts["idphoto-selected-size"]
+        reveal(summary, in: app); waitLabel(summary, contains: "Application photo")
+        waitLabel(summary, contains: "285 × 385 px")
+        reveal(custom, in: app); custom.tap()
+        reveal(name, in: app); XCTAssertEqual(name.value as? String, "Application photo")
+        keep(app, "IDPhoto-named-custom-size")
     }
 
     // Run separately after resetting both photos and photos-add privacy on this simulator.
