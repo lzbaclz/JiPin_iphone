@@ -21,6 +21,9 @@ struct RootView: View {
         .sheet(isPresented: $appState.showSettings) {
             SettingsView()
         }
+        .fullScreenCover(isPresented: $appState.showIDPhoto) {
+            IDPhotoEntryView { appState.showIDPhoto = false }
+        }
         .fullScreenCover(item: $appState.quickCollage) { launch in
             QuickCollageView(
                 photos: launch.photos,
@@ -53,6 +56,11 @@ struct RootView: View {
             openQuickCollageIfNeeded()
             openSampleModePickerIfNeeded()
             openSettingsIfNeeded()
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-idPhotoSample") {
+                appState.showIDPhoto = true
+            }
+            #endif
         }
     }
 
@@ -267,6 +275,22 @@ struct CreateHomeView: View {
                     }.buttonStyle(.plain).accessibilityIdentifier("home-try-stickers")
                         .accessibilityHint("打开可编辑的示例插画拼图，可替换为自己的照片")
 
+                    Button { appState.showIDPhoto = true } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: "person.crop.rectangle")
+                                .font(.system(size: 34)).foregroundStyle(JiPinTheme.accent)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("证件照").font(.headline)
+                                Text("常用尺寸 · 五色换底 · 自然轻修")
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                                Text("制作照片或继续证件照草稿 →")
+                                    .font(.caption).foregroundStyle(JiPinTheme.accent)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+                    }.buttonStyle(.plain).accessibilityIdentifier("idphoto-open")
                     favoritesSection
                     recentDrafts
                 }
@@ -808,6 +832,7 @@ struct PrivacyPolicyView: View {
                 Text("从系统相册导入时使用系统选择器，不要求读取整个图库。只有你选择保存到相册时才会申请「添加照片」权限。权限被拒绝后，项目仍保留，可用系统分享或存储到文件。")
                 Text("主 App 与相册操作扩展只在你保存图片时申请相应权限。相册扩展可通过本机共享存储交接草稿；安装包不支持交接时会明确提示，并可改用保存图片或系统分享。")
                 Text("支持静态图片与原生 Live Photo 导出，不加默认品牌水印。新生成的图片和视频不复制原图的 GPS 等位置元数据。")
+                Text("证件照使用 Apple 系统能力在本机定位人物和五官，仅用于构图、换底与保护五官的轻修，不识别个人身份。原片工作副本、人物轮廓及五官位置随证件照草稿保存在本机，不上传服务器；删除该草稿会一并删除这些文件。")
                 Text("草稿和工作副本保存在本机并排除云备份。静态工作图去除元数据并限制解码尺寸；Live 草稿还会保存所选动态视频的本机副本，其中可能包含原始元数据和声音，仅供编辑使用。系统相册原图保持不变。删除最后一份引用素材的草稿后会回收共享文件；清理导出缓存不会删除草稿或相册成品。卸载应用会删除本机草稿。")
                 Text("极拼面向一般用户，不专为儿童设计，也不收集年龄或联系方式。如需了解相册入口，请查看设置中的支持与帮助。")
             }
@@ -833,6 +858,11 @@ struct SupportView: View {
             Section("保存与权限") {
                 Text("保存到相册才会申请添加照片权限。拒绝后仍可保存草稿，或用系统分享、存储到文件。")
                 Text("取消快拼不会修改已有草稿。相册扩展提示交接成功后，请到极拼的草稿页继续；不支持交接的安装包会明确提示。")
+            }
+            Section("证件照") {
+                Text("首页打开「证件照」，选择常用尺寸或自定义像素，导入一张单人照片。可选白、红、蓝、蓝白渐变或浅灰底色，亮度、轻磨皮和色温默认关闭。")
+                Text("发丝或衣领边缘不理想时，可放大后使用擦除／恢复修边。完成后按所选像素保存高质量 JPEG；证件照草稿在该工具内继续编辑。Live 照片只使用静态画面。")
+                Text("用于正式证件或考试时，以办理方要求为准；部分用途不允许换底或美颜。")
             }
             Section("草稿与素材") {
                 Text("编辑后约 0.5 秒自动保存。删除草稿前会说明将删除该项目。收藏的布局、海报和贴纸只存在本机，无需登录。")

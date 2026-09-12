@@ -23,6 +23,7 @@ final class AppState: ObservableObject {
     @Published var editor: EditorSession?
     @Published var isClosingEditor = false
     @Published var showSettings = false
+    @Published var showIDPhoto = false
     @Published var pendingDraftID: UUID?
     @Published var quickCollage: QuickCollageLaunch?
     @Published var modePickerLaunch: ModePickerLaunch?

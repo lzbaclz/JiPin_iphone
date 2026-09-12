@@ -66,3 +66,12 @@ Constraints: exactly one square 1024 x 1024 icon artwork; fully opaque RGB visua
 - 风格：旅行手帐、宠物日记、黑白刊物。当前共 9 套配色与照片效果参数。
 - 酷感贴图：胶片瞬间、随身节拍、流星信号、棋盘浪潮、山野徽章、黑胶时刻，沿用 `OriginalStickerArt.swift` 的原创矢量绘制。当前 16 款可爱、8 款酷感，共 84 个贴纸条目。
 - 两份本地 Live 示例由上述已有原创矢量素材预渲染，720×960、3 秒、无声音；成对 JPG/MOV 随 Swift Package 的 `Resources/LiveSamples` 分发。没有加入用户照片或第三方素材。
+
+
+## V4.0.8 证件照算法与测试素材
+
+五个尺寸模板和五种底色是代码常量，人像分割／关键点来自 Apple Vision，合成和轻修使用系统 Core Image；没有内嵌竞品素材、远程 AI 模型或新增第三方 SDK。
+
+仅用于本机算法质量检查的真实照片保留在 Git 忽略的 `build/IDPhotoQA/`，不进入安装包、公开仓库、官网或商店截图。50 张来自 [NASA Image and Video Library](https://images.nasa.gov/)，具体下载地址与来源说明记录于本地 `sources.json`；带眼镜挑战样本来自 Wikimedia Commons 的 [Woman in Eyeglasses (8)](https://commons.wikimedia.org/wiki/File:Woman_in_Eyeglasses_(8).jpg)（源页面标记 CC0）。这些照片不是产品代言或商业宣传素材。
+
+界面自动化的简笔人像由测试代码绘制，蒙版为明确的测试 fixture；Release 中不包含调试导入入口及测试资源。真实人物分割质量由上述原生 Vision 样本单独检查。
