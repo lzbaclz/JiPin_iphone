@@ -11,8 +11,8 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: NO
-    MARKETING_VERSION: "4.0.7"
-    CURRENT_PROJECT_VERSION: "11"
+    MARKETING_VERSION: "4.0.8"
+    CURRENT_PROJECT_VERSION: "12"
     DEVELOPMENT_TEAM: MFLYL78RAN
 packages:
   JiPinCore:
@@ -32,12 +32,12 @@ targets:
       path: Apps/JiPin/Info.plist
       properties:
         CFBundleDisplayName: 极拼
-        CFBundleShortVersionString: "4.0.7"
-        CFBundleVersion: "11"
+        CFBundleShortVersionString: "4.0.8"
+        CFBundleVersion: "12"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        NSPhotoLibraryAddUsageDescription: 极拼需要将拼图保存到你的相册。只有在你选择保存时才会申请此权限。
+        NSPhotoLibraryAddUsageDescription: 极拼需要将制作的照片保存到你的相册。只有在你选择保存时才会申请此权限。
         ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: Apps/JiPin/JiPin.entitlements
@@ -69,9 +69,9 @@ targets:
       path: Apps/JiPinAction/Info.plist
       properties:
         CFBundleDisplayName: 极拼
-        CFBundleShortVersionString: "4.0.7"
-        CFBundleVersion: "11"
-        NSPhotoLibraryAddUsageDescription: 极拼需要将拼图保存到你的相册。只有在你选择保存时才会申请此权限。
+        CFBundleShortVersionString: "4.0.8"
+        CFBundleVersion: "12"
+        NSPhotoLibraryAddUsageDescription: 极拼需要将制作的照片保存到你的相册。只有在你选择保存时才会申请此权限。
         NSExtension:
           NSExtensionPointIdentifier: com.apple.ui-services
           NSExtensionPrincipalClass: ActionViewController
