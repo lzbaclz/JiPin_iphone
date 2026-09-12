@@ -36,12 +36,12 @@ struct ModePickerSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     HStack {
-                        Text("你的照片，先看看效果").font(.title3.bold())
+                        Text(locksMode ? (preset == .poster ? "选择喜欢的海报" : "选择喜欢的布局") : "你的照片，先看看效果").font(.title3.bold())
                         Spacer()
                         Text("\(photos.count) 张").font(.subheadline).foregroundStyle(.secondary)
                     }
                     modeHints
-                    if !availableModes.isEmpty {
+                    if !locksMode && !availableModes.isEmpty {
                         HStack(spacing: 8) {
                             ForEach(availableModes) { item in
                                 Button { chooseMode(item) } label: {
@@ -110,7 +110,7 @@ struct ModePickerSheet: View {
                     .disabled(!canStart).accessibilityIdentifier("mode-start")
                     .padding().background(.regularMaterial)
             }
-            .navigationTitle("选择模式").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(locksMode ? (preset == .poster ? "选择海报" : "选择布局") : "选择模式").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } } }
             .onAppear {
                 guard mode == nil else { return }
@@ -126,10 +126,10 @@ struct ModePickerSheet: View {
         } else if availableModes.isEmpty {
             Text("当前 \(photos.count) 张超出模式上限，请减少照片后再开始。")
                 .accessibilityIdentifier("mode-hint-overflow")
-        } else if photos.count == 1 {
+        } else if !locksMode && photos.count == 1 {
             Text("1 张照片可进入自由拼图或海报拼图。模板与长图至少需要 2 张。")
                 .font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("mode-hint-single")
-        } else if photos.count >= 17 {
+        } else if !locksMode && photos.count >= 17 {
             Text("\(photos.count) 张只能使用长图拼接。模板与自由拼图最多 16 张，海报最多 9 张。")
                 .font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("mode-hint-longstrip-only")
         }
@@ -190,7 +190,8 @@ struct ModePickerSheet: View {
         switch value {
         case .template:
             let ranked = LayoutRecommender.ranked(photoSizes: photos.map(\.pixelSize), canvas: .square)
-            layoutID = preferredLayoutID ?? ranked.first?.layout.id
+            let preferred = preferredLayoutID.flatMap(CollageGridLayoutCatalog.layout(id:))
+            layoutID = preferred?.photoCount == photos.count ? preferred?.id : ranked.first?.layout.id
             posterID = nil
             choices = ranked.map { item in
                 ResultChoice(id: item.layout.id, name: item.layout.name,

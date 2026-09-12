@@ -179,6 +179,7 @@ struct CreateHomeView: View {
     @State private var importingCount = 0
     @State private var sampleProgress: Double?
     @State private var pickingLiveOnly = false
+    @State private var needsImportRouting = false
 
     var body: some View {
         NavigationStack {
@@ -288,7 +289,8 @@ struct CreateHomeView: View {
                     photos: imported,
                     preset: presetMode,
                     preferredLayoutID: pendingLayoutID,
-                    preferredPosterID: pendingPosterID
+                    preferredPosterID: pendingPosterID,
+                    locksMode: presetMode != nil
                 ) { mode, layoutID, posterID, chosen in
                     startEditor(mode: mode, layoutID: layoutID, posterID: posterID, photos: chosen)
                 }
@@ -297,7 +299,7 @@ struct CreateHomeView: View {
                 get: { !failedPhotos.isEmpty },
                 set: { if !$0 { failedPhotos = [] } }
             )) {
-                Button("继续已成功的照片") { showModePicker = !imported.isEmpty }
+                Button("继续已成功的照片") { continueAfterImport() }
                 Button("重试") {
                     beginImport(lastPickerItems)
                 }
@@ -343,6 +345,9 @@ struct CreateHomeView: View {
                           maxSelectionCount: pickingLiveOnly ? LivePhotoPolicy.maxSources : (presetMode.map { PhotoLimits.range(for: $0).upperBound } ?? PhotoLimits.pickerWithoutMode),
                           selectionBehavior: .ordered, matching: pickingLiveOnly ? .livePhotos : PhotoImporter.stillImages)
             .onChange(of: pickerItems) { _, items in beginImport(items) }
+            .onChange(of: showPhotoPicker) { _, presented in
+                if !presented && needsImportRouting { continueAfterImport() }
+            }
             .onDisappear { importTask?.cancel() }
         }
     }
@@ -460,6 +465,9 @@ struct CreateHomeView: View {
     }
 
     private func beginPick(mode: CollageMode?, layoutID: String? = nil, posterID: String? = nil, liveOnly: Bool = false) {
+        needsImportRouting = false
+        imported = []
+        failedPhotos = []
         pickingLiveOnly = liveOnly
         presetMode = mode
         pendingLayoutID = layoutID
@@ -501,10 +509,13 @@ struct CreateHomeView: View {
         pickerItems = []
         imported = []
         failedPhotos = []
+        needsImportRouting = false
     }
 
     private func beginImport(_ items: [PhotosPickerItem]) {
         guard !items.isEmpty else { return }
+        needsImportRouting = false
+        imported = []
         sampleProgress = nil
         importTask?.cancel()
         let request = UUID()
@@ -523,7 +534,31 @@ struct CreateHomeView: View {
             failedPhotos = result.failed
             isLoading = false
             pickerItems = []
-            if failedPhotos.isEmpty && !imported.isEmpty { showModePicker = true }
+            if failedPhotos.isEmpty { continueAfterImport() }
+        }
+    }
+
+    private func continueAfterImport() {
+        guard !imported.isEmpty else { needsImportRouting = false; return }
+        // A cached local import can finish before the system picker dismisses.
+        // Open exactly one next screen, after its presentation binding is cleared.
+        guard !showPhotoPicker else { needsImportRouting = true; return }
+        needsImportRouting = false
+        guard let mode = presetMode else { showModePicker = true; return }
+        let limit = PhotoLimits.range(for: mode)
+        guard limit.contains(imported.count) else {
+            loadError = "\(mode.title)需要 \(limit.lowerBound)–\(limit.upperBound) 张照片，当前成功导入 \(imported.count) 张，请重新选择。"
+            return
+        }
+        if mode == .freeform || mode == .longStrip {
+            guard imported.filter({ $0.liveClip != nil }).count <= LivePhotoPolicy.maxSources else {
+                loadError = "每份动态拼图最多 9 张 Live，请减少 Live 照片后再开始。"
+                return
+            }
+            startEditor(mode: mode, layoutID: nil, posterID: nil, photos: imported)
+        } else {
+            // Template/poster still need a layout choice, but the mode is already decided.
+            showModePicker = true
         }
     }
 
@@ -533,6 +568,7 @@ struct CreateHomeView: View {
             assets: AssetLibrary(photos: photos)
         )
         showModePicker = false
+        needsImportRouting = false
         imported = []
         presetMode = nil
         pendingLayoutID = nil
