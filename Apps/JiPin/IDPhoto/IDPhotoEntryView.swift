@@ -50,12 +50,17 @@ struct IDPhotoEntryView: View {
                         Text("导入一张清晰单人照，在本机换底与轻修。Live 照片仅使用静态画面。")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
+                    HStack {
+                        Text("选择规格").font(.headline)
+                        Spacer()
+                        IDPhotoSizeGuideButton(selection: selectedTemplate)
+                    }
                     IDPhotoTemplateGrid(selection: selectedTemplate) { selectedTemplate = $0 }
                     Button { showCustomSize = true } label: {
                         Label("自定义像素", systemImage: "ruler")
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }.buttonStyle(.bordered).accessibilityIdentifier("idphoto-custom")
-                    Text("当前尺寸：\(selectedTemplate.title) · \(selectedTemplate.width) × \(selectedTemplate.height) px")
+                    Text("当前尺寸：\(selectedTemplate.title) · 高清 · \((try? IDPhotoExportConfiguration(template: selectedTemplate, quality: .highDefinition))?.pixelDescription ?? "请检查尺寸")")
                         .font(.subheadline).foregroundStyle(.secondary).accessibilityIdentifier("idphoto-selected-size")
                     Button { selection = nil; showPicker = true } label: {
                         Label("导入一张照片", systemImage: "photo.badge.plus")
@@ -116,7 +121,7 @@ struct IDPhotoEntryView: View {
                     IDPhotoDraftThumbnail(path: draft.thumbnailPath)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(draft.name).font(.headline).foregroundStyle(.primary)
-                        Text("\(draft.template.title) · \(draft.template.width)×\(draft.template.height) px")
+                        Text("\(draft.template.title) · \(draft.template.millimeterDescription)")
                             .font(.caption).foregroundStyle(.secondary)
                         Text(draft.updatedAt, style: .relative).font(.caption).foregroundStyle(.secondary)
                     }
@@ -248,6 +253,7 @@ struct IDPhotoDraftThumbnail: View {
 
 struct IDPhotoTemplateGrid: View {
     let selection: IDPhotoTemplate
+    var quality: IDPhotoExportQuality = .highDefinition
     let select: (IDPhotoTemplate) -> Void
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 10)], spacing: 10) {
@@ -261,7 +267,11 @@ struct IDPhotoTemplateGrid: View {
                         }
                         Text("\(template.widthMM, specifier: "%.0f") × \(template.heightMM, specifier: "%.0f") mm")
                             .font(.subheadline)
-                        Text("\(template.width) × \(template.height) px").font(.caption).foregroundStyle(.secondary)
+                        if let output = try? IDPhotoExportConfiguration(template: template, quality: quality) {
+                            Text("\(quality.title) · \(output.pixelDescription)")
+                                .font(.caption).foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }.foregroundStyle(.primary).frame(maxWidth: .infinity, alignment: .leading).padding(12)
                         .background(selection.id == template.id ? JiPinTheme.accent.opacity(0.12) : JiPinTheme.surface,
                                     in: RoundedRectangle(cornerRadius: 12))

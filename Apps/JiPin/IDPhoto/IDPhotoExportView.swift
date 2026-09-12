@@ -34,10 +34,9 @@ struct IDPhotoExportView: View {
     }
 
     private var outputSize: CGSize { configuration?.pixelSize ?? snapshot.project.template.pixelSize }
-    private var sizeDescription: String { "\(Int(outputSize.width)) × \(Int(outputSize.height)) px" }
+    private var sizeDescription: String { configuration?.pixelDescription ?? "请检查输出尺寸" }
     private var needsUpscaling: Bool {
-        let source = ImageIOHelpers.pixelSize(of: snapshot.sourceData)
-        return max(outputSize.width / max(source.width, 1), outputSize.height / max(source.height, 1)) * snapshot.project.crop.zoom > 1.01
+        configuration?.requiresUpscaling(sourceSize: snapshot.sourceSize, crop: snapshot.project.crop) ?? false
     }
 
     private var filename: String {
@@ -146,7 +145,7 @@ struct IDPhotoExportView: View {
         var project = snapshot.project
         project.exportQuality = quality
         let frozen = IDPhotoExportSnapshot(project: project, sourceData: snapshot.sourceData,
-                                          maskData: snapshot.maskData, faces: snapshot.faces)
+                                          maskData: snapshot.maskData, faces: snapshot.faces, sourceSize: snapshot.sourceSize)
         prepareTask = Task {
             do {
                 let encoded = try await Task.detached(priority: .userInitiated) {

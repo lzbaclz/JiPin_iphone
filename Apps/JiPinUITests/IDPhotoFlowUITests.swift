@@ -249,6 +249,81 @@ final class IDPhotoFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons[identifier].exists)
     }
 
+    func test09EditorSizeSummaryTracksTemplateQualityUndoAndCustomPixels() throws {
+        let app = launchFixture()
+        let summary = app.staticTexts["idphoto-output-size"]
+        waitLabel(summary, contains: "高清 · 1180 × 1652 px · 1200 ppi")
+        app.buttons["idphoto-tool-size"].tap()
+        let twoInch = app.buttons["idphoto-template-id-35x49"]
+        reveal(twoInch, in: app); twoInch.tap()
+        waitLabel(summary, contains: "高清 · 1652 × 2316 px · 1200 ppi")
+        let guide = app.buttons["idphoto-size-guide"]
+        reveal(guide, in: app); guide.tap()
+        XCTAssertTrue(app.navigationBars["照片尺寸对比"].waitForExistence(timeout: 10))
+        app.buttons["idphoto-size-guide-close"].tap()
+        waitLabel(summary, contains: "高清 · 1652 × 2316 px · 1200 ppi")
+        app.buttons["idphoto-export"].tap()
+        let save = app.buttons["idphoto-save-album"]; waitEnabled(save)
+        let output = try Data(contentsOf: fixture.appendingPathComponent("export.jpg"))
+        let encoded = try XCTUnwrap(CGImageSourceCreateWithData(output as CFData, nil))
+        let properties = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(encoded, 0, nil) as? [CFString: Any])
+        XCTAssertEqual(properties[kCGImagePropertyPixelWidth] as? Int, 1652)
+        XCTAssertEqual(properties[kCGImagePropertyPixelHeight] as? Int, 2316)
+        XCTAssertEqual((properties[kCGImagePropertyDPIWidth] as? NSNumber)?.intValue, 1200)
+        let quality = app.buttons["idphoto-export-quality"]
+        reveal(quality, in: app); quality.tap(); app.buttons["压缩"].tap(); waitEnabled(save)
+        app.buttons["idphoto-export-close"].tap()
+        waitLabel(summary, contains: "压缩 · 413 × 579 px · 300 ppi")
+        app.buttons["idphoto-undo"].tap()
+        waitLabel(summary, contains: "高清 · 1652 × 2316 px · 1200 ppi")
+        app.buttons["idphoto-redo"].tap()
+        waitLabel(summary, contains: "压缩 · 413 × 579 px · 300 ppi")
+
+        let custom = app.buttons["idphoto-custom"]
+        reveal(custom, in: app); custom.tap()
+        replaceText(app.textFields["idphoto-custom-width"], with: "601")
+        replaceText(app.textFields["idphoto-custom-height"], with: "801")
+        app.buttons["idphoto-custom-apply"].tap()
+        waitLabel(summary, contains: "压缩 · 601 × 801 px · 300 ppi")
+        app.buttons["idphoto-export"].tap(); waitEnabled(save)
+        reveal(quality, in: app); quality.tap(); app.buttons["高清"].tap(); waitEnabled(save)
+        app.buttons["idphoto-export-close"].tap()
+        waitLabel(summary, contains: "高清 · 601 × 801 px · 300 ppi")
+        keep(app, "IDPhoto-current-output-summary")
+    }
+
+    func test10SizeGuideShowsProportionalPrintSizesAtRegularAndLargeText() {
+        var regularTitleHeight: CGFloat = 0
+        for largeText in [false, true] {
+            let app = XCUIApplication()
+            app.launchArguments = []; app.launchEnvironment = [:]
+            if largeText { app.launchArguments = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"] }
+            app.launch()
+            let entry = app.buttons["idphoto-open"]; reveal(entry, in: app); entry.tap()
+            let guide = app.buttons["idphoto-size-guide"]
+            XCTAssertTrue(guide.waitForExistence(timeout: 10)); guide.tap()
+            XCTAssertTrue(app.navigationBars["照片尺寸对比"].waitForExistence(timeout: 10))
+            let one = app.descendants(matching: .any).matching(identifier: "idphoto-size-diagram-id-25x35").firstMatch
+            let two = app.descendants(matching: .any).matching(identifier: "idphoto-size-diagram-id-35x49").firstMatch
+            XCTAssertTrue(one.exists); XCTAssertTrue(two.exists)
+            let titleHeight = app.staticTexts["一寸、二寸有多大？"].frame.height
+            if largeText { XCTAssertGreaterThan(titleHeight, regularTitleHeight * 1.1) }
+            else { regularTitleHeight = titleHeight }
+            for _ in 0..<4 where two.frame.maxY > app.frame.maxY - 40 {
+                app.scrollViews.firstMatch.swipeUp()
+            }
+            XCTAssertTrue(one.isHittable); XCTAssertTrue(two.isHittable)
+            XCTAssertGreaterThan(one.frame.width, 40)
+            XCTAssertEqual(two.frame.width / one.frame.width, 1.4, accuracy: 0.03)
+            XCTAssertEqual(two.frame.height / one.frame.height, 1.4, accuracy: 0.03)
+            XCTAssertEqual(two.frame.maxY, one.frame.maxY, accuracy: 2)
+            keep(app, largeText ? "IDPhoto-size-guide-large-type" : "IDPhoto-size-guide")
+            app.buttons["idphoto-size-guide-close"].tap()
+            XCTAssertTrue(app.buttons["idphoto-import"].waitForExistence(timeout: 10))
+            app.terminate()
+        }
+    }
+
     // Run separately after resetting both photos and photos-add privacy on this simulator.
     func test06DeniedAlbumPermissionKeepsPhotoAndExportForRetry() {
         let app = launchFixture()

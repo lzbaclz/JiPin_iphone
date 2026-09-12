@@ -412,18 +412,19 @@ final class IDPhotoSession: ObservableObject, Identifiable {
         saveTask?.cancel()
     }
 
-    var outputSummary: String { "\(project.template.width) × \(project.template.height) px · \(project.template.ppi) ppi" }
+    private var outputConfiguration: IDPhotoExportConfiguration? {
+        try? IDPhotoExportConfiguration(template: project.template, quality: project.exportQuality)
+    }
+    var outputSummary: String { outputConfiguration?.summary ?? "请检查输出尺寸" }
     var isLowResolution: Bool {
-        let base = max(CGFloat(project.template.width) / max(sourceSize.width, 1),
-                       CGFloat(project.template.height) / max(sourceSize.height, 1))
-        return base * CGFloat(project.crop.zoom) > 1
+        outputConfiguration?.requiresUpscaling(sourceSize: sourceSize, crop: project.crop) ?? false
     }
 
     func exportSnapshot() -> IDPhotoExportSnapshot {
         endTransaction()
         if !hasMask { project.keepOriginalBackground = true }
         if !canSmooth { project.adjustments.smoothing = 0 }
-        return IDPhotoExportSnapshot(project: project, sourceData: sourceData, maskData: maskData, faces: faces)
+        return IDPhotoExportSnapshot(project: project, sourceData: sourceData, maskData: maskData, faces: faces, sourceSize: sourceSize)
     }
 }
 
@@ -433,4 +434,5 @@ struct IDPhotoExportSnapshot: Identifiable {
     let sourceData: Data
     let maskData: Data?
     let faces: [IDPhotoFaceRegion]
+    let sourceSize: CGSize
 }

@@ -43,7 +43,8 @@ struct IDPhotoEditorView: View {
                                 .font(.subheadline).accessibilityIdentifier("idphoto-compare")
                                 .onLongPressGesture(minimumDuration: 0.2, pressing: { isComparing = $0 }, perform: {})
                         }
-                        Text(session.outputSummary).font(.caption).foregroundStyle(.secondary)
+                        Text(session.outputSummary).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("idphoto-output-size")
                     }.padding(.horizontal).padding(.top, 8)
                     IDPhotoCropView(image: isComparing ? session.originalPreview : session.preview,
@@ -187,7 +188,12 @@ struct IDPhotoEditorView: View {
 
     private var sizePanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            IDPhotoTemplateGrid(selection: session.project.template) { template in session.edit { $0.template = template } }
+            HStack {
+                Text("选择规格").font(.headline)
+                Spacer()
+                IDPhotoSizeGuideButton(selection: session.project.template)
+            }
+            IDPhotoTemplateGrid(selection: session.project.template, quality: session.project.exportQuality) { template in session.edit { $0.template = template } }
             HStack {
                 Button("自定义像素") { customSize = true }.accessibilityIdentifier("idphoto-custom")
                 Spacer()

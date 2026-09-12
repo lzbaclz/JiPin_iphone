@@ -16,6 +16,15 @@ public struct IDPhotoExportConfiguration: Sendable {
     public let ppi: Int
     public let quality: IDPhotoExportQuality
     public var pixelSize: CGSize { CGSize(width: width, height: height) }
+    public var pixelDescription: String { "\(width) × \(height) px" }
+    public var summary: String { "\(quality.title) · \(pixelDescription) · \(ppi) ppi" }
+
+    public func requiresUpscaling(sourceSize: CGSize, crop: IDPhotoCrop) -> Bool {
+        guard sourceSize.width.isFinite, sourceSize.height.isFinite,
+              sourceSize.width > 0, sourceSize.height > 0 else { return false }
+        let scale = max(pixelSize.width / sourceSize.width, pixelSize.height / sourceSize.height)
+        return scale * crop.clamped.zoom > 1.01
+    }
 
     public init(template: IDPhotoTemplate, quality: IDPhotoExportQuality) throws {
         try template.validate()
