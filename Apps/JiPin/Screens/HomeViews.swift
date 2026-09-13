@@ -254,6 +254,23 @@ struct CreateHomeView: View {
                     }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
                         .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
 
+                    Button { appState.openIDPhoto() } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: "person.crop.rectangle")
+                                .font(.system(size: 34)).foregroundStyle(JiPinTheme.accent)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("证件照").font(.headline)
+                                Text("常用尺寸 · 五色换底 · 自然轻修")
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                                Text("制作照片或继续证件照草稿 →")
+                                    .font(.caption).foregroundStyle(JiPinTheme.accent)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+                    }.buttonStyle(.plain).accessibilityIdentifier("idphoto-open")
+
                     Button {
                         let photos = SamplePhotos.make(4)
                         let session = EditorSession(project: StyleRecipeCatalog.all[0].applying(to: ProjectFactory.make(mode: .freeform, photos: photos)),
@@ -278,23 +295,6 @@ struct CreateHomeView: View {
                             .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
                     }.buttonStyle(.plain).accessibilityIdentifier("home-try-stickers")
                         .accessibilityHint("打开可编辑的示例插画拼图，可替换为自己的照片")
-
-                    Button { appState.openIDPhoto() } label: {
-                        HStack(spacing: 16) {
-                            Image(systemName: "person.crop.rectangle")
-                                .font(.system(size: 34)).foregroundStyle(JiPinTheme.accent)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("证件照").font(.headline)
-                                Text("常用尺寸 · 五色换底 · 自然轻修")
-                                    .font(.subheadline).foregroundStyle(.secondary)
-                                Text("制作照片或继续证件照草稿 →")
-                                    .font(.caption).foregroundStyle(JiPinTheme.accent)
-                            }
-                            Spacer(minLength: 0)
-                        }
-                        .padding(18).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(JiPinTheme.surface, in: RoundedRectangle(cornerRadius: 20))
-                    }.buttonStyle(.plain).accessibilityIdentifier("idphoto-open")
                     favoritesSection
                     recentDrafts
                 }
