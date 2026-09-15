@@ -107,7 +107,7 @@
     modeVideo.hidden = true;
     resultImage.hidden = false;
     resultImage.src = `${base}.webp`;
-    resultImage.alt = `即拼用${themeName}素材生成的${mode.label}成品`;
+    resultImage.alt = `极拼用${themeName}素材生成的${mode.label}成品`;
     resultImage.removeAttribute('width');
     resultImage.removeAttribute('height');
     modeVideo.src = `${base}.mp4`;
@@ -115,7 +115,7 @@
     modeVideo.setAttribute('aria-label', `${themeName}${mode.label}的动态成品预览`);
     modeVideo.load();
     playbackRefresh.get(modeVideo)?.();
-    document.querySelector('#mode-caption').textContent = `${themeName} · 即拼实际合成`;
+    document.querySelector('#mode-caption').textContent = `${themeName} · 极拼实际合成`;
     viewport.setAttribute('aria-label', key === 'long-strip' ? '长图预览，可滚动或拖动旁边滑块' : '拼图预览');
     stripControls.forEach(control => { control.hidden = key !== 'long-strip'; });
     exampleThemes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.exampleTheme === selectedTheme)));
@@ -154,7 +154,7 @@
   screenshotTrigger.hidden = false;
   screenshotTrigger.addEventListener('click', () => {
     screenshotImage.src = `assets/screens/${selectedMode}.webp`;
-    screenshotImage.alt = `${modes[selectedMode].label}的即拼 App 实际界面`;
+    screenshotImage.alt = `${modes[selectedMode].label}的极拼 App 实际界面`;
     document.querySelector('#screenshot-title').textContent = `${modes[selectedMode].label} · App 实际界面`;
     screenshotDialog.showModal();
     document.body.style.overflow = 'hidden';
