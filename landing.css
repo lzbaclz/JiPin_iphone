@@ -40,10 +40,10 @@
 
 /* Two independent download destinations, visible on desktop and mobile. */
 .download-inner{display:block;padding-block:64px}
-.download-copy{max-width:760px;margin-bottom:32px}
+.download-copy{max-width:760px;margin:0 auto 32px;text-align:center}
 .download-copy h2{font-size:clamp(2rem,3.2vw,3rem)}
-.download-brand{margin-bottom:22px}
-.download-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:960px}
+.download-brand{margin-bottom:22px;justify-content:center;text-align:left}
+.download-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:960px;margin-inline:auto}
 .download-card{min-width:0;padding:28px 32px 22px;border:1px solid #cbd8c3;border-radius:16px;background:#fbfcf8;text-align:center}
 .download-card-store{border-color:#cd9c88;box-shadow:0 6px 24px #5f392008}
 .download-card-heading{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
@@ -59,7 +59,7 @@
 .download-card-note{color:var(--muted);font-size:.875rem;margin-top:12px;min-height:2.6em}
 .download-copy-status{font-size:.8125rem;color:var(--muted)}
 .download-copy-status:empty{display:none}
-.testflight-help{max-width:960px;margin-top:24px;border-top:1px solid #cbd8c3;padding-top:14px}
+.testflight-help{max-width:960px;margin:24px auto 0;border-top:1px solid #cbd8c3;padding-top:14px}
 .testflight-help summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;cursor:pointer;list-style:none;font-size:.9375rem;font-weight:550}
 .testflight-help summary::-webkit-details-marker{display:none}
 .testflight-help[open] summary>span{transform:rotate(45deg)}
