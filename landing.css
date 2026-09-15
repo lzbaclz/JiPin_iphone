@@ -37,3 +37,34 @@
 .sticker-workspace{background:#f8e2de}
 .sticker-paper{background:#fffaf0}
 @media(max-width:759px){.collage-stage{padding:14px;gap:10px}.mode-media{height:340px;gap:7px}.long-strip-rail{width:36px}.long-strip-rail input{width:30px}.mode-preview-actions{gap:6px}.mode-preview-actions>button:not(.media-play){padding-inline:9px}.example-themes button{padding-inline:18px}.hero-art{border-radius:18px}.playground h2{font-size:1.8rem}}
+
+/* Two independent download destinations, visible on desktop and mobile. */
+.download-inner{display:block;padding-block:64px}
+.download-copy{max-width:760px;margin-bottom:32px}
+.download-copy h2{font-size:clamp(2rem,3.2vw,3rem)}
+.download-brand{margin-bottom:22px}
+.download-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:960px}
+.download-card{min-width:0;padding:28px 32px 22px;border:1px solid #cbd8c3;border-radius:16px;background:#fbfcf8;text-align:center}
+.download-card-store{border-color:#cd9c88;box-shadow:0 6px 24px #5f392008}
+.download-card-heading{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.download-card-heading h3{font-size:1.4rem;letter-spacing:-.02em}
+.download-badge{font-size:.8125rem;line-height:1.6;padding:3px 10px;background:#e4ece1;color:#355447;border-radius:6px;font-weight:600}
+.download-card-store .download-badge{background:#f8e7df;color:#984028}
+.download-card-description{color:var(--muted);font-size:.9375rem;margin-top:8px}
+.download-qr{display:block;width:224px;max-width:100%;margin:20px auto;background:white}
+.download-qr img{width:100%;height:auto;aspect-ratio:1;image-rendering:pixelated}
+.download-card .button{display:flex;width:100%;max-width:320px;margin-inline:auto;gap:14px}
+.download-card-beta .button{background:var(--forest)}
+.download-card-beta .button:hover{background:#245446}
+.download-card-note{color:var(--muted);font-size:.875rem;margin-top:12px;min-height:2.6em}
+.download-copy-status{font-size:.8125rem;color:var(--muted)}
+.download-copy-status:empty{display:none}
+.testflight-help{max-width:960px;margin-top:24px;border-top:1px solid #cbd8c3;padding-top:14px}
+.testflight-help summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;cursor:pointer;list-style:none;font-size:.9375rem;font-weight:550}
+.testflight-help summary::-webkit-details-marker{display:none}
+.testflight-help[open] summary>span{transform:rotate(45deg)}
+.testflight-help .install-steps{margin-top:12px;grid-template-columns:1fr 1.5fr;gap:24px}
+@media(max-width:759px){.download-inner{padding-block:44px}.download-copy{margin-bottom:25px}.download-cards{grid-template-columns:1fr;gap:18px}.download-card{padding:24px 20px 18px}.download-card-heading h3{font-size:1.3rem}.download-card-note{min-height:0}.testflight-help .install-steps{grid-template-columns:1fr;gap:16px}.download-card .invite-actions{gap:22px}}
+@media print{.download-cards,.testflight-help{display:none!important}}
+
+.download-copy h2 span{display:inline-block}

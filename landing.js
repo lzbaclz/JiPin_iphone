@@ -377,45 +377,8 @@
   filters.forEach(button => button.addEventListener('click', () => selectStickerCategory(button.dataset.stickerFilter)));
   selectStickerCategory('cute');
 
-  const publicURL = (value, host, pathPattern) => {
-    if (typeof value !== 'string' || !value.trim()) return null;
-    try {
-      const url = new URL(value);
-      return url.protocol === 'https:' && url.hostname === host && !url.username && !url.password && pathPattern.test(url.pathname) ? url.href : null;
-    } catch { return null; }
-  };
-  const config = window.JIPIN_SITE || {};
-  const appStoreURL = publicURL(config.appStoreURL, 'apps.apple.com', /^\/(?:[a-z]{2}\/)?app\//);
-  const testFlightURL = publicURL(config.testFlightURL, 'testflight.apple.com', /^\/join\/[a-zA-Z0-9]+\/?$/);
-  const pendingReview = Boolean(testFlightURL && config.testFlightStatus !== 'open');
-  const invitation = document.querySelector('#testflight-invitation');
-  const status = document.querySelector('#release-status');
-  invitation.hidden = !testFlightURL;
-  status.hidden = Boolean((appStoreURL || testFlightURL) && !pendingReview);
-  if (pendingReview) {
-    status.textContent = 'TestFlight 外测审核中';
-    document.querySelector('#testflight-link').textContent = '查看 TestFlight 邀请';
-    document.querySelector('.install-steps').hidden = true;
-  }
-  document.querySelector('#download-note').textContent = pendingReview
-    ? 'Apple 审核通过后，可通过同一个邀请链接加入。'
-    : testFlightURL ? '公开内测 · 无需邀请码' : '下载入口准备中，开放后在这里更新。';
-  [[appStoreURL, '#app-store-link'], [testFlightURL, '#testflight-link']].forEach(([url, selector]) => {
-    if (!url) return;
-    const link = document.querySelector(selector);
-    link.href = url;
-    link.hidden = false;
-  });
-  const phoneWidth = matchMedia('(max-width: 759px)');
-  const adaptInvitation = () => { invitation.open = !phoneWidth.matches; };
-  adaptInvitation();
-  phoneWidth.addEventListener('change', adaptInvitation);
-  invitation.addEventListener('toggle', () => {
-    if (!phoneWidth.matches && !invitation.open) invitation.open = true;
-  });
-  if (testFlightURL) {
-    import('./testflight-invite.mjs?v=6d560a0f76').then(({ mountTestFlightInvitation }) => {
-      mountTestFlightInvitation(testFlightURL, { pendingReview });
-    }).catch(() => { invitation.hidden = true; });
-  }
+  // The static cards work before JavaScript loads; this adds local QR and copy tools.
+  import('./download-links.mjs?v=1eea7a3f93').then(({ mountDownloadLinks }) => {
+    mountDownloadLinks(window.JIPIN_SITE || {});
+  }).catch(() => { /* Keep static QR codes and direct links usable. */ });
 })();

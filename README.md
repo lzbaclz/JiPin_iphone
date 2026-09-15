@@ -18,7 +18,7 @@
 - 保留原创贴纸添加、拖动、键盘移动、删除和重置，分成可爱与酷风两组。
 - 正文以 16px 起，常用标签以 14px 起，辅助信息不低于 12px；减少英文装饰和重复文案。
 - 品牌故事保留，版本历程收进可展开内容。
-- 手机下载区优先显示加入按钮和两步安装说明，二维码在“分享给朋友”中展开；桌面直接显示扫码入口。
+- 下载区并列提供 App Store 正式版和 TestFlight 测试版；手机竖排显示，二维码、直接下载、复制链接和保存二维码均独立。
 - 无自动播放，页面离开或切到后台暂停视频；无照片上传、广告、账号或统计脚本。
 
 ## 旧版保留
@@ -35,7 +35,7 @@
 | --- | --- |
 | `index.html`、`landing.css`、`landing.js` | 主站布局、样式、交互 |
 | `site-config.js` | App Store / TestFlight 真实公开链接及开放状态 |
-| `testflight-invite.mjs` | 本地二维码编码、下载、复制邀请 |
+| `download-links.mjs` | 两个下载入口的本地二维码编码、保存与复制 |
 | `assets/shanhe/` | 新山水原图、视频、成品、提示词及原生配对 |
 | `tools/native-live/` | 基于极拼核心的素材生成源码与说明 |
 | `support.html`、`privacy.html`、`styles.css` | 帮助和隐私页面 |
@@ -49,13 +49,13 @@
 python3 -m http.server 8769 --bind 127.0.0.1
 ```
 
-检查桌面和手机布局、四种模式、视频播放/暂停/离屏停止、贴纸的触控和键盘操作、截图弹窗、邀请复制、二维码、FAQ 和归档入口。JavaScript 关闭时，原生视频控件、静态内容、帮助、隐私和 TestFlight 链接仍可使用。
+检查桌面和手机布局、四种模式、视频播放/暂停/离屏停止、贴纸的触控和键盘操作、截图弹窗、邀请复制、二维码、FAQ 和归档入口。JavaScript 关闭时，原生视频控件、静态内容、帮助、隐私、两个静态二维码和 App Store / TestFlight 直接链接仍可使用。
 
-## 邀请配置
+## 下载配置
 
-`site-config.js` 当前保留公开群组的真实链接：`https://testflight.apple.com/join/1NqZxpgX`。`testFlightStatus: "open"` 表示公开邀请已开放；该状态不会自动向 Apple 查询。新构建外测审核、名额与构建有效期仍由 App Store Connect 管理，TestFlight 开放不代表 App Store 正式版审核通过。
+`site-config.js` 的正式版地址为 `https://apps.apple.com/cn/app/id6810666684`（与带名称的商店链接为同一个 App）。测试版保留公开群组的真实链接：`https://testflight.apple.com/join/1NqZxpgX`。`testFlightStatus: "open"` 表示公开邀请已开放；该状态不会自动向 Apple 查询。新构建外测审核、名额与构建有效期仍由 App Store Connect 管理，TestFlight 开放不代表 App Store 正式版审核通过。
 
-空链接隐藏对应入口；只有规范 HTTPS 官方链接会启用。`pending-review` 显示待审核说明。二维码与按钮使用同一个规范化链接，不在码面覆盖 Logo。
+JavaScript 可用时，空或非法链接隐藏对应卡片，只有规范 HTTPS 官方地址启用。`pending-review` 显示公开测试准备中。二维码、按钮和复制使用同一个规范化链接，本地编码，不请求第三方二维码服务，也不在码面覆盖 Logo。静态 PNG 作为脚本不可用时的回退；修改链接时须同步更新 `index.html` 的直接链接和 `assets/app-store-qr.png` / `assets/testflight-qr.png`。二维码不绑定构建号，正式版和测试版更新后无需换码。
 
 安装说明参照 [Apple TestFlight](https://testflight.apple.com/)，安装链接使用 [Apple 官方 TestFlight 页面](https://apps.apple.com/us/app/testflight/id899247664)。公开邀请无需手填邀请码。
 
@@ -88,3 +88,14 @@ git push origin HEAD:codex/app-store-pages
 官网可爱日常示例中的小熊已替换为小萝卜。首页 Live 成品、四种玩法、静态封面、贴纸体验照片和 Mac 原生 Live 素材包同步更新。网页资源使用 `bunny-carrot-*` 新地址，避免缓存继续显示旧角色。山河主题保留现有资源。
 
 小萝卜透明源图和生成提示词保存在 `assets/examples/source/`，使用内置图像生成工具制作，风格参考既有贴纸。`tools/native-live/CarrotExamples.swift` 将角色加入轻微上下摇摆与转动，再用真实 App 渲染器生成四份原生 Live 配对。原生识别和网页逐帧检查记录仍在 `assets/examples/validation.json` 与 `playback-validation.json`。
+
+## 2026-09-15 双版本下载入口
+
+原下载区仅配置 TestFlight，正式版链接为空。本次接入已上架的 App Store 页面，使用两张清楚区分渠道的下载卡片：正式版在左／上方，测试版在右／下方；手机可以直接点击按钮，电脑可以扫码，两个渠道均可复制链接和保存二维码。首次 TestFlight 安装说明放在下方可展开区域。
+
+- 正式版：https://apps.apple.com/cn/app/id6810666684
+- 测试版：https://testflight.apple.com/join/1NqZxpgX
+- 已在 App Store Connect 将最新 4.0.12（16）加入“官网公开内测”并提交 Beta 审核，状态为“正在等待审核”；当次核查对外正在测试的最新版本为 4.0.10（14）。4.0.12 批准后可通过同一邀请获取，不把上传成功写成已可安装。
+- 验证：Apple Vision 解码两个本地 PNG 和浏览器实际下载的 PNG，目标分别与按钮、复制内容一致；正式商店页面和 TestFlight 公开邀请均已打开确认。
+- 已检查桌面排版，以及 390px / 320px 手机 iframe；后者禁用脚本，两码与链接仍可用，两种手机宽度均无横向溢出。已操作复制、保存及安装帮助展开，浏览器无 JavaScript 错误。二维码的识别为软件解码，未宣称额外完成真机摄像头扫码或手机端安装。
+- 本次为官网与公开测试组更新；App Store 4.0.12 正式审核未改动，`archive/` 历史归档保持原样。
