@@ -87,6 +87,18 @@ final class LivePhotoTests: XCTestCase {
         XCTAssertLessThan(try difference(cover, middle), 4, "封面必须匹配中间帧，且方向一致")
     }
 
+    func testSingleLivePhotoLongStripExportsNativePair() async throws {
+        let photo = try await fixture()
+        var project = ProjectFactory.make(mode: .longStrip, photos: [photo])
+        project.livePhotoSettings = LivePhotoSettings(duration: 1.5)
+        let assets = DataAssetLibrary(images: [photo.id: photo.data], motions: [photo.id: try XCTUnwrap(photo.liveClip)])
+        let result = try await LivePhotoExporter.render(project: project, assets: assets, maxSide: 240)
+        let live = try await LivePhotoMedia.request(imageURL: result.imageURL, videoURL: result.videoURL)
+        XCTAssertEqual(live.size, result.photoSize)
+        let first = try await movieFrame(result.videoURL, at: 0.1), last = try await movieFrame(result.videoURL, at: 1.3)
+        XCTAssertGreaterThan(try difference(first, last), 3)
+    }
+
     func testMultipleLiveSourcesWorkAcrossAllModesWithDecorations() async throws {
         let photos = [try await fixture(), try await fixture(color: .blue)]
         let assets = DataAssetLibrary(images: Dictionary(uniqueKeysWithValues: photos.map { ($0.id, $0.data) }),

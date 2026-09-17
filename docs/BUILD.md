@@ -119,7 +119,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
 
 - `Packages/JiPinCore`：项目模型、布局、海报模板、素材目录、草稿存储、渲染与导出
 - `Apps/JiPin`：主 App（创作、草稿、设置、完整编辑器）
-- `Apps/JiPinAction`：系统相册操作扩展（2–9 张快拼与草稿交接）
+- `Apps/JiPinAction`：系统相册操作扩展（1–9 张快拼与草稿交接）
 
 ## V3 原创素材交付
 

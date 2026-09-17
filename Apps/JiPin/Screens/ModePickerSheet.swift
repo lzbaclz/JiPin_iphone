@@ -127,7 +127,7 @@ struct ModePickerSheet: View {
             Text("当前 \(photos.count) 张超出模式上限，请减少照片后再开始。")
                 .accessibilityIdentifier("mode-hint-overflow")
         } else if !locksMode && photos.count == 1 {
-            Text("1 张照片可进入自由拼图或海报拼图。模板与长图至少需要 2 张。")
+            Text("1 张照片可进入自由拼图、海报拼图或长图拼接。模板拼图至少需要 2 张。")
                 .font(.caption).foregroundStyle(.secondary).accessibilityIdentifier("mode-hint-single")
         } else if !locksMode && photos.count >= 17 {
             Text("\(photos.count) 张只能使用长图拼接。模板与自由拼图最多 16 张，海报最多 9 张。")

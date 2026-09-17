@@ -26,14 +26,14 @@ public enum JiPin {
 
 public enum PhotoLimits {
     public static let pickerWithoutMode = 20
-    public static let extensionRange = 2...9
+    public static let extensionRange = 1...9
 
     public static func range(for mode: CollageMode) -> ClosedRange<Int> {
         switch mode {
         case .template: return 2...16
         case .freeform: return 1...16
         case .poster: return 1...9
-        case .longStrip: return 2...20
+        case .longStrip: return 1...20
         }
     }
 

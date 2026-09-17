@@ -250,10 +250,37 @@ final class EditorFlowUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-quickCollage", "-quickCollageTooFew"]
         app.launch()
-        XCTAssertTrue(app.staticTexts["扩展支持 2–9 张照片"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["扩展支持 1–9 张照片"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.buttons["quick-more"].isEnabled)
         XCTAssertFalse(app.buttons["quick-save-album"].isEnabled)
         XCTAssertFalse(app.buttons["quick-share"].isEnabled)
+    }
+
+    func testQuickSinglePhotoStartsInLongStripAndCanShare() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-quickCollage", "-quickCollageSingle"]
+        app.launch()
+        XCTAssertTrue(app.buttons["quick-share"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["quick-save-album"].isEnabled)
+        XCTAssertTrue(app.buttons["横向"].exists)
+        XCTAssertFalse(app.segmentedControls.buttons["模板"].exists)
+        app.buttons["横向"].tap()
+        app.buttons["quick-share"].tap()
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 25)
+            || app.collectionViews["ActivityListView"].waitForExistence(timeout: 2)
+            || app.sheets.firstMatch.waitForExistence(timeout: 2), app.debugDescription)
+    }
+
+    func testQuickSinglePhotoImportFailureRequiresConfirmation() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-quickCollage", "-quickCollageSingle", "-quickCollageFailed"]
+        app.launch()
+        let alert = app.alerts["确认导入的照片"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 10))
+        XCTAssertTrue(alert.buttons["继续使用这 1 张"].exists)
+        alert.buttons["继续使用这 1 张"].tap()
+        XCTAssertTrue(app.buttons["quick-share"].isEnabled)
+        XCTAssertTrue(app.buttons["横向"].exists)
     }
 
     func testQuickCollageSaveDraftAppearsInDrafts() {
@@ -296,7 +323,7 @@ final class EditorFlowUITests: XCTestCase {
         XCTAssertTrue(single.navigationBars["选择模式"].waitForExistence(timeout: 8))
         XCTAssertTrue(
             single.descendants(matching: .any)["mode-hint-single"].waitForExistence(timeout: 4)
-                || single.staticTexts.matching(NSPredicate(format: "label CONTAINS '自由拼图或海报'")).firstMatch.waitForExistence(timeout: 2)
+                || single.staticTexts.matching(NSPredicate(format: "label CONTAINS '自由拼图、海报拼图或长图'")).firstMatch.waitForExistence(timeout: 2)
         )
         XCTAssertTrue(single.buttons["开始"].waitForExistence(timeout: 4))
         single.terminate()

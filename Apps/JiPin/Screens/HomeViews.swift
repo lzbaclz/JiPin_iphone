@@ -120,7 +120,10 @@ struct RootView: View {
         var count = 4
         var overflow = 0
         var failed: [ImportedPhoto] = []
-        if args.contains("-quickCollageTooFew") { count = 1 }
+        if args.contains("-quickCollageTooFew") { count = 0 }
+        #if DEBUG
+        if args.contains("-quickCollageSingle") { count = 1 }
+        #endif
         if args.contains("-quickCollageOverflow") { overflow = 3 }
         if args.contains("-quickCollageFailed") {
             failed = [
@@ -135,7 +138,7 @@ struct RootView: View {
             ]
         }
         appState.quickCollage = QuickCollageLaunch(
-            photos: SamplePhotos.make(count),
+            photos: count > 0 ? SamplePhotos.make(count) : [],
             failed: failed,
             overflowCount: overflow
         )
@@ -876,11 +879,11 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section("使用说明") {
-                    Text("从创作页选择照片，或在系统相册多选后通过分享菜单中的操作区打开极拼。扩展支持 2–9 张快速拼图；完整文字、贴纸、海报和超过 9 张的编辑请在主 App 中继续。")
+                    Text("从创作页选择照片，或在系统相册多选后通过分享菜单中的操作区打开极拼。扩展支持 1–9 张快速拼图，单张使用长图模式；完整文字、贴纸、海报和超过 9 张的编辑请在主 App 中继续。")
                     Text("相册入口出现在系统分享菜单的操作区域，不是相册原生工具栏。是否显示取决于所选内容数量。")
                 }
                 Section("相册入口帮助") {
-                    Text("1. 在系统「照片」中多选 2 到 9 张。")
+                    Text("1. 在系统「照片」中选择 1 到 9 张。")
                     Text("2. 点分享，在操作区选择「极拼」。主 App 不必先打开。")
                     Text("3. 扩展内可模板拼图、横竖长图、排序、裁切、背景和间距。")
                     Text("4. 保存到相册，或点「更多」保存草稿后到极拼草稿页继续。也可以直接系统分享，不必先保存到相册。取消不会改已有草稿。拒绝添加照片权限时项目仍可保存为草稿或改用分享。")
@@ -957,7 +960,7 @@ struct SupportView: View {
     var body: some View {
         List {
             Section("从相册进入") {
-                Text("在系统「照片」中多选 2 到 9 张，点分享，在操作区选择「极拼」。不必先打开主 App。")
+                Text("在系统「照片」中选择 1 到 9 张，点分享，在操作区选择「极拼」。不必先打开主 App。")
                 Text("扩展内可做模板拼图、横竖长图、排序、裁切、背景和间距。文字、贴纸和海报请保存草稿后到主 App 继续。")
             }
             Section("Live 照片拼图") {

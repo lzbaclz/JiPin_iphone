@@ -18,6 +18,64 @@ final class RenderExportTests: XCTestCase {
         }
     }
 
+    func testSinglePhotoLongStripExportsInBothDirectionsAndCanPaginate() throws {
+        let photos = makePhotos(1)
+        let assets = DataAssetLibrary(images: [photos[0].id: photos[0].data])
+        for direction in [StripDirection.vertical, .horizontal] {
+            var project = ProjectFactory.make(mode: .longStrip, photos: photos)
+            project.longStrip?.direction = direction
+            // One item must not gain a trailing inter-photo gap.
+            project.spacing = 0.08
+            guard case .ok(let size) = ExportGeometry.outputSize(for: project, assets: assets) else {
+                return XCTFail("A single portrait must fit export limits")
+            }
+            XCTAssertEqual(size.width / size.height, 0.75, accuracy: 0.001)
+            XCTAssertEqual(direction == .vertical ? size.width : size.height, 1440)
+            let data = try XCTUnwrap(CollageRenderer.shared.jpegData(project: project, assets: assets, canvasSize: size))
+            let image = try XCTUnwrap(UIImage(data: data)?.cgImage)
+            XCTAssertEqual(image.width, Int(size.width)); XCTAssertEqual(image.height, Int(size.height))
+            let plan = try PageExportPlan.make(size: size, direction: direction, length: .square)
+            let pages = try PagedExporter.export(project: project, assets: assets, plan: plan)
+            defer { pages.remove() }
+            XCTAssertEqual(pages.files.count, plan.regions.count)
+            XCTAssertGreaterThan(pages.byteCount, 0)
+            for file in pages.files { XCTAssertNotNil(UIImage(contentsOfFile: file.path)) }
+        }
+    }
+
+    @MainActor func testLongStripCanReduceToOnePersistReopenAndUndo() async throws {
+        let photos = makePhotos(2)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = DraftStore(overridesContainer: root)
+        try store.prepare()
+        let session = EditorSession(project: ProjectFactory.make(mode: .longStrip, photos: photos),
+                                    assets: AssetLibrary(photos: photos), store: store, autosaves: false)
+        session.select(session.project.photoLayers.last!.id)
+        session.removeSelectedPhoto()
+        XCTAssertEqual(session.project.photoOrder, [photos[0].id])
+        XCTAssertNil(session.lastError)
+        session.select(session.project.photoLayers[0].id)
+        session.removeSelectedPhoto()
+        XCTAssertEqual(session.project.photoLayers.count, 1)
+        XCTAssertNotNil(session.lastError)
+        session.lastError = nil
+        let persisted = await session.persistNow()
+        XCTAssertTrue(persisted)
+        let loaded = try store.load(id: session.project.id)
+        XCTAssertEqual(loaded.project.mode, .longStrip)
+        XCTAssertEqual(loaded.project.photoOrder, [photos[0].id])
+        XCTAssertNotNil(loaded.assets[photos[0].id])
+        session.undoLast()
+        XCTAssertEqual(session.project.photoLayers.count, 2)
+        session.redoLast()
+        XCTAssertEqual(session.project.photoLayers.count, 1)
+        session.addPhotos([photos[1]])
+        XCTAssertEqual(session.project.photoLayers.count, 2)
+        XCTAssertEqual(session.project.photoOrder, photos.map(\.id))
+        XCTAssertTrue(ProjectFactory.previewCopy(from: ProjectFactory.make(mode: .freeform, photos: [photos[0]]), to: .longStrip).warnings.isEmpty)
+    }
+
     func testExplicitStandardPreferenceSurvivesDraftCoding() throws {
         var project = ProjectFactory.make(mode: .longStrip, photos: makePhotos(3))
         project.exportPreference.quality = .standard
@@ -155,11 +213,12 @@ final class RenderExportTests: XCTestCase {
     }
 
     func testExtensionPhotoLimits() {
-        XCTAssertEqual(PhotoLimits.validateExtension(1), .tooFew(minimum: 2))
+        XCTAssertEqual(PhotoLimits.validateExtension(0), .needPhotos(minimum: 1))
+        XCTAssertEqual(PhotoLimits.validateExtension(1), .ok)
         XCTAssertEqual(PhotoLimits.validateExtension(2), .ok)
         XCTAssertEqual(PhotoLimits.validateExtension(9), .ok)
         XCTAssertEqual(PhotoLimits.validateExtension(10), .tooMany(maximum: 9))
-        XCTAssertEqual(PhotoLimits.extensionRange, 2...9)
+        XCTAssertEqual(PhotoLimits.extensionRange, 1...9)
     }
 
     func testFiltersDoNotAttachToText() {

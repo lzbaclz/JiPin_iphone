@@ -96,12 +96,42 @@ final class ModeEntryFlowUITests: XCTestCase {
 
     func testTooFewPhotosDoesNotSilentlyChangeTheChosenMode() {
         let app = home()
-        chooseMode("longStrip", in: app); pick(1, in: app)
+        chooseMode("template", in: app); pick(1, in: app)
         XCTAssertTrue(app.alerts["无法开始"].waitForExistence(timeout: 20), app.debugDescription)
-        XCTAssertTrue(app.alerts["无法开始"].staticTexts.matching(NSPredicate(format: "label CONTAINS '长图拼接需要 2–20 张照片'")).firstMatch.exists)
+        XCTAssertTrue(app.alerts["无法开始"].staticTexts.matching(NSPredicate(format: "label CONTAINS '模板拼图需要 2–16 张照片'")).firstMatch.exists)
         XCTAssertFalse(app.buttons["editor-export"].exists)
         app.alerts["无法开始"].buttons["好"].tap()
-        chooseMode("longStrip", in: app); pick(3, in: app)
-        assertEditor(app, modeTitle: "长图拼接", photoCount: 3)
+        chooseMode("longStrip", in: app); pick(1, in: app)
+        assertEditor(app, modeTitle: "长图拼接", photoCount: 1)
+    }
+
+    func testSingleLongStripSavesAndReopensDraft() {
+        let app = home()
+        chooseMode("longStrip", in: app); pick(1, in: app)
+        assertEditor(app, modeTitle: "长图拼接", photoCount: 1)
+        XCTAssertTrue(app.staticTexts["照片 1 张，本模式 1–20 张"].exists)
+        app.buttons["editor-export"].tap()
+        XCTAssertTrue(app.buttons["export-save-album"].waitForExistence(timeout: 15))
+        allowAlbumSave()
+        app.buttons["export-save-album"].tap()
+        respondToPhotoAlert(app)
+        assertEditorAfterAlbumSave(app)
+        app.navigationBars.buttons["完成"].tap()
+        XCTAssertTrue(app.tabBars.buttons["草稿"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["草稿"].tap()
+        let draft = app.buttons.matching(NSPredicate(format: "label CONTAINS '长图拼接'")).firstMatch
+        XCTAssertTrue(draft.waitForExistence(timeout: 10), app.debugDescription)
+        draft.tap()
+        assertEditor(app, modeTitle: "长图拼接", photoCount: 1)
+    }
+
+    func testSingleGenericEntryOffersLongStrip() {
+        let app = home()
+        app.buttons["home-pick-photos"].tap(); pick(1, in: app)
+        XCTAssertTrue(app.navigationBars["选择模式"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.buttons["mode-choice-longStrip"].isEnabled)
+        app.buttons["mode-choice-longStrip"].tap()
+        app.buttons["mode-start"].tap()
+        assertEditor(app, modeTitle: "长图拼接", photoCount: 1)
     }
 }

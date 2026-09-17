@@ -29,7 +29,7 @@ struct QuickCollageView: View {
         self.onCancel = onCancel
         self.onFinish = onFinish
         let project = ProjectFactory.make(
-            mode: .template,
+            mode: photos.count == 1 ? .longStrip : .template,
             photos: photos,
             originatedFromExtension: true
         )
@@ -44,11 +44,11 @@ struct QuickCollageView: View {
         NavigationStack {
             ScrollView {
             VStack(spacing: 12) {
-                if photos.count < 2 {
+                if photos.isEmpty {
                     ContentUnavailableView(
-                        "扩展支持 2–9 张照片",
+                        "扩展支持 1–9 张照片",
                         systemImage: "photo.on.rectangle",
-                        description: Text("请在相册中多选 2 到 9 张后再从分享菜单的操作区打开极拼。完整编辑请打开极拼 App。")
+                        description: Text("请在相册中选择 1 到 9 张后再从分享菜单的操作区打开极拼。单张照片可使用长图模式；完整编辑请打开极拼 App。")
                     )
                 } else {
                     Text("快速拼图：模板、横竖拼接、排序、裁切、背景和间距。文字贴纸与海报请保存草稿后到极拼继续。")
@@ -96,7 +96,9 @@ struct QuickCollageView: View {
                             refresh()
                         }
                     )) {
-                        Text("模板").tag(CollageMode.template)
+                        if PhotoLimits.range(for: .template).contains(photos.count) {
+                            Text("模板").tag(CollageMode.template)
+                        }
                         Text("长图").tag(CollageMode.longStrip)
                     }
                     .pickerStyle(.segmented)
@@ -286,7 +288,7 @@ struct QuickCollageView: View {
             }
             .onAppear {
                 refresh(invalidateExport: false)
-                showImportIssues = photos.count >= 2 && (!failed.isEmpty || overflowCount > 0)
+                showImportIssues = !photos.isEmpty && (!failed.isEmpty || overflowCount > 0)
             }
             .task(id: session.project) {
                 let request = PreviewRequest(project: session.project, displaySize: previewSize, displayScale: 1)
